@@ -1,0 +1,26 @@
+# Entorno virtual
+venv/
+vnev/  # ← por si fue un typo de venv
+
+# Archivos de base de datos
+*.db
+database.db
+
+# Entornos y variables de entorno
+.env
+
+# Archivos de traducción y temporales
+*.mo
+*.pot
+__pycache__/
+*.py[cod]
+
+# Archivos de sistema
+.DS_Store
+
+# Configuración de editores
+.vscode/
+.idea/
+
+# Archivo de Render/Heroku u otros
+Procfile

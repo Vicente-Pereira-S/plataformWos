@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">{{ _('Iniciar sesión') }}</h2>
+
+    {% if error %}
+    <div class="alert alert-danger text-center" role="alert">
+        {{ _(error) }}
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/auth/login-form">
+        <div class="mb-3">
+            <label for="username" class="form-label">{{ _('Nombre de usuario') }}</label>
+            <input type="text" class="form-control" name="username" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">{{ _('Contraseña') }}</label>
+            <input type="password" class="form-control" name="password" id="password" required>
+        </div>
+
+        <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="showPassword" onclick="togglePasswordVisibility()">
+            <label class="form-check-label" for="showPassword">{{ _('Mostrar contraseña') }}</label>
+        </div>
+
+        <button type="submit" class="btn btn-success">{{ _('Iniciar sesión') }}</button>
+    </form>
+
+    <a href="/" class="btn btn-link mt-3 text-decoration-none">⬅️ {{ _('Volver al inicio') }}</a>
+</div>
+
+<script>
+    function togglePasswordVisibility() {
+        const pw = document.getElementById("password");
+        pw.type = pw.type === "password" ? "text" : "password";
+    }
+</script>
+{% endblock %}

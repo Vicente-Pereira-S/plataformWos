@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <h1 class="mb-3">{{ _('Bienvenido a la plataforma de citas de tu estado!') }}</h1>
+    <p class="lead">{{ _('Organiza tus citas sin estrés, de forma automatizada y colaborativa.') }}</p>
+
+    <div class="mt-5">
+        <a href="/auth/register" class="btn btn-primary btn-lg me-3">{{ _('Registrarse') }}</a>
+        <a href="/auth/login" class="btn btn-outline-primary btn-lg">{{ _('Iniciar sesión') }}</a>
+    </div>
+</div>
+{% endblock %}
