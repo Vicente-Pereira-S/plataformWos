@@ -2,8 +2,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.middleware.sessions import SessionMiddleware
 from fastapi.templating import Jinja2Templates
+from starlette.middleware.sessions import SessionMiddleware
 
 from app.database import Base, engine
 from app.routers import groups, public, auth
@@ -48,7 +48,14 @@ AVAILABLE_LANGS = {"es", "en", "ko", "tr"}
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     templates = get_templates(request)
-    return templates.TemplateResponse("home.html", {"request": request})
+    access_token = request.cookies.get("access_token")
+    is_logged_in = access_token is not None
+
+    return templates.TemplateResponse("home.html", {
+        "request": request,
+        "is_logged_in": is_logged_in
+    })
+
 
 
 @app.get("/auth/login", response_class=HTMLResponse)

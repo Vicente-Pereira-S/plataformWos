@@ -50,6 +50,14 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
     return {"access_token": access_token, "token_type": "bearer"}
 
+
+@router.get("/logout")
+def logout():
+    response = RedirectResponse(url="/")
+    response.delete_cookie("access_token")
+    return response
+
+
 # Registro desde formulario HTML
 @router.post("/register-form")
 def register_form(
@@ -103,13 +111,15 @@ def login_form(
     if not user or not auth.verify_password(password, user.hashed_password):
         return templates.TemplateResponse("login.html", {
             "request": request,
-            "error": "Credenciales inválidas"
+            "error": "Credenciales inválidas",
+            "username": username
         })
 
     if not user.is_active:
         return templates.TemplateResponse("login.html", {
             "request": request,
-            "error": "Tu cuenta está desactivada"
+            "error": "Tu cuenta está desactivada",
+            "username": username
         })
 
     token_data = {"sub": str(user.id)}
@@ -140,3 +150,9 @@ def show_login_form(request: Request):
 def show_register_form(request: Request):
     templates = get_templates(request)
     return templates.TemplateResponse("register.html", {"request": request})
+
+@router.get("/logout")
+def logout():
+    response = RedirectResponse(url="/")
+    response.delete_cookie(key="access_token")
+    return response
