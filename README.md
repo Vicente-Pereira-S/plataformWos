@@ -35,7 +35,9 @@ pip install -r requirements.txt
 Crea un archivo `.env` en la raíz:
 
 ```
-SESSION_SECRET_KEY=un_secreto_muy_largo_y_unico
+SESSION_SECRET_KEY se utiliza para las sesiones seguras de la app (cookies).
+SECRET_KEY se usa internamente para generar tokens JWT u otras operaciones sensibles.
+
 ```
 
 ## 🧪 Ejecutar en desarrollo
