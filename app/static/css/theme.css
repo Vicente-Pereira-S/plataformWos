@@ -1,0 +1,103 @@
+/* === Tema Claro === */
+body.light-theme {
+    background-color: #f8f9fa;
+    color: #212529;
+}
+
+/* === Tema Oscuro === */
+body.dark-theme {
+    background-color: #121212;
+    color: #f1f1f1;
+}
+
+/* Texto por defecto */
+body.dark-theme,
+body.dark-theme .text-dark {
+    color: #f1f1f1 !important;
+}
+
+body.dark-theme .text-muted {
+    color: #b0b0b0 !important;
+}
+
+/* Botón primario (igual en ambos temas para consistencia visual) */
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* Outline Primary - Tema Claro */
+body.light-theme .btn-outline-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+body.light-theme .btn-outline-primary:hover {
+    background-color: #0d6efd;
+    color: #fff;
+}
+
+/* Outline Primary - Tema Oscuro */
+body.dark-theme .btn-outline-primary {
+    color: #66b2ff;
+    border-color: #66b2ff;
+}
+
+body.dark-theme .btn-outline-primary:hover {
+    background-color: #66b2ff;
+    color: #121212;
+}
+
+/* Logout button (btn-outline-light) - en modo oscuro */
+body.dark-theme .btn-outline-light {
+    color: #e0e0e0;
+    border-color: #e0e0e0;
+}
+
+body.dark-theme .btn-outline-light:hover {
+    background-color: #e0e0e0;
+    color: #121212;
+}
+
+/* Tarjetas o paneles */
+body.dark-theme .card {
+    background-color: #1e1e1e;
+    color: #ffffff;
+}
+
+/* Formularios */
+body.dark-theme input,
+body.dark-theme textarea,
+body.dark-theme select {
+    background-color: #1e1e1e;
+    color: #ffffff;
+    border-color: #444;
+}
+
+body.dark-theme input::placeholder {
+    color: #aaa;
+}
+
+/* Nav y footer */
+body.dark-theme .navbar,
+body.dark-theme footer {
+    background-color: #1a1a1a;
+}
+
+
+/* Alertas lindas y consistentes en modo oscuro */
+body.dark-theme .alert-info {
+    background-color: #1f2f40; /* fondo suave oscuro */
+    color: #cfe9ff;            /* texto clarito y amable */
+    border-color: #155a8a;     /* borde azul tenue */
+}
+
+body.dark-theme .alert-info strong {
+    color: #ffffff;            /* título importante bien visible */
+}

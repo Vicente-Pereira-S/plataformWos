@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <h1 class="mb-4 text-success">{{ _('¡Registro exitoso!') }}</h1>
+    <p class="lead">{{ _('Tu cuenta ha sido creada correctamente.') }}</p>
+    <p>{{ _('Ahora puedes iniciar sesión para comenzar a organizar tus citas.') }}</p>
+    
+    <div class="mt-4">
+        <a href="/auth/login" class="btn btn-success btn-lg">{{ _('Iniciar sesión') }}</a>
+    </div>
+</div>
+{% endblock %}

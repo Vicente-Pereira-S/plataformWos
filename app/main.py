@@ -61,13 +61,40 @@ async def index(request: Request):
 @app.get("/auth/login", response_class=HTMLResponse)
 async def show_login_form(request: Request):
     templates = get_templates(request)
-    return templates.TemplateResponse("login.html", {"request": request})
+    access_token = request.cookies.get("access_token")
+    is_logged_in = access_token is not None
+
+    return templates.TemplateResponse("login.html", {
+        "request": request,
+        "is_logged_in": is_logged_in
+    })
+
 
 
 @app.get("/auth/register", response_class=HTMLResponse)
 async def show_register_form(request: Request):
     templates = get_templates(request)
-    return templates.TemplateResponse("register.html", {"request": request})
+    access_token = request.cookies.get("access_token")
+    is_logged_in = access_token is not None
+
+    return templates.TemplateResponse("register.html", {
+        "request": request,
+        "is_logged_in": is_logged_in
+    })
+
+
+@app.get("/buscar-estado", response_class=HTMLResponse)
+async def buscar_estado(request: Request, codigo: str = None):
+    templates = get_templates(request)
+    if codigo:
+        # Más adelante se buscarán datos reales según el código
+        return templates.TemplateResponse("buscar_estado.html", {
+            "request": request,
+            "codigo_encontrado": codigo
+        })
+    return templates.TemplateResponse("buscar_estado.html", {"request": request})
+
+
 
 
 @app.get("/set-language/{lang_code}")

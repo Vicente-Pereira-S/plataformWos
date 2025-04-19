@@ -95,7 +95,9 @@ def register_form(
     db.commit()
     db.refresh(new_user)
 
-    return RedirectResponse(url="/auth/login", status_code=303)
+    return templates.TemplateResponse("registro_exitoso.html", {"request": request})
+
+
 
 # Login desde formulario HTML
 @router.post("/login-form")
