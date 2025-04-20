@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <h2 class="mb-4">{{ _('Recuperar contraseña') }}</h2>
+    <p>{{ _('Ingresa tu nombre de usuario para recuperar tu contraseña.') }}</p>
+
+    <form method="POST" action="/auth/verificar-recuperacion">
+        <div class="mb-3">
+            <input type="text" class="form-control text-center" name="username" placeholder="{{ _('Nombre de usuario') }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">{{ _('Siguiente') }}</button>
+    </form>
+
+    <a href="/" class="btn btn-link mt-3 text-decoration-none">⬅️ {{ _('Volver al inicio') }}</a>
+</div>
+{% endblock %}

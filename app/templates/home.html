@@ -9,11 +9,12 @@
         {{ _('Si solo deseas consultar las citas de tu estado, no es necesario registrarte.') }}<br>
         {{ _('Solo los encargados de organizar y administrar las citas deben crear una cuenta.') }}
     </div>
-    <div class="mt-5">
-        <a href="/auth/register" class="btn btn-primary btn-lg me-3">{{ _('Registrarse') }}</a>
-        <a href="/auth/login" class="btn btn-outline-primary btn-lg me-3">{{ _('Iniciar sesión') }}</a>
+    <div class="mt-5 d-grid gap-3 col-10 col-md-6 mx-auto">
+        <a href="/auth/register" class="btn btn-primary btn-lg">{{ _('Registrarse') }}</a>
+        <a href="/auth/login" class="btn btn-outline-primary btn-lg">{{ _('Iniciar sesión') }}</a>
         <a href="/buscar-estado" class="btn btn-secondary btn-lg">{{ _('Buscar estado') }}</a>
     </div>
+    
     
 </div>
 {% endblock %}

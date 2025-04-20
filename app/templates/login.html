@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+<a href="/" class="btn btn-link mt-3 text-decoration-none">⬅️ {{ _('Volver al inicio') }}</a>
 <div class="container mt-5">
     <h2 class="mb-4 text-center">{{ _('Iniciar sesión') }}</h2>
 
@@ -26,9 +27,14 @@
         </div>
 
         <button type="submit" class="btn btn-success">{{ _('Iniciar sesión') }}</button>
+        <a href="/auth/recuperar-clave" class="btn btn-link mt-3 text-decoration-none">
+            🔑 {{ _('¿Olvidaste tu contraseña?') }}
+        </a>
+        
+          
     </form>
 
-    <a href="/" class="btn btn-link mt-3 text-decoration-none">⬅️ {{ _('Volver al inicio') }}</a>
+    
 </div>
 
 <script>

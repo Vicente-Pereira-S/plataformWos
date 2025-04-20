@@ -20,6 +20,11 @@ body.dark-theme .text-muted {
     color: #b0b0b0 !important;
 }
 
+/* 🔥 NUEVO: Form text legible en modo oscuro */
+body.dark-theme .form-text {
+    color: #cccccc !important;
+}
+
 /* Botón primario (igual en ambos temas para consistencia visual) */
 .btn-primary {
     background-color: #0d6efd;
@@ -90,14 +95,13 @@ body.dark-theme footer {
     background-color: #1a1a1a;
 }
 
-
 /* Alertas lindas y consistentes en modo oscuro */
 body.dark-theme .alert-info {
-    background-color: #1f2f40; /* fondo suave oscuro */
-    color: #cfe9ff;            /* texto clarito y amable */
-    border-color: #155a8a;     /* borde azul tenue */
+    background-color: #1f2f40;
+    color: #cfe9ff;
+    border-color: #155a8a;
 }
 
 body.dark-theme .alert-info strong {
-    color: #ffffff;            /* título importante bien visible */
+    color: #ffffff;
 }

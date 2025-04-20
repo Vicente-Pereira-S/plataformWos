@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5 text-center" style="max-width: 600px;">
+    <div class="alert alert-success" role="alert">
+        ✅ {{ _('¡Solicitud enviada con éxito!') }}<br>
+        {{ _('Hemos enviado un correo a la dirección asociada con tu cuenta para restablecer tu contraseña.') }}
+    </div>
+    <p class="text-muted">
+        {{ _('Revisa tu bandeja de entrada y sigue las instrucciones.') }}<br>
+        {{ _('Si no ves el mensaje, revisa también tu carpeta de spam o correo no deseado.') }}
+    </p>
+    <p class="text-muted">
+        {{ _('Este enlace de recuperación es válido por tiempo limitado.') }}
+    </p>
+    <a href="/" class="btn btn-primary mt-3">{{ _('Volver al inicio') }}</a>
+</div>
+{% endblock %}

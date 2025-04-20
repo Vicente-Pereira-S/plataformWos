@@ -3,6 +3,9 @@ import gettext
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
 
+from app import database, models
+from app.utils_auth import decode_token_from_cookie
+
 AVAILABLE_LANGS = {"es", "en", "ko", "tr"}
 
 def get_templates(request: Request) -> Jinja2Templates:
@@ -24,3 +27,13 @@ def get_templates(request: Request) -> Jinja2Templates:
         'get_locale': lambda: lang
     })
     return templates
+
+def inject_login_context(request: Request, templates: Jinja2Templates):
+    db = database.SessionLocal()
+    user = decode_token_from_cookie(request)
+    db.close()
+
+    templates.env.globals.update({
+        "is_logged_in": user is not None,
+        "current_user": user  # opcional, por si necesitas mostrar el username
+    })

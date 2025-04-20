@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <h2 class="mb-4">{{ _('Hola') }} {{ username }} 👋</h2>
+    <p class="lead">{{ _('¿Qué te gustaría hacer hoy?') }}</p>
+
+    <div class="mt-4 d-grid gap-3 col-6 mx-auto">
+        <a href="#" class="btn btn-primary btn-lg">{{ _('Crear grupo de administración de citas') }}</a>
+        <a href="#" class="btn btn-outline-primary btn-lg">{{ _('Ver mis grupos') }}</a>
+        <a href="/buscar-estado" class="btn btn-secondary btn-lg">{{ _('Buscar estado') }}</a>
+    </div>
+</div>
+{% endblock %}
