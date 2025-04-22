@@ -1,14 +1,37 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5 text-center">
-    <h2 class="mb-4">{{ _('Hola') }} {{ username }} 👋</h2>
-    <p class="lead">{{ _('¿Qué te gustaría hacer hoy?') }}</p>
+<div class="container py-5 text-center" style="max-width: 700px;">
+    <h2 class="mb-2">{{ _('¡Bienvenido') }} {{ username }}#{{ user_id }}!</h2>
 
-    <div class="mt-4 d-grid gap-3 col-6 mx-auto">
-        <a href="#" class="btn btn-primary btn-lg">{{ _('Crear grupo de administración de citas') }}</a>
-        <a href="#" class="btn btn-outline-primary btn-lg">{{ _('Ver mis grupos') }}</a>
-        <a href="/buscar-estado" class="btn btn-secondary btn-lg">{{ _('Buscar estado') }}</a>
+    <h3 class="h5 text-theme-muted mb-3">
+        {{ _('Desde aquí puedes administrar tu actividad en la plataforma.') }}
+    </h3>
+    
+    <p class="text-theme-muted mb-4" style="font-size: 0.9rem;">
+        {{ _('Tu ID es:') }} <strong>#{{ user_id }}</strong><br>
+        {{ _('Compártelo si un administrador quiere agregarte a un grupo.') }}
+    </p>
+    
+    
+    <!-- Botón pequeño "Nuevo grupo" -->
+    <div class="dashboard-wrapper p-4 mb-4 mx-auto" style="max-width: 400px;">
+        <div class="text-end" style="margin-bottom: 1.75rem;">
+            <a href="/groups/create" class="btn btn-success btn-sm">
+                ➕ {{ _('Nuevo grupo') }}
+            </a>
+        </div>
+    
+        <div class="d-flex flex-column gap-3">
+            <a href="/groups/my-groups" class="btn btn-primary">
+                📋 {{ _('Ver mis grupos') }}
+            </a>
+            <a href="/search-state" class="btn btn-outline-secondary">
+                🔍 {{ _('Buscar estado por código') }}
+            </a>
+        </div>
     </div>
+    
+    
 </div>
 {% endblock %}

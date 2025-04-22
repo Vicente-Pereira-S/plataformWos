@@ -1,9 +1,10 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="container mt-5 text-center" style="max-width: 600px;">
-    <div class="alert alert-danger" role="alert">
-        ❌ {{ _('El usuario') }} <strong>{{ username }}</strong> {{ _('no está registrado en la plataforma.') }}
-    </div>
-    <a href="/" class="btn btn-primary mt-3">{{ _('Volver al inicio') }}</a>
+<div class="container py-5 text-center">
+    <h2 class="mb-4">{{ _('Usuario no encontrado') }}</h2>
+    <p class="mb-4">{{ _('No existe ninguna cuenta con el nombre de usuario:') }} <strong>{{ username }}</strong></p>
+
+    <a href="/auth/recover" class="btn btn-outline-primary">{{ _('Intentar de nuevo') }}</a>
 </div>
 {% endblock %}

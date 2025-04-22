@@ -1,20 +1,25 @@
 {% extends "base.html" %}
+
 {% block content %}
-<a href="/" class="btn btn-link mt-3 text-decoration-none">⬅️ {{ _('Volver al inicio') }}</a>
-<div class="container mt-5">
-    <h2 class="mb-4 text-center">{{ _('Buscar estado') }}</h2>
-    <form method="GET" action="/buscar-estado">
-        <div class="mb-3">
-            <label for="codigo" class="form-label">{{ _('Código del estado') }}</label>
-            <input type="text" class="form-control" id="codigo" name="codigo" required>
-        </div>
+
+<div class="container-fluid px-4 pt-3">
+    <a href="/" class="btn btn-outline-secondary btn-sm">
+        ← {{ _('Volver') }}
+    </a>
+</div>
+
+<div class="container py-1">
+    <h2 class="text-center mb-4">{{ _('Ingresa el código de tu estado') }}</h2>
+
+    <form method="get" class="d-flex justify-content-center">
+        <input type="text" name="codigo" class="form-control w-50 me-2" placeholder="{{ _('Ej: 1614 o R-1213') }}" required>
         <button type="submit" class="btn btn-primary">{{ _('Buscar') }}</button>
     </form>
 
     {% if codigo_encontrado %}
-    <div class="alert alert-success mt-4" role="alert">
-        {{ _('Mostrando resultados para el código:') }} <strong>{{ codigo_encontrado }}</strong>
-    </div>
+        <div class="alert alert-success mt-4 text-center">
+            {{ _('Grupo encontrado con el código:') }} <strong>{{ codigo_encontrado }}</strong>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

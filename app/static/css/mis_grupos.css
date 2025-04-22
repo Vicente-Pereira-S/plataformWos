@@ -1,0 +1,28 @@
+.card-group-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.card-grupo {
+    width: 280px;
+    transition: transform 0.2s ease;
+}
+
+.card-grupo:hover {
+    transform: translateY(-4px);
+}
+
+/* Icono del basurero en la esquina superior derecha */
+.card-basurero {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.5rem;
+    cursor: pointer;
+    color: red;
+}
+
+.card-basurero:hover {
+    color: darkred;
+}

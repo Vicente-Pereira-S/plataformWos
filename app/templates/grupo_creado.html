@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <h2 class="mb-4">{{ _('¡Grupo creado exitosamente!') }}</h2>
+    <p class="lead">{{ _('Código del grupo:') }} <strong>{{ group_code }}</strong></p>
+    <p>{{ _('Número de estado:') }} <strong>{{ state_number }}</strong></p>
+
+    <div class="mt-4">
+        <a href="/groups/my-groups" class="btn btn-primary me-2">
+            {{ _('Ir al panel del grupo') }}
+        </a>
+        <a href="/dashboard" class="btn btn-secondary">
+            {{ _('Volver al inicio') }}
+        </a>
+    </div>
+</div>
+{% endblock %}

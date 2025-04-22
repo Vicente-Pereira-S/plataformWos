@@ -1,49 +1,50 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, Date
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
-from .database import Base
+from app.database import Base
 
+
+# ------------------------------
+# MODELO DE USUARIO
+# ------------------------------
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True, index=True)
+    username = Column(String, unique=True, nullable=False, index=True)
     email = Column(String, nullable=True)
-    hashed_password = Column(String)
+    hashed_password = Column(String, nullable=False)
     role = Column(String, default="observador")
     is_active = Column(Boolean, default=True)
-    group_id = Column(Integer, ForeignKey("groups.id"), nullable=True)
 
-    group = relationship("Group", back_populates="users")
+    groups = relationship("GroupMember", back_populates="user")
 
+
+# ------------------------------
+# MODELO DE GRUPO
+# ------------------------------
 class Group(Base):
     __tablename__ = "groups"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True)
-    code = Column(String, unique=True, index=True)
+    state_number = Column(Integer, nullable=False)
+    group_code = Column(String, unique=True, nullable=False)
+    creator_id = Column(Integer, ForeignKey("users.id"))
 
-    users = relationship("User", back_populates="group")
-    alliances = relationship("Alliance", back_populates="group")
+    creator = relationship("User", backref="created_groups")
+    members = relationship("GroupMember", back_populates="group", cascade="all, delete-orphan")
+    # Placeholder para futuras relaciones como alliances, schedule, etc.
 
-class Alliance(Base):
-    __tablename__ = "alliances"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    slots = Column(Integer, default=0)
+# ------------------------------
+# MODELO DE MIEMBRO DEL GRUPO
+# ------------------------------
+class GroupMember(Base):
+    __tablename__ = "group_members"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
     group_id = Column(Integer, ForeignKey("groups.id"))
+    role = Column(String, default="member")  # "admin" o "member"
 
-    group = relationship("Group", back_populates="alliances")
-    candidates = relationship("Candidate", back_populates="alliance")
-
-class Candidate(Base):
-    __tablename__ = "candidates"
-
-    id = Column(Integer, primary_key=True)
-    nickname = Column(String)
-    speedups = Column(Integer)
-    availability = Column(String)
-    day = Column(Date)
-
-    alliance_id = Column(Integer, ForeignKey("alliances.id"))
-    alliance = relationship("Alliance", back_populates="candidates")
+    user = relationship("User", back_populates="groups")
+    group = relationship("Group", back_populates="members")

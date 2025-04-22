@@ -1,10 +1,10 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="container mt-5 text-center">
-    <h2 class="mb-4 text-warning">{{ _('No se puede recuperar la contraseña') }}</h2>
-    <p>{{ _('El nombre de usuario ingresado no tiene un correo asociado.') }}</p>
-    <p>{{ _('Comunícate con soporte o intenta con otro usuario.') }}</p>
-    
-    <a href="/" class="btn btn-secondary mt-4">{{ _('Volver al inicio') }}</a>
+<div class="container py-5 text-center">
+    <h2 class="mb-4">{{ _('No se puede recuperar la contraseña') }}</h2>
+    <p class="mb-4">{{ _('Este usuario no tiene un correo electrónico asociado para enviar la recuperación.') }}</p>
+
+    <a href="/" class="btn btn-outline-primary">{{ _('Volver al inicio') }}</a>
 </div>
 {% endblock %}

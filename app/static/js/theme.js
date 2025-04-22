@@ -1,25 +1,27 @@
-// app/static/js/theme.js
+// Script para alternar entre tema claro y oscuro
 document.addEventListener("DOMContentLoaded", function () {
-    const savedTheme = localStorage.getItem("theme") || "light";
-    setTheme(savedTheme);
+    const themeLinks = document.querySelectorAll(".theme-select");
 
-    document.querySelectorAll(".theme-select").forEach((el) => {
-        el.addEventListener("click", function (e) {
+    // Leer tema guardado en cookie
+    const savedTheme = getCookie("theme");
+    if (savedTheme) {
+        document.body.setAttribute("data-theme", savedTheme);
+    }
+
+    themeLinks.forEach(link => {
+        link.addEventListener("click", function (e) {
             e.preventDefault();
-            const selectedTheme = this.getAttribute("data-theme");
-            localStorage.setItem("theme", selectedTheme);
-            setTheme(selectedTheme);
+            const selectedTheme = this.dataset.theme;
+            document.body.setAttribute("data-theme", selectedTheme);
+            document.cookie = `theme=${selectedTheme}; path=/`;
         });
     });
 });
 
-function setTheme(theme) {
-    const body = document.body;
-    if (theme === "dark") {
-        body.classList.add("dark-theme");
-        body.classList.remove("light-theme");
-    } else {
-        body.classList.add("light-theme");
-        body.classList.remove("dark-theme");
-    }
+// Utilidad para leer cookies
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+    return match ? match[2] : null;
 }
+
+

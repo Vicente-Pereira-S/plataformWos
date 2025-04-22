@@ -1,46 +1,44 @@
 {% extends "base.html" %}
+
 {% block content %}
-<a href="/" class="btn btn-link mt-3 text-decoration-none">⬅️ {{ _('Volver al inicio') }}</a>
-<div class="container mt-5">
-    <h2 class="mb-4 text-center">{{ _('Iniciar sesión') }}</h2>
+<div class="container py-5" style="max-width: 500px;">
+    <h2 class="text-center mb-4">{{ _('Iniciar sesión') }}</h2>
 
     {% if error %}
-    <div class="alert alert-danger text-center" role="alert">
-        {{ _(error) }}
-    </div>
+        <div class="alert alert-danger" role="alert">
+            {{ _(error) }}
+        </div>
     {% endif %}
 
-    <form method="POST" action="/auth/login-form">
+    <form method="post" action="/auth/login-form">
         <div class="mb-3">
             <label for="username" class="form-label">{{ _('Nombre de usuario') }}</label>
-            <input type="text" class="form-control" name="username" required value="{{ username | default('') }}">
+            <input type="text" class="form-control" id="username" name="username"
+                   required autofocus value="{{ username or '' }}">
         </div>
 
         <div class="mb-3">
             <label for="password" class="form-label">{{ _('Contraseña') }}</label>
-            <input type="password" class="form-control" name="password" id="password" required>
+            <input type="password" class="form-control" id="password" name="password" required>
         </div>
 
+        <!-- Mostrar/Ocultar contraseña -->
         <div class="form-check mb-3">
-            <input type="checkbox" class="form-check-input" id="showPassword" onclick="togglePasswordVisibility()">
-            <label class="form-check-label" for="showPassword">{{ _('Mostrar contraseña') }}</label>
+            <input class="form-check-input" type="checkbox" id="showPasswords" onclick="togglePasswords()">
+            <label class="form-check-label" for="showPasswords">
+                {{ _('Mostrar contraseña') }}
+            </label>
         </div>
 
-        <button type="submit" class="btn btn-success">{{ _('Iniciar sesión') }}</button>
-        <a href="/auth/recuperar-clave" class="btn btn-link mt-3 text-decoration-none">
-            🔑 {{ _('¿Olvidaste tu contraseña?') }}
-        </a>
-        
-          
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">{{ _('Ingresar') }}</button>
+            <a href="/" class="btn btn-secondary">{{ _('Cancelar') }}</a>
+            <a href="/auth/recover" class="btn btn-link">{{ _('¿Olvidaste tu contraseña?') }}</a>
+        </div>
     </form>
-
-    
 </div>
+{% endblock %}
 
-<script>
-    function togglePasswordVisibility() {
-        const pw = document.getElementById("password");
-        pw.type = pw.type === "password" ? "text" : "password";
-    }
-</script>
+{% block scripts %}
+<script src="{{ url_for('static', path='js/codigo.js') }}"></script>
 {% endblock %}

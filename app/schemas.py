@@ -1,27 +1,29 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
-
-# Para crear un nuevo usuario
-class UserCreate(BaseModel):
+# ------------------------------
+# Esquema base para el modelo de usuario
+# ------------------------------
+class UserBase(BaseModel):
     username: str
-    password: str
     email: Optional[EmailStr] = None
 
 
-# Para login
-class UserLogin(BaseModel):
-    username: str
+# ------------------------------
+# Esquema para la creación de usuarios
+# ------------------------------
+class UserCreate(UserBase):
     password: str
 
 
-# Para mostrar info del usuario (sin contraseña)
-class UserResponse(BaseModel):
+# ------------------------------
+# Esquema para la respuesta del usuario
+# ------------------------------
+class UserResponse(UserBase):
     id: int
-    username: str
-    email: Optional[EmailStr] = None
     role: str
     is_active: bool
 
-    class Config:
-        from_attributes = True
+    model_config = {
+        "from_attributes": True  # Equivalente moderno de orm_mode en Pydantic v2
+    }

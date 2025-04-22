@@ -1,20 +1,19 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5 text-center">
-    <h1 class="mb-3">{{ _('Bienvenido a la plataforma de citas de tu estado!') }}</h1>
-    <p class="lead">{{ _('Organiza tus citas sin estrés, de forma automatizada y colaborativa.') }}</p>
-    <div class="alert alert-info mt-4" role="alert">
-        🔔 <strong>{{ _('Importante') }}:</strong><br>
-        {{ _('Si solo deseas consultar las citas de tu estado, no es necesario registrarte.') }}<br>
-        {{ _('Solo los encargados de organizar y administrar las citas deben crear una cuenta.') }}
+<div class="container py-5 text-center">
+    <h1 class="mb-4">{{ _('Bienvenido a la plataforma de citas') }}</h1>
+    <p class="lead">{{ _('Organiza tu alianza y estado de forma eficiente') }}</p>
+
+    <!-- Botones de registro e inicio -->
+    <div class="mt-5 d-flex justify-content-center gap-3 flex-wrap">
+        <a href="/auth/register" class="btn btn-primary btn-lg">📝 {{ _('Registrarse') }}</a>
+        <a href="/auth/login" class="btn btn-outline-primary btn-lg">🔑 {{ _('Iniciar sesión') }}</a>
     </div>
-    <div class="mt-5 d-grid gap-3 col-10 col-md-6 mx-auto">
-        <a href="/auth/register" class="btn btn-primary btn-lg">{{ _('Registrarse') }}</a>
-        <a href="/auth/login" class="btn btn-outline-primary btn-lg">{{ _('Iniciar sesión') }}</a>
-        <a href="/buscar-estado" class="btn btn-secondary btn-lg">{{ _('Buscar estado') }}</a>
+
+    <!-- Botón de búsqueda separado -->
+    <div class="mt-4">
+        <a href="/search-state" class="btn btn-outline-secondary btn-lg">🔍 {{ _('Buscar estado por código') }}</a>
     </div>
-    
-    
 </div>
 {% endblock %}

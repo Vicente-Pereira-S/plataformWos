@@ -1,12 +1,11 @@
 # Entorno virtual
 venv/
-vnev/  # ← por si fue un typo de venv
 
-# Archivos de base de datos
+# Archivos de base de datos (desarrollo)
 *.db
 database.db
 
-# Entornos y variables de entorno
+# Variables de entorno
 .env
 
 # Archivos de traducción y temporales
@@ -15,12 +14,5 @@ database.db
 __pycache__/
 *.py[cod]
 
-# Archivos de sistema
+# Sistema
 .DS_Store
-
-# Configuración de editores
-.vscode/
-.idea/
-
-# Archivo de Render/Heroku u otros
-Procfile

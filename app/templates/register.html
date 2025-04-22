@@ -1,62 +1,70 @@
 {% extends "base.html" %}
+
 {% block content %}
-<a href="/" class="btn btn-link mt-3 text-decoration-none">⬅️ {{ _('Volver al inicio') }}</a>
-<div class="container mt-5">
-    <h2 class="mb-4 text-center">{{ _('Registrarse') }}</h2>
+<div class="container py-5" style="max-width: 600px;">
+    <h2 class="text-center mb-4">{{ _('Registro de usuario') }}</h2>
 
     {% if error %}
-    <div class="alert alert-danger text-center" role="alert">
-        {{ _(error) }}
-    </div>
+        <div class="alert alert-danger" role="alert">
+            {{ _(error) }}
+        </div>
     {% endif %}
 
-    <form method="POST" action="/auth/register-form" onsubmit="return validatePasswords()">
+    <form method="post" action="/auth/register-form">
         <div class="mb-3">
             <label for="username" class="form-label">{{ _('Nombre de usuario') }}</label>
-            <input type="text" class="form-control" name="username" required>
+            <input type="text" class="form-control" id="username" name="username"
+                   value="{{ '' if error == 'Username already registered' else username or '' }}" required>
         </div>
 
         <div class="mb-3">
             <label for="password" class="form-label">{{ _('Contraseña') }}</label>
-            <input type="password" class="form-control" name="password" id="password" required>
+            <input type="password" class="form-control" id="password" name="password"
+                   oninput="checkPasswordsMatch()" required>
         </div>
 
         <div class="mb-3">
             <label for="confirm_password" class="form-label">{{ _('Confirmar contraseña') }}</label>
-            <input type="password" class="form-control" name="confirm_password" id="confirm_password" required>
+            <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                   oninput="checkPasswordsMatch()" required>
+            <small id="password-match-msg" class="form-text"
+                   data-valid="{{ _('✔️ Las contraseñas coinciden') }}"
+                   data-invalid="{{ _('❌ Las contraseñas no coinciden') }}">
+            </small>
+
+            {% if error == 'Passwords do not match' %}
+                <div class="text-danger mt-1" style="font-size: 0.9rem;">
+                    {{ _('Las contraseñas no coinciden') }}
+                </div>
+            {% endif %}
         </div>
 
+        <!-- Mostrar/Ocultar contraseña -->
         <div class="form-check mb-3">
-            <input type="checkbox" class="form-check-input" id="showPassword" onclick="togglePasswordVisibility()">
-            <label class="form-check-label" for="showPassword">{{ _('Mostrar contraseña') }}</label>
+            <input class="form-check-input" type="checkbox" id="showPasswords" onclick="togglePasswords()">
+            <label class="form-check-label" for="showPasswords">
+                {{ _('Mostrar contraseñas') }}
+            </label>
         </div>
 
         <div class="mb-3">
             <label for="email" class="form-label">{{ _('Correo electrónico (opcional)') }}</label>
-            <input type="email" class="form-control" name="email" id="email">
-            <div class="form-text">{{ _('Solo lo usaremos para recuperar tu contraseña si la olvidas.') }}</div>
+            <input type="email" class="form-control" id="email" name="email" value="{{ email or '' }}">
+            <div class="form-label form-label-hint">
+                {{ _('Se usará para recuperar tu contraseña si la olvidas.') }}
+            </div>
         </div>
 
-        <button type="submit" class="btn btn-primary">{{ _('Registrarse') }}</button>
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary" id="registerBtn" disabled>
+                {{ _('Registrarse') }}
+            </button>
+            <a href="/" class="btn btn-secondary">{{ _('Cancelar') }}</a>
+        </div>
     </form>
 </div>
+{% endblock %}
 
-<script>
-    function togglePasswordVisibility() {
-        const pw = document.getElementById("password");
-        const confirm = document.getElementById("confirm_password");
-        pw.type = pw.type === "password" ? "text" : "password";
-        confirm.type = confirm.type === "password" ? "text" : "password";
-    }
-
-    function validatePasswords() {
-        const pw = document.getElementById("password").value;
-        const confirm = document.getElementById("confirm_password").value;
-        if (pw !== confirm) {
-            alert("Las contraseñas no coinciden");
-            return false;
-        }
-        return true;
-    }
-</script>
+{% block scripts %}
+<script src="{{ url_for('static', path='js/codigo.js') }}"></script>
 {% endblock %}

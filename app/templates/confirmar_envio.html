@@ -1,14 +1,18 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="container mt-5 text-center" style="max-width: 600px;">
-    <div class="alert alert-info" role="alert">
-        📧 {{ _('Se enviará un correo a la dirección:') }} <strong>{{ email_mascara }}</strong><br>
-        {{ _('Presiona aceptar para recuperar tu contraseña.') }}
+<div class="container py-5 text-center">
+    <h2 class="mb-4">{{ _('¿Enviar correo de recuperación?') }}</h2>
+    <p>{{ _('Se enviará un correo de recuperación a la siguiente dirección:') }}</p>
+    <h4 class="my-3">{{ email_mascara }}</h4>
+
+    <div class="d-flex justify-content-center gap-3 mt-4">
+        <form method="post" action="/auth/send-recovery">
+            <input type="hidden" name="username" value="{{ username }}">
+            <button type="submit" class="btn btn-primary">{{ _('Confirmar envío') }}</button>
+        </form>
+
+        <a href="/" class="btn btn-secondary">{{ _('Cancelar') }}</a>
     </div>
-    <form method="POST" action="/auth/enviar-recuperacion">
-        <input type="hidden" name="username" value="{{ username }}">
-        <button type="submit" class="btn btn-success">{{ _('Aceptar') }}</button>
-        <a href="/" class="btn btn-link text-decoration-none">{{ _('Cancelar') }}</a>
-    </form>
 </div>
 {% endblock %}

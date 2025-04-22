@@ -1,17 +1,28 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="container mt-5 text-center" style="max-width: 600px;">
-    <div class="alert alert-success" role="alert">
-        ✅ {{ _('¡Solicitud enviada con éxito!') }}<br>
-        {{ _('Hemos enviado un correo a la dirección asociada con tu cuenta para restablecer tu contraseña.') }}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg p-4" style="max-width: 500px; width: 100%;">
+        <div class="text-center">
+            <div class="display-4 mb-3">📧</div>
+            <h3 class="mb-3">{{ _('Correo enviado') }}</h3>
+
+            <p class="text-muted">
+                {{ _('Hemos enviado un mensaje a tu correo electrónico con las instrucciones para restablecer tu contraseña.') }}
+            </p>
+
+            <p class="text-muted mt-3">
+                ⚠️ {{ _('Si no lo encuentras en tu bandeja de entrada, revisa la carpeta de') }}
+                <strong>{{ _('spam') }}</strong> {{ _('o') }} <strong>{{ _('correo no deseado') }}</strong>.
+            </p>
+
+            <p class="text-muted mt-3">
+                {{ _('Si tienes problemas, contácta con') }} 
+                <a href="mailto:soporte@tuapp.com">soporte@tuapp.com</a>.
+            </p>
+
+            <a href="/" class="btn btn-primary mt-4">{{ _('Volver al inicio') }}</a>
+        </div>
     </div>
-    <p class="text-muted">
-        {{ _('Revisa tu bandeja de entrada y sigue las instrucciones.') }}<br>
-        {{ _('Si no ves el mensaje, revisa también tu carpeta de spam o correo no deseado.') }}
-    </p>
-    <p class="text-muted">
-        {{ _('Este enlace de recuperación es válido por tiempo limitado.') }}
-    </p>
-    <a href="/" class="btn btn-primary mt-3">{{ _('Volver al inicio') }}</a>
 </div>
 {% endblock %}
