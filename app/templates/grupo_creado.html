@@ -1,18 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container py-5 text-center">
+<div class="container py-3 text-center">
+    <div class="mb-3" style="font-size: 2.5rem;">🎉</div>
     <h2 class="mb-4">{{ _('¡Grupo creado exitosamente!') }}</h2>
-    <p class="lead">{{ _('Código del grupo:') }} <strong>{{ group_code }}</strong></p>
-    <p>{{ _('Número de estado:') }} <strong>{{ state_number }}</strong></p>
+
+    <p class="lead mb-3">{{ _('Puedes compartir este código para ver la planificación del estado:') }}</p>
+
+    <div class="input-group justify-content-center mb-4" style="max-width: 340px; margin: 0 auto;">
+        <input type="text" id="groupCodeInput" class="form-control text-center" value="{{ group_code }}" readonly>
+        <button class="btn btn-outline-secondary" type="button" onclick="copyGroupCode()" title="{{ _('Copiar al portapapeles') }}"> 📋 </button>
+
+    </div>
 
     <div class="mt-4">
-        <a href="/groups/my-groups" class="btn btn-primary me-2">
-            {{ _('Ir al panel del grupo') }}
-        </a>
-        <a href="/dashboard" class="btn btn-secondary">
-            {{ _('Volver al inicio') }}
+        <a href="/groups/my-groups" class="btn btn-primary">
+            {{ _('Continuar') }}
         </a>
     </div>
 </div>
+
+<!-- Toast oculto -->
+<div id="copyToast" class="toast-custom">{{ _('¡Código copiado!') }}</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/codigo.js') }}"></script>
 {% endblock %}

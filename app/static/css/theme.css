@@ -83,3 +83,24 @@ body[data-theme="dark"] .dashboard-wrapper {
 body[data-theme="dark"] .group-code-text {
     color: #dcdcdc; /* gris claro para tema oscuro */
 }
+
+
+.toast-custom {
+    position: fixed;
+    bottom: -60px;
+    right: 20px;
+    background-color: #28a745;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    font-size: 0.95rem;
+    opacity: 0;
+    transition: all 0.4s ease;
+    z-index: 9999;
+}
+
+.toast-custom.show {
+    bottom: 20px;
+    opacity: 1;
+}

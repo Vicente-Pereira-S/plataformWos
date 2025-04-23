@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-
 <div class="container-fluid px-4 pt-3">
     <a href="/" class="btn btn-outline-secondary btn-sm">
         ← {{ _('Volver') }}
@@ -11,15 +10,27 @@
 <div class="container py-1">
     <h2 class="text-center mb-4">{{ _('Ingresa el código de tu estado') }}</h2>
 
-    <form method="get" class="d-flex justify-content-center">
-        <input type="text" name="codigo" class="form-control w-50 me-2" placeholder="{{ _('Ej: 1614 o R-1213') }}" required>
-        <button type="submit" class="btn btn-primary">{{ _('Buscar') }}</button>
-    </form>
-
-    {% if codigo_encontrado %}
-        <div class="alert alert-success mt-4 text-center">
-            {{ _('Grupo encontrado con el código:') }} <strong>{{ codigo_encontrado }}</strong>
+    <!-- FORMULARIO sin recarga -->
+    <form id="searchForm" class="d-flex justify-content-center flex-column align-items-center">
+        <div class="w-75 w-md-50 mb-2">
+            <input type="text" id="codigoInput" class="form-control" placeholder="{{ _('Ej: 1614 o R-1213') }}"
+                   oninput="validateGroupCode()" required>
+            <small id="codigo-msg" class="form-text"
+                   data-valid="{{ _('✔️ Caracteres válidos') }}"
+                   data-invalid="{{ _('❌ Caracteres admitidos: A-Z, 0-9 y guión (-)') }}"></small>
         </div>
-    {% endif %}
+        <button type="submit" id="buscarBtn" class="btn btn-primary">{{ _('Buscar') }}</button>
+    </form> 
+
+    <!-- Contenedor para mostrar resultado con mensajes traducidos -->
+    <div id="resultadoBusqueda" class="mt-4 text-center"
+         data-msg-ok="{{ _('Grupo encontrado con el código') }}"
+         data-msg-not-found="{{ _('No se encontró ningún grupo con ese código.') }}"
+         data-msg-error="{{ _('Error al buscar el grupo.') }}">
+    </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/search.js') }}"></script>
 {% endblock %}

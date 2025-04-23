@@ -74,5 +74,25 @@ function validateGroupCode() {
     }
 }
 
+function copyGroupCode() {
+    const input = document.getElementById("groupCodeInput");
+    if (!input) return;
 
+    input.select();
+    input.setSelectionRange(0, 99999); // Para móviles
 
+    navigator.clipboard.writeText(input.value).then(() => {
+        showCopyToast();
+    });
+}
+
+function showCopyToast() {
+    const toast = document.getElementById("copyToast");
+    if (!toast) return;
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2000);
+}

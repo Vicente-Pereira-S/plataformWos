@@ -100,14 +100,6 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
     })
 
 
-@app.get("/search-state", response_class=HTMLResponse)
-async def search_state(request: Request, code: str = None):
-    templates = get_templates(request)
-    context = {"request": request}
-    if code:
-        context["code_found"] = code
-    return templates.TemplateResponse("buscar_estado.html", context)
-
 # ------------------------------
 # Routers
 # ------------------------------
