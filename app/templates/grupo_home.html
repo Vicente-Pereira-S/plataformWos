@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid px-4 pt-3">
+    <a href="/groups/my-groups" class="btn btn-outline-secondary btn-sm">
+        ← {{ _('Volver') }}
+    </a>
+</div>
+<div class="container py-3">
+
+    <!-- Encabezado del grupo -->
+    <div class="d-flex justify-content-between align-items-start flex-wrap">
+        <!-- Información del grupo -->
+        <div>
+            <h2 class="mb-2">{{ _('Estado') }} {{ group.state_number }}</h2>
+            <p class=" mb-0">{{ _('Código del estado:') }} <strong>{{ group.group_code }}</strong></p>
+        </div>
+
+        <!-- Botones para el creador del grupo -->
+        {% if is_creator %}
+        <div class="d-flex gap-2">
+            <a href="#" class="btn btn-outline-primary">
+                ➕ {{ _('Agregar editor') }}
+            </a>
+            <a href="/groups/settings/{{ group.group_code }}" class="btn btn-outline-secondary">
+                ⚙️ {{ _('Ajustes') }}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Aquí irá el contenido del grupo más adelante -->
+     <hr class="my-4">
+
+    <!-- Información del grupo -->
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+
+            <!-- Alianzas -->
+            <div class="mb-4">
+                <h4>{{ _('Alianzas registradas') }}</h4>
+                <ul class="list-group">
+                    {% set alianzas_validas = group.alliances | selectattr('name', 'ne', 'Otra') | list %}
+                    {% for alliance in alianzas_validas %}
+                        <li class="list-group-item">[{{ alliance.name }}]</li>
+                    {% endfor %}
+                    <li class="list-group-item text-muted">+ [{{ _('Otra') }}] {{ _('(automática)') }}</li>
+                </ul>
+                <small class="text-muted">{{ _('Total:') }} {{ alianzas_validas|length + 1 }}</small>
+            </div>
+
+            <!-- Días -->
+            <div class="mb-4">
+                <h4>{{ _('Días organizados') }}</h4>
+                <ul class="list-group">
+                    {% for day in group.days %}
+                        <li class="list-group-item">{{ day.name }}</li>
+                    {% endfor %}
+                </ul>
+                <small class="text-muted">{{ _('Total:') }} {{ group.days|length }}</small>
+            </div>
+
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}

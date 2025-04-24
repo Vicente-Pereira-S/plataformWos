@@ -1,41 +1,29 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container py-5">
+<div class="container-fluid px-4 pt-3">
+    <a href="/" class="btn btn-outline-secondary btn-sm">
+        ← {{ _('Volver') }}
+    </a>
+</div>
+<div class="container py-1">
     <h2 class="text-center mb-4">{{ _('Mis grupos') }}</h2>
 
-    {% if admin_groups or member_groups %}
-        {% if admin_groups %}
-            <h4 class="mb-3">{{ _('Grupos donde eres administrador') }}</h4>
-            <div class="row g-4 mb-5">
-                {% for group in admin_groups %}
-                    <div class="col-md-6 col-lg-4">
+    {% if groups %}
+        <div class="row g-4">
+            {% for group in groups %}
+                <div class="col-md-6 col-lg-4">
+                    <a href="/groups/view/{{ group.group_code }}" class="text-decoration-none text-reset">
                         <div class="group-card p-4 h-100 position-relative">
-                            <h5 class="mb-2">🛡️ {{ _('Estado') }} {{ group.state_number }}</h5>
+                            <h5 class="mb-2">📍 {{ _('Estado') }} {{ group.state_number }}</h5>
                             <p class="small position-absolute bottom-0 end-0 m-3 group-code-text">
                                 {{ _('Código:') }} <strong>{{ group.group_code }}</strong>
                             </p>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        {% if member_groups %}
-            <h4 class="mb-3">{{ _('Grupos donde eres miembro') }}</h4>
-            <div class="row g-4">
-                {% for group in member_groups %}
-                    <div class="col-md-6 col-lg-4">
-                        <div class="group-card p-4 h-100 position-relative">
-                            <h5 class="mb-2">👤 {{ _('Estado') }} {{ group.state_number }}</h5>
-                            <p class="small position-absolute bottom-0 end-0 m-3 group-code-text">
-                                {{ _('Código:') }} <strong>{{ group.group_code }}</strong>
-                            </p>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
     {% else %}
         <div class="alert alert-info text-center">
             {{ _('Aún no perteneces a ningún grupo.') }}

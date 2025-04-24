@@ -1,29 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container py-5 px-3" style="max-width: 600px;">
+<div class="container py-5" style="max-width: 600px;">
     <h2 class="text-center mb-4">{{ _('Crear nuevo grupo') }}</h2>
 
     <div class="alert alert-info text-start mb-4">
         <p class="mb-2">💡 <strong>{{ _('Consejos para completar el formulario:') }}</strong></p>
         <ul class="mb-0 ps-3">
             <li>
-                <strong>{{ _('Código para compartir:') }}</strong>
-                {{ _('es único y lo inventas tú. Se usará para que otros puedan acceder a la información compartida del grupo (Puedes usar el número de tu estado).') }}
+                <strong>{{ _('Código para compartir') }}</strong>
+                {{ _(', es único y lo inventas tú. Se usará para que otros puedan acceder a la información compartida del grupo (Puedes usar el número de tu estado).') }}
             </li>
         </ul>
     </div>
 
-    <!-- Formulario -->
-    <form method="post" action="/groups/create-group">
-
+    <form method="get" action="/groups/settings">
         {% if error %}
             <div class="alert alert-danger text-center">{{ error }}</div>
         {% endif %}
 
         <div class="mb-3">
             <label for="state_number" class="form-label">{{ _('Número del estado') }}</label>
-            <input type="number" class="form-control" id="state_number" name="state_number" min="1" required>
+            <input type="number" class="form-control" id="state_number" name="state_number"
+                   value="{{ state_number or '' }}" min="1" required>
         </div>
 
         <div class="mb-3">
@@ -46,7 +45,7 @@
 
         <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
             <button type="submit" id="createGroupBtn" class="btn btn-primary w-100 w-md-auto">
-                {{ _('Crear grupo') }}
+                {{ _('Siguiente') }}
             </button>
             <a href="/dashboard" class="btn btn-secondary w-100 w-md-auto">
                 {{ _('Cancelar') }}

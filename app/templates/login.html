@@ -3,6 +3,12 @@
 {% block content %}
 <div class="container py-5" style="max-width: 500px;">
     <h2 class="text-center mb-4">{{ _('Iniciar sesión') }}</h2>
+    {% if session_expired %}
+    <div class="alert alert-warning text-center" role="alert">
+        ⚠️ {{ _('Tu sesión expiró, vuelve a iniciar sesión.') }}
+    </div>
+    {% endif %}
+
 
     {% if error %}
         <div class="alert alert-danger" role="alert">

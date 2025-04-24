@@ -96,3 +96,187 @@ function showCopyToast() {
         toast.classList.remove("show");
     }, 2000);
 }
+
+
+
+// -----------------------------------------------
+// UTILIDADES COMUNES PARA CREACIÓN Y EDICIÓN DE GRUPOS
+// -----------------------------------------------
+
+function updateConfirmButton() {
+    const allianceInputs = document.querySelectorAll('.alliance-field');
+    const dayInputs = document.querySelectorAll('.day-field');
+    const confirmBtn = document.getElementById('confirmButton');
+
+    const allianceRegex = /^[A-Za-z0-9]{3}$/;
+    const allAlliancesFilled = Array.from(allianceInputs).every(input => input.value.trim() !== '' && allianceRegex.test(input.value.trim()));
+    const allDaysFilled = Array.from(dayInputs).every(input => input.value.trim() !== '');
+
+    const alliancesValid = allianceInputs.length > 0;
+    const daysValid = dayInputs.length > 0;
+
+    confirmBtn.disabled = !(alliancesValid && daysValid && allAlliancesFilled && allDaysFilled);
+}
+
+function renderAllianceFields(count, existingAlliances = []) {
+    const container = document.getElementById('alliancesContainer');
+    container.innerHTML = '';
+
+    const regex = /^[A-Za-z0-9]{3}$/;
+
+    if (isNaN(count) || count < 1) {
+        updateConfirmButton();
+        return;
+    }
+
+    for (let i = 1; i <= count; i++) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control mb-2 alliance-field';
+        input.placeholder = `Alianza ${i} (3 caracteres)`;
+        input.maxLength = 3;
+        input.required = true;
+        input.name = `alliance_${i}`;
+
+        input.addEventListener("input", () => {
+            const val = input.value.trim();
+            if (regex.test(val)) {
+                input.classList.remove("is-invalid");
+                input.classList.add("is-valid");
+            } else {
+                input.classList.remove("is-valid");
+                input.classList.add("is-invalid");
+            }
+            updateConfirmButton();
+        });
+
+        if (existingAlliances[i - 1] && existingAlliances[i - 1].name !== "Otra") {
+            input.value = existingAlliances[i - 1].name;
+        }
+
+        container.appendChild(input);
+    }
+
+    const otherInput = document.createElement('input');
+    otherInput.type = 'text';
+    otherInput.className = 'form-control mb-2';
+    otherInput.placeholder = 'Otra (Alianza adicional no editable)';
+    otherInput.readOnly = true;
+    container.appendChild(otherInput);
+
+    updateConfirmButton();
+}
+
+
+function renderDayFields(count, existingDays = []) {
+    const container = document.getElementById('daysContainer');
+    container.innerHTML = '';
+
+    const dayRegex = /^[\p{L}0-9 ]{1,20}$/u;
+
+    if (isNaN(count) || count < 1) {
+        updateConfirmButton();
+        return;
+    }
+
+    for (let i = 1; i <= count; i++) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control mb-2 day-field';
+        input.placeholder = `Nombre del día ${i} (Ej: VP Monday)`;
+        input.maxLength = 20;
+        input.required = true;
+        input.name = `day_${i}`;
+
+        input.addEventListener("input", () => {
+            const val = input.value.trim();
+            if (dayRegex.test(val)) {
+                input.classList.remove("is-invalid");
+                input.classList.add("is-valid");
+            } else {
+                input.classList.remove("is-valid");
+                input.classList.add("is-invalid");
+            }
+            updateConfirmButton();
+        });
+
+        if (existingDays[i - 1]) {
+            input.value = existingDays[i - 1].name;
+            // Aplicar clase visual de validación si ya es válido al cargar
+            const val = input.value.trim();
+            if (dayRegex.test(val)) {
+                input.classList.add("is-valid");
+            } else {
+                input.classList.add("is-invalid");
+            }
+        }
+
+        container.appendChild(input);
+    }
+
+    updateConfirmButton();
+}
+
+
+// -----------------------------------------------
+// FUNCIONES DE INICIALIZACIÓN SEGÚN PLANTILLA
+// -----------------------------------------------
+
+function initGrupoSettingsCreate() {
+    const selectAlliances = document.getElementById('numAlliances');
+    const selectDays = document.getElementById('numDays');
+
+    selectAlliances.addEventListener('change', () => {
+        renderAllianceFields(parseInt(selectAlliances.value));
+    });
+
+    selectDays.addEventListener('change', () => {
+        renderDayFields(parseInt(selectDays.value));
+    });
+}
+
+function initGrupoSettingsEdit(existingAlliances = [], existingDays = []) {
+    const selectAlliances = document.getElementById('numAlliances');
+    const selectDays = document.getElementById('numDays');
+
+    // Prellenar los select
+    selectAlliances.value = existingAlliances.filter(a => a.name !== "Otra").length;
+    selectDays.value = existingDays.length;
+
+    // Renderizar los campos
+    renderAllianceFields(parseInt(selectAlliances.value), existingAlliances);
+    renderDayFields(parseInt(selectDays.value), existingDays);
+
+    // Event listeners
+    selectAlliances.addEventListener('change', () => {
+        renderAllianceFields(parseInt(selectAlliances.value), []);
+    });
+
+    selectDays.addEventListener('change', () => {
+        renderDayFields(parseInt(selectDays.value), []);
+    });
+}
+
+
+
+
+
+function validateUsernameInput() {
+    const usernameInput = document.getElementById("username");
+    const registerBtn = document.getElementById("registerBtn");
+
+    if (!usernameInput || !registerBtn) return;
+
+    const regex = /^[\p{L}\p{N}_-]{1,15}$/u;  // permite letras (de cualquier idioma), números, _ y -, máx 15
+    const value = usernameInput.value;
+
+    if (regex.test(value)) {
+        usernameInput.classList.remove("is-invalid");
+        usernameInput.classList.add("is-valid");
+        registerBtn.disabled = false;
+    } else {
+        usernameInput.classList.remove("is-valid");
+        usernameInput.classList.add("is-invalid");
+        registerBtn.disabled = true;
+    }
+}

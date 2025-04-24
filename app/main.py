@@ -2,9 +2,13 @@ from fastapi import FastAPI, Request, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+
 from starlette.middleware.sessions import SessionMiddleware
 from starlette_babel import gettext_lazy as _, LocaleMiddleware
-from fastapi.templating import Jinja2Templates
+from starlette.requests import Request
+from starlette.responses import HTMLResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+
 from sqlalchemy.orm import Session
 import os
 
@@ -16,7 +20,6 @@ from app import models
 from app.database import Base, engine, get_db
 from app.routers import groups, public, auth
 from app.dependencies import get_templates
-from app.middleware import setup_template_globals
 from app.utils_auth import get_current_user_optional, decode_token_from_cookie
 
 # ------------------------------
@@ -40,14 +43,17 @@ app.add_middleware(SessionMiddleware, secret_key=SESSION_SECRET_KEY)
 # Babel Locale Middleware (compatible con versión 1.0.3)
 app.add_middleware(LocaleMiddleware, default_locale="es")
 
-# Middleware para inyectar globals en plantillas
-@app.middleware("http")
+
 async def add_globals_middleware(request: Request, call_next):
-    templates = get_templates(request)
-    inject_context = setup_template_globals()
-    inject_context(request)
     response = await call_next(request)
+
+    if request.session.pop("session_expired", False):
+        response.delete_cookie("access_token")
+        response.set_cookie("toast_msg", "Tu sesión ha expirado", max_age=5)
+
+    response.delete_cookie("toast_msg")
     return response
+
 
 # CORS (opcional)
 app.add_middleware(
@@ -80,9 +86,13 @@ async def set_language(lang_code: str, request: Request):
 async def home(request: Request):
     templates = get_templates(request)
     user_id = get_current_user_optional(request)
+    session_expired = request.session.pop("session_expired", False)
     if user_id:
         return RedirectResponse(url="/dashboard")
-    return templates.TemplateResponse("home.html", {"request": request})
+    return templates.TemplateResponse("home.html", {
+        "request": request,
+        "session_expired": session_expired
+    })
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request, db: Session = Depends(get_db)):
@@ -98,6 +108,17 @@ async def dashboard(request: Request, db: Session = Depends(get_db)):
         "username": user.username,
         "user_id": user.id
     })
+
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    templates = get_templates(request)
+
+    if exc.status_code == 404:
+        return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
+    else:
+        # para otros errores, puedes dejarlo pasar o personalizar después
+        return HTMLResponse(f"<h1>{exc.status_code} Error</h1><p>{exc.detail}</p>", status_code=exc.status_code)
 
 
 # ------------------------------

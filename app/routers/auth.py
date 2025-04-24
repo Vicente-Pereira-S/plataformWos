@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Form, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import RedirectResponse, HTMLResponse
 from sqlalchemy.orm import Session
+from datetime import timedelta
+import re
 
 from app import models, schemas
 from app.database import get_db
@@ -35,7 +37,11 @@ def show_register_form(request: Request):
 @router.get("/login", response_class=HTMLResponse)
 def show_login_form(request: Request):
     templates = get_templates(request)
-    return templates.TemplateResponse("login.html", {"request": request})
+    session_expired = request.session.pop("session_expired", False)
+    return templates.TemplateResponse("login.html", {
+        "request": request,
+        "session_expired": session_expired
+    })
 
 
 # ------------------------------
@@ -52,7 +58,6 @@ def register(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
         username=user_data.username,
         email=user_data.email,
         hashed_password=hashed_pw,
-        role="observer",
         is_active=True
     )
     db.add(new_user)
@@ -72,8 +77,10 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Account disabled")
 
-    token_data = {"sub": str(user.id)}
-    access_token = create_access_token(data=token_data)
+    access_token = create_access_token(
+        {"sub": str(user.id)},
+        expires_delta=timedelta(minutes=60)  # ← aquí defines la duración
+    )
     return {"access_token": access_token, "token_type": "bearer"}
 
 
@@ -90,6 +97,7 @@ def logout():
 # ------------------------------
 # HTML Form: Register user
 # ------------------------------
+
 @router.post("/register-form")
 def register_form(
     request: Request,
@@ -104,14 +112,27 @@ def register_form(
     if password != confirm_password:
         return templates.TemplateResponse("register.html", {
             "request": request,
-            "error": "Passwords do not match"
+            "error": "Passwords do not match",
+            "username": username,
+            "email": email
+        })
+
+    # Validación estricta del nombre de usuario
+    if not re.match(r"^[\w\-]{1,15}$", username):
+        return templates.TemplateResponse("register.html", {
+            "request": request,
+            "error": "Invalid username format",
+            "username": username,
+            "email": email
         })
 
     existing_user = db.query(models.User).filter(models.User.username == username).first()
     if existing_user:
         return templates.TemplateResponse("register.html", {
             "request": request,
-            "error": "Username already registered"
+            "error": "Username already registered",
+            "username": username,
+            "email": email
         })
 
     hashed_pw = hash_password(password)
@@ -119,7 +140,6 @@ def register_form(
         username=username,
         email=email,
         hashed_password=hashed_pw,
-        role="observer",
         is_active=True
     )
     db.add(new_user)
@@ -127,6 +147,7 @@ def register_form(
     db.refresh(new_user)
 
     return templates.TemplateResponse("registro_exitoso.html", {"request": request})
+
 
 
 # ------------------------------

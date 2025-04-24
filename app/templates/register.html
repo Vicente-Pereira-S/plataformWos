@@ -13,8 +13,12 @@
     <form method="post" action="/auth/register-form">
         <div class="mb-3">
             <label for="username" class="form-label">{{ _('Nombre de usuario') }}</label>
-            <input type="text" class="form-control" id="username" name="username"
-                   value="{{ '' if error == 'Username already registered' else username or '' }}" required>
+            <input type="text" class="form-control" id="username" name="username" maxlength="15"
+            required oninput="validateUsernameInput()" 
+            value="{{ '' if error == 'Username already registered' else username or '' }}">
+            <div class="form-label form-label-hint">
+                {{ _('Solo letras (de cualquier idioma), números, guion (-) y guion bajo (_). Máximo 15 caracteres.') }}
+            </div>
         </div>
 
         <div class="mb-3">

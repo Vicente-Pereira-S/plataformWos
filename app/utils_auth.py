@@ -1,8 +1,10 @@
 import bcrypt
 from jose import JWTError, jwt
 from fastapi import Request, Depends, HTTPException, status
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
+from datetime import datetime, timedelta, timezone
 import os
 
 from app import models
@@ -26,8 +28,13 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 
-def create_access_token(data: dict) -> str:
-    return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", 60))  # Default: 60 minutos
+
+def create_access_token(data: dict, expires_delta: timedelta = None):
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
 def decode_token_from_cookie(request: Request):
@@ -38,7 +45,13 @@ def decode_token_from_cookie(request: Request):
         payload = jwt.decode(token.replace("Bearer ", ""), SECRET_KEY, algorithms=[ALGORITHM])
         return int(payload.get("sub"))
     except JWTError:
+        if "session" in request.scope:
+            request.session["session_expired"] = True  # para mostrar mensaje visual
+        # return None en lugar de lanzar excepción
         return None
+
+
+
 
 
 def get_current_user_optional(request: Request):

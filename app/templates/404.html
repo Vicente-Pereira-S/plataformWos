@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <h1 class="display-4">😵 {{ _('¿Estás perdido?') }}</h1>
+    <p class="lead mt-3">
+        {{ _('La sección que estás buscando no existe o fue movida.') }}
+    </p>
+    <a href="/" class="btn btn-primary mt-4">
+        {{ _('Volver al inicio') }}
+    </a>
+</div>
+{% endblock %}
