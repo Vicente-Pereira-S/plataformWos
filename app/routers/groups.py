@@ -178,8 +178,11 @@ def view_group(
     current_user: models.User = Depends(get_current_user)
 ):
     templates = get_templates(request)
+    
+    # Convertir objetos SQLAlchemy a estructuras nativas serializables
     group = db.query(models.Group).filter(models.Group.group_code == group_code).first()
-
+    alliances_serializable = [{"id": a.id, "name": a.name} for a in group.alliances if a.name != "Otra"]
+    days_serializable = [{"id": d.id, "name": d.name} for d in group.days]
     if not group:
         return RedirectResponse("/dashboard")
 
@@ -188,7 +191,9 @@ def view_group(
     return templates.TemplateResponse("grupo_home.html", {
         "request": request,
         "group": group,
-        "is_creator": is_creator
+        "is_creator": is_creator,
+        "alliances_serializable": alliances_serializable,
+        "days_serializable": days_serializable
     })
 
 
