@@ -13,16 +13,3 @@
 .card-grupo:hover {
     transform: translateY(-4px);
 }
-
-/* Icono del basurero en la esquina superior derecha */
-.card-basurero {
-    position: absolute;
-    top: 0.25rem;
-    right: 0.5rem;
-    cursor: pointer;
-    color: red;
-}
-
-.card-basurero:hover {
-    color: darkred;
-}

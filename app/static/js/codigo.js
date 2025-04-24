@@ -130,14 +130,23 @@ function renderAllianceFields(count, existingAlliances = []) {
     }
 
     for (let i = 1; i <= count; i++) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mb-3';
+
         const input = document.createElement('input');
         input.type = 'text';
-        input.className = 'form-control mb-2 alliance-field';
+        input.className = 'form-control alliance-field';
         input.placeholder = `Alianza ${i} (3 caracteres)`;
         input.maxLength = 3;
         input.required = true;
         input.name = `alliance_${i}`;
 
+        // Mensaje de error
+        const feedback = document.createElement('div');
+        feedback.className = 'invalid-feedback';
+        feedback.textContent = 'Debe tener exactamente 3 caracteres alfanuméricos.';
+
+        // Evento de validación
         input.addEventListener("input", () => {
             const val = input.value.trim();
             if (regex.test(val)) {
@@ -150,22 +159,35 @@ function renderAllianceFields(count, existingAlliances = []) {
             updateConfirmButton();
         });
 
+        // Valor precargado si existe
         if (existingAlliances[i - 1] && existingAlliances[i - 1].name !== "Otra") {
             input.value = existingAlliances[i - 1].name;
+            const val = input.value.trim();
+            if (regex.test(val)) {
+                input.classList.add("is-valid");
+            } else {
+                input.classList.add("is-invalid");
+            }
         }
 
-        container.appendChild(input);
+        // Armar bloque
+        wrapper.appendChild(input);
+        wrapper.appendChild(feedback);
+        container.appendChild(wrapper);
     }
 
+    // Campo readonly para la alianza "Otra"
     const otherInput = document.createElement('input');
     otherInput.type = 'text';
     otherInput.className = 'form-control mb-2';
     otherInput.placeholder = 'Otra (Alianza adicional no editable)';
     otherInput.readOnly = true;
+    otherInput.value = 'Otra';
     container.appendChild(otherInput);
 
     updateConfirmButton();
 }
+
 
 
 function renderDayFields(count, existingDays = []) {
@@ -180,14 +202,23 @@ function renderDayFields(count, existingDays = []) {
     }
 
     for (let i = 1; i <= count; i++) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mb-3';
+
         const input = document.createElement('input');
         input.type = 'text';
-        input.className = 'form-control mb-2 day-field';
+        input.className = 'form-control day-field';
         input.placeholder = `Nombre del día ${i} (Ej: VP Monday)`;
         input.maxLength = 20;
         input.required = true;
         input.name = `day_${i}`;
 
+        // Mensaje de error
+        const feedback = document.createElement('div');
+        feedback.className = 'invalid-feedback';
+        feedback.textContent = 'Máximo 20 caracteres. Solo letras, números y espacios.';
+
+        // Evento de validación
         input.addEventListener("input", () => {
             const val = input.value.trim();
             if (dayRegex.test(val)) {
@@ -200,9 +231,9 @@ function renderDayFields(count, existingDays = []) {
             updateConfirmButton();
         });
 
+        // Valor precargado si existe
         if (existingDays[i - 1]) {
             input.value = existingDays[i - 1].name;
-            // Aplicar clase visual de validación si ya es válido al cargar
             const val = input.value.trim();
             if (dayRegex.test(val)) {
                 input.classList.add("is-valid");
@@ -211,11 +242,15 @@ function renderDayFields(count, existingDays = []) {
             }
         }
 
-        container.appendChild(input);
+        // Armar bloque
+        wrapper.appendChild(input);
+        wrapper.appendChild(feedback);
+        container.appendChild(wrapper);
     }
 
     updateConfirmButton();
 }
+
 
 
 // -----------------------------------------------

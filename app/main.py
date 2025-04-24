@@ -64,6 +64,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Nuevo middleware para is_logged_in
+@app.middleware("http")
+async def check_login_status(request: Request, call_next):
+    user_id = decode_token_from_cookie(request)
+    request.state.is_logged_in = user_id is not None
+    response = await call_next(request)
+    return response
+
 # ------------------------------
 # Language Settings
 # ------------------------------

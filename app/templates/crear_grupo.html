@@ -8,8 +8,8 @@
         <p class="mb-2">💡 <strong>{{ _('Consejos para completar el formulario:') }}</strong></p>
         <ul class="mb-0 ps-3">
             <li>
-                <strong>{{ _('Código para compartir') }}</strong>
-                {{ _(', es único y lo inventas tú. Se usará para que otros puedan acceder a la información compartida del grupo (Puedes usar el número de tu estado).') }}
+                <strong>{{ _('Código para compartir:') }}</strong>
+                {{ _('es único y lo inventas tú. Se usará para que otros puedan acceder a la información compartida del grupo (Puedes usar el mismo número de tu estado).') }}
             </li>
         </ul>
     </div>
@@ -26,7 +26,7 @@
         </div>
 
         <div class="mb-3">
-            <label for="group_code" class="form-label">{{ _('Código del grupo') }}</label>
+            <label for="group_code" class="form-label">{{ _('Código para compartir') }}</label>
             <div class="input-group">
                 <input type="text" class="form-control" id="group_code" name="group_code"
                        value="{{ group_code or '' }}" oninput="validateGroupCode()" required>

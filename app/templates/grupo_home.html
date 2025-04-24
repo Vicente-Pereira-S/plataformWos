@@ -20,8 +20,9 @@
         {% if is_creator %}
         <div class="d-flex gap-2">
             <a href="#" class="btn btn-outline-primary">
-                ➕ {{ _('Agregar editor') }}
+                👥 {{ _('Agregar/Eliminar editor') }}
             </a>
+            
             <a href="/groups/settings/{{ group.group_code }}" class="btn btn-outline-secondary">
                 ⚙️ {{ _('Ajustes') }}
             </a>
