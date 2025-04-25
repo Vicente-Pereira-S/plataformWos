@@ -24,11 +24,8 @@
             </a>
 
             <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#ajustesModal">
-                ⚙️ {{ _('Ajustes modal') }}
-            </button>
-            <a href="/groups/settings/{{ group.group_code }}" class="btn btn-outline-secondary">
                 ⚙️ {{ _('Ajustes') }}
-            </a>
+            </button>
         </div>
         {% endif %}
     </div>
@@ -48,7 +45,7 @@
                     {% for alliance in alianzas_validas %}
                         <li class="list-group-item">[{{ alliance.name }}]</li>
                     {% endfor %}
-                    <li class="list-group-item text-muted">+ [{{ _('Otra') }}] {{ _('(automática)') }}</li>
+                    <li class="list-group-item text-muted">[{{ _('Otra') }}] {{ _('(obligatoria)') }}</li>
                 </ul>
                 <small class="text-muted">{{ _('Total:') }} {{ alianzas_validas|length + 1 }}</small>
             </div>

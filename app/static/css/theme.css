@@ -1,95 +1,104 @@
+/* -------------------------------------------------
+   Variables globales de color para temas claro/oscuro
+-------------------------------------------------- */
 :root {
-    --light-bg: #ffffff;
-    --light-text: #000000;
-    --dark-bg: #1a1a1a;
-    --dark-text: #f5f5f5;
+    --light-bg: #f8f9fa;         /* Fondo general en tema claro (más suave que blanco puro) */
+    --light-card: #ffffff;       /* Fondo de tarjetas (cards) en tema claro */
+    --light-text: #212529;       /* Color de texto oscuro, no negro puro */
+    --dark-bg: #1a1a1a;          /* Fondo general en tema oscuro */
+    --dark-card: #2c2c2c;        /* Fondo de tarjetas en tema oscuro */
+    --dark-text: #f5f5f5;        /* Texto claro en tema oscuro */
 }
 
-/* Tema claro (por defecto) */
+/* -------------------------------------------------
+   Aplicación del color base según tema
+-------------------------------------------------- */
 body[data-theme="light"] {
-    background-color: var(--light-bg);
+    background-color: #f1f3f5;
     color: var(--light-text);
 }
 
-/* Tema oscuro */
 body[data-theme="dark"] {
     background-color: var(--dark-bg);
     color: var(--dark-text);
 }
 
-/* Transición suave */
+/* Suaviza la transición al cambiar de tema */
 body {
     transition: background-color 0.3s, color 0.3s;
 }
 
-.form-label-hint {
-    font-size: 0.8rem;
-}
-
-.flash-input {
-    animation: flashBorder 0.4s ease-in-out;
-}
-
-@keyframes flashBorder {
-    0% { box-shadow: 0 0 0px rgba(0, 123, 255, 0); }
-    50% { box-shadow: 0 0 6px rgba(0, 123, 255, 0.6); }
-    100% { box-shadow: 0 0 0px rgba(0, 123, 255, 0); }
-}
-
-.text-theme-muted {
-    color: #6c757d; /* Gris Bootstrap clásico */
-}
-
-body[data-theme="dark"] .text-theme-muted {
-    color: #f5f5f5; /* Texto claro para fondo oscuro */
-}
-
-
-.dashboard-wrapper {
-    background-color: #f8f9fa;
-    border-radius: 10px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.05);
-    border: 1px solid #dee2e6;
-}
-body[data-theme="dark"] .dashboard-wrapper {
-    background-color: #212529;
-    border: 1px solid #444;
-}
-
+/* -------------------------------------------------
+   Estilo de tarjetas de grupo (.group-card)
+-------------------------------------------------- */
 .group-card {
     border-radius: 0.75rem;
-    border: 1px solid rgba(128, 128, 128, 0.2);
-    background-color: var(--light-bg);
+    border: 1px solid rgba(128, 128, 128, 0.2); /* borde sutil */
+    background-color: var(--light-card);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-[data-theme="dark"] .group-card {
-    background-color: #2c2c2c;
+body[data-theme="dark"] .group-card {
+    background-color: var(--dark-card);
     color: var(--dark-text);
     border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .group-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* levita al hacer hover */
 }
 
-
+/* Código de grupo en la esquina inferior derecha */
 .group-code-text {
-    color: #495057; /* color neutro para tema claro */
+    color: #495057;
 }
 
 body[data-theme="dark"] .group-code-text {
-    color: #dcdcdc; /* gris claro para tema oscuro */
+    color: #dcdcdc;
 }
 
+/* -------------------------------------------------
+   Contenedor tipo panel (ej: dashboard)
+-------------------------------------------------- */
+.dashboard-wrapper {
+    background-color: var(--light-card);
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #dee2e6;
+}
 
+body[data-theme="dark"] .dashboard-wrapper {
+    background-color: #212529;
+    border: 1px solid #444;
+}
+
+/* -------------------------------------------------
+   Modal con efecto glassmorphic
+-------------------------------------------------- */
+.modal-content.glassmorphic {
+    background: rgba(255, 255, 255, 0.15); /* semitransparente */
+    backdrop-filter: blur(10px);           /* desenfoque */
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #000;                           /* texto en claro */
+}
+
+body[data-theme="dark"] .modal-content.glassmorphic {
+    background: rgba(30, 30, 30, 0.4);
+    color: var(--dark-text);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* -------------------------------------------------
+   Toast personalizado que aparece abajo a la derecha
+-------------------------------------------------- */
 .toast-custom {
     position: fixed;
     bottom: -60px;
     right: 20px;
-    background-color: #28a745;
+    background-color: #28a745; /* verde éxito */
     color: white;
     padding: 12px 20px;
     border-radius: 8px;
@@ -105,19 +114,29 @@ body[data-theme="dark"] .group-code-text {
     opacity: 1;
 }
 
-/* Estilo por defecto para el modal */
-.modal-content.glassmorphic {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #000;
+/* -------------------------------------------------
+   Detalles visuales menores
+-------------------------------------------------- */
+.form-label-hint {
+    font-size: 0.8rem;
 }
 
-/* Estilo para tema oscuro */
-body[data-theme="dark"] .modal-content.glassmorphic {
-    background: rgba(30, 30, 30, 0.4);
+/* Efecto flash (por ejemplo, al generar código aleatorio) */
+.flash-input {
+    animation: flashBorder 0.4s ease-in-out;
+}
+
+@keyframes flashBorder {
+    0% { box-shadow: 0 0 0px rgba(0, 123, 255, 0); }
+    50% { box-shadow: 0 0 6px rgba(0, 123, 255, 0.6); }
+    100% { box-shadow: 0 0 0px rgba(0, 123, 255, 0); }
+}
+
+/* Texto gris suavizado */
+.text-theme-muted {
+    color: #6c757d;
+}
+
+body[data-theme="dark"] .text-theme-muted {
     color: #f5f5f5;
-    border: 1px solid rgba(255, 255, 255, 0.1);
 }
-

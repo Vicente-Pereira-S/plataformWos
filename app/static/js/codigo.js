@@ -78,13 +78,29 @@ function copyGroupCode() {
     const input = document.getElementById("groupCodeInput");
     if (!input) return;
 
-    input.select();
-    input.setSelectionRange(0, 99999); // Para móviles
-
-    navigator.clipboard.writeText(input.value).then(() => {
-        showCopyToast();
-    });
+    // Para asegurar compatibilidad, creamos un rango y lo seleccionamos manualmente
+    if (navigator.clipboard && window.isSecureContext) {
+        // Método moderno y seguro
+        navigator.clipboard.writeText(input.value)
+            .then(showCopyToast)
+            .catch(() => fallbackCopyText(input));
+    } else {
+        // Fallback para navegadores más antiguos o no seguros (iOS Safari)
+        fallbackCopyText(input);
+    }
 }
+
+function fallbackCopyText(input) {
+    input.focus();
+    input.setSelectionRange(0, input.value.length); // compatible con móviles
+    const successful = document.execCommand('copy'); // método clásico
+    if (successful) {
+        showCopyToast();
+    } else {
+        alert("No se pudo copiar el código. Intenta seleccionarlo manualmente.");
+    }
+}
+
 
 function showCopyToast() {
     const toast = document.getElementById("copyToast");
@@ -180,7 +196,7 @@ function renderAllianceFields(count, existingAlliances = []) {
     const otherInput = document.createElement('input');
     otherInput.type = 'text';
     otherInput.className = 'form-control mb-2';
-    otherInput.placeholder = 'Otra (Alianza adicional no editable)';
+    otherInput.placeholder = '[Otra] (Alianza adicional obligatoria)';
     otherInput.readOnly = true;
     otherInput.value = 'Otra';
     container.appendChild(otherInput);

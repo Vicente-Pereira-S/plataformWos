@@ -198,36 +198,7 @@ def view_group(
 
 
 # ----------------------------------
-# GET: Configuración editable del grupo desde grupo_home
-# ----------------------------------
-@router.get("/settings/{group_code}")
-def group_settings_edit(
-    group_code: str,
-    request: Request,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
-):
-    templates = get_templates(request)
-    group = db.query(models.Group).filter(models.Group.group_code == group_code).first()
-
-    if not group or group.creator_id != current_user.id:
-        return RedirectResponse("/dashboard")
-
-    # Convertir objetos SQLAlchemy a estructuras nativas serializables
-    alliances_serializable = [{"id": a.id, "name": a.name} for a in group.alliances if a.name != "Otra"]
-    days_serializable = [{"id": d.id, "name": d.name} for d in group.days]
-
-    return templates.TemplateResponse("grupo_settings_edit.html", {
-        "request": request,
-        "group": group,
-        "alliances_serializable": alliances_serializable,
-        "days_serializable": days_serializable
-    })
-
-
-
-# ----------------------------------
-# POST: Actualizar configuración de un grupo ya existente
+# POST: Actualizar configuración de un grupo ya existente (MODAL lo usa)
 # ----------------------------------
 @router.post("/update-settings/{group_code}")
 async def update_group_settings(
@@ -295,64 +266,3 @@ async def update_group_settings(
 
 
 
-
-
-
-@router.post("/update-settings/{group_code}")
-async def update_group_settings(
-    group_code: str,
-    request: Request,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user)
-):
-    templates = get_templates(request)
-
-    group = db.query(models.Group).filter(models.Group.group_code == group_code).first()
-    if not group or group.creator_id != current_user.id:
-        return RedirectResponse("/dashboard")
-
-    form = await request.form()
-    num_alliances = int(form.get("num_alliances", 0))
-    num_days = int(form.get("num_days", 0))
-
-    # Validaciones mínimas
-    if num_alliances < 1 or num_days < 1:
-        return templates.TemplateResponse("grupo_settings_edit.html", {
-            "request": request,
-            "group": group,
-            "error": "Debe ingresar al menos una alianza y un día."
-        })
-
-    # Borrar alianzas y días antiguos
-    db.query(models.Alliance).filter(models.Alliance.group_id == group.id).delete()
-    db.query(models.GroupDay).filter(models.GroupDay.group_id == group.id).delete()
-    db.commit()
-
-    # Alianzas personalizadas
-    for i in range(1, num_alliances + 1):
-        name = form.get(f"alliance_{i}", "").strip()
-        if len(name) != 3:
-            return templates.TemplateResponse("grupo_settings_edit.html", {
-                "request": request,
-                "group": group,
-                "error": f"Nombre de alianza {i} inválido"
-            })
-        db.add(models.Alliance(group_id=group.id, name=name))
-
-    # Alianza adicional 'Otra'
-    db.add(models.Alliance(group_id=group.id, name="Otra"))
-
-    # Días personalizados
-    for i in range(1, num_days + 1):
-        day_name = form.get(f"day_{i}", "").strip()
-        if not day_name:
-            return templates.TemplateResponse("grupo_settings_edit.html", {
-                "request": request,
-                "group": group,
-                "error": f"Nombre del día {i} inválido"
-            })
-        db.add(models.GroupDay(group_id=group.id, name=day_name))
-
-    db.commit()
-
-    return RedirectResponse(f"/groups/view/{group.group_code}", status_code=303)
