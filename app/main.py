@@ -18,7 +18,7 @@ import os
 
 from app import models
 from app.database import Base, engine, get_db
-from app.routers import groups, public, auth
+from app.routers import groups, public, auth, maintenance
 from app.dependencies import get_templates
 from app.utils_auth import get_current_user_optional, decode_token_from_cookie
 
@@ -82,7 +82,7 @@ AVAILABLE_LANGS = {"es", "en", "ko", "tr"}
 async def set_language(lang_code: str, request: Request):
     if lang_code not in AVAILABLE_LANGS:
         lang_code = "es"
-    request.session["locale"] = lang_code  # para starlette-babel 1.0.3
+    request.session["locale"] = lang_code 
     referer = request.headers.get("referer", "/")
     return RedirectResponse(url=referer)
 
@@ -136,3 +136,4 @@ async def custom_http_exception_handler(request: Request, exc: StarletteHTTPExce
 app.include_router(groups.router)
 app.include_router(public.router)
 app.include_router(auth.router)
+app.include_router(maintenance.router)

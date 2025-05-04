@@ -1,7 +1,6 @@
 import bcrypt
 from jose import JWTError, jwt
 from fastapi import Request, Depends, HTTPException, status
-from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 from datetime import datetime, timedelta, timezone
@@ -13,7 +12,7 @@ from app.database import get_db
 load_dotenv()
 
 # Clave secreta para JWT (asegúrate de tenerla en tu .env)
-SECRET_KEY = os.getenv("JWT_SECRET_KEY", "changeme")
+SECRET_KEY = os.getenv("JWT_SECRET_KEY")
 ALGORITHM = "HS256"
 
 # ---------------------------
@@ -28,7 +27,7 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", 60))  # Default: 60 minutos
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_EXPIRE_MINUTES", 240))  # 4 horas de sesion
 
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()

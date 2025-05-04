@@ -19,42 +19,59 @@
     <link rel="stylesheet" href="{{ url_for('static', path='css/theme.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', path='css/mis_grupos.css') }}">
 </head>
-<body data-theme="{{ request.cookies.get('theme', 'light') }}">
+<body data-theme="{{ request.cookies.get('theme', 'dark') }}">
     <div class="d-flex flex-column min-vh-100">
 
         <!-- Navbar -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
-                <a href="/" class="navbar-brand mb-0 h1 text-decoration-none">{{ _('Plataforma de citas') }}</a>
-                <div class="d-flex ms-auto align-items-center gap-3">
-                    {% if is_logged_in %}
-                        <a href="/auth/logout" class="btn btn-outline-light me-2">{{ _('Cerrar sesión') }}</a>
-                    {% endif %}
-                    <!-- Tema -->
-                    <div class="dropdown me-2">
-                        <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            🌓 {{ _('Tema') }}
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item theme-select" href="#" data-theme="light">☀️ {{ _('Claro') }}</a></li>
-                            <li><a class="dropdown-item theme-select" href="#" data-theme="dark">🌙 {{ _('Oscuro') }}</a></li>
-                        </ul>
-                    </div>
-                    <!-- Idioma -->
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            🌐 {{ _('Idioma') }}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item lang-select" href="#" data-lang="es">🇪🇸 Español</a></li>
-                            <li><a class="dropdown-item lang-select" href="#" data-lang="en">🇺🇸 English</a></li>
-                            <li><a class="dropdown-item lang-select" href="#" data-lang="ko">🇰🇷 한국어</a></li>
-                            <li><a class="dropdown-item lang-select" href="#" data-lang="tr">🇹🇷 Türkçe</a></li>
-                        </ul>
-                    </div>
+                <a href="/" class="navbar-brand">{{ _('Plataforma de citas') }}</a>
+                
+                <!-- Botón hamburguesa -->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarOpciones"
+                    aria-controls="navbarOpciones" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+        
+                <!-- Contenido colapsable -->
+                <div class="collapse navbar-collapse" id="navbarOpciones">
+                    <ul class="navbar-nav ms-auto d-flex align-items-lg-center gap-2">
+                        {% if is_logged_in %}
+                            <li class="nav-item">
+                                <a class="btn btn-outline-light" href="/dashboard">🏠 {{ _('Inicio') }}</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-outline-light" href="/auth/logout">🔓 {{ _('Cerrar sesión') }}</a>
+                            </li>
+                        {% endif %}
+                        <!-- Tema -->
+                        <li class="nav-item dropdown">
+                            <button class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                                🌓 {{ _('Tema') }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item theme-select" href="#" data-theme="light">☀️ {{ _('Claro') }}</a></li>
+                                <li><a class="dropdown-item theme-select" href="#" data-theme="dark">🌙 {{ _('Oscuro') }}</a></li>
+                            </ul>
+                        </li>
+                        <!-- Idioma -->
+                        <li class="nav-item dropdown">
+                            <button class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
+                                🌐 {{ _('Idioma') }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item lang-select" href="#" data-lang="es">🇪🇸 Español</a></li>
+                                <li><a class="dropdown-item lang-select" href="#" data-lang="en">🇺🇸 English</a></li>
+                                <li><a class="dropdown-item lang-select" href="#" data-lang="ko">🇰🇷 한국어</a></li>
+                                <li><a class="dropdown-item lang-select" href="#" data-lang="tr">🇹🇷 Türkçe</a></li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </nav>
+        
+        
 
         <!-- Contenido principal -->
         <main class="flex-fill">

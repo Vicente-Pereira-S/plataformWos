@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-04-19 15:25-0400\n"
+"POT-Creation-Date: 2025-04-25 23:03-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -18,57 +18,486 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.17.0\n"
 
-#: app/templates/base.html:6 app/templates/base.html:18
-msgid "Plataforma de citas"
-msgstr "Plataforma de citas"
+#: app/templates/404.html:5 app/templates/grupo_no_encontrado.html:5
+msgid "¿Estás perdido?"
+msgstr ""
 
-#: app/templates/base.html:22
+#: app/templates/404.html:7
+msgid "La sección que estás buscando no existe o fue movida."
+msgstr ""
+
+#: app/templates/404.html:10 app/templates/correo_enviado.html:24
+#: app/templates/grupo_no_encontrado.html:10 app/templates/sin_correo.html:8
+msgid "Volver al inicio"
+msgstr ""
+
+#: app/templates/base.html:6 app/templates/base.html:28
+msgid "Plataforma de citas"
+msgstr ""
+
+#: app/templates/base.html:31
+msgid "Cerrar sesión"
+msgstr ""
+
+#: app/templates/base.html:36
+msgid "Tema"
+msgstr ""
+
+#: app/templates/base.html:39
+msgid "Claro"
+msgstr ""
+
+#: app/templates/base.html:40
+msgid "Oscuro"
+msgstr ""
+
+#: app/templates/base.html:46
 msgid "Idioma"
-msgstr "Idioma"
+msgstr ""
+
+#: app/templates/borrar.html:15
+msgid "Agregar/Eliminar miembro"
+msgstr ""
+
+#: app/templates/buscar_estado.html:6 app/templates/grupo_home.html:6
+#: app/templates/mis_grupos.html:6
+msgid "Volver"
+msgstr ""
+
+#: app/templates/buscar_estado.html:11
+msgid "Ingresa el código de tu estado"
+msgstr ""
+
+#: app/templates/buscar_estado.html:16
+msgid "Ej: 1614 o R-1213"
+msgstr ""
+
+#: app/templates/buscar_estado.html:19 app/templates/crear_grupo.html:46
+msgid "✔️ Caracteres válidos"
+msgstr ""
+
+#: app/templates/buscar_estado.html:20 app/templates/crear_grupo.html:47
+msgid "❌ Caracteres admitidos: A-Z, 0-9 y guión (-)"
+msgstr ""
+
+#: app/templates/buscar_estado.html:22 app/templates/grupo_home.html:157
+msgid "Buscar"
+msgstr ""
+
+#: app/templates/buscar_estado.html:27
+msgid "Grupo encontrado con el código"
+msgstr ""
+
+#: app/templates/buscar_estado.html:28
+msgid "No se encontró ningún grupo con ese código."
+msgstr ""
+
+#: app/templates/buscar_estado.html:29
+msgid "Error al buscar el grupo."
+msgstr ""
+
+#: app/templates/confirmar_envio.html:5
+msgid "¿Enviar correo de recuperación?"
+msgstr ""
+
+#: app/templates/confirmar_envio.html:6
+msgid "Se enviará un correo de recuperación a la siguiente dirección:"
+msgstr ""
+
+#: app/templates/confirmar_envio.html:12
+msgid "Confirmar envío"
+msgstr ""
+
+#: app/templates/confirmar_envio.html:15 app/templates/crear_grupo.html:56
+#: app/templates/grupo_home.html:130 app/templates/grupo_home.html:174
+#: app/templates/grupo_home.html:194 app/templates/grupo_settings.html:48
+#: app/templates/grupo_settings_edit.html:49 app/templates/login.html:41
+#: app/templates/recuperar_clave.html:15 app/templates/register.html:66
+msgid "Cancelar"
+msgstr ""
+
+#: app/templates/correo_enviado.html:8
+msgid "Correo enviado"
+msgstr ""
+
+#: app/templates/correo_enviado.html:11
+msgid ""
+"Hemos enviado un mensaje a tu correo electrónico con las instrucciones "
+"para restablecer tu contraseña."
+msgstr ""
+
+#: app/templates/correo_enviado.html:15
+msgid "Si no lo encuentras en tu bandeja de entrada, revisa la carpeta de"
+msgstr ""
+
+#: app/templates/correo_enviado.html:16
+msgid "spam"
+msgstr ""
+
+#: app/templates/correo_enviado.html:16
+msgid "o"
+msgstr ""
+
+#: app/templates/correo_enviado.html:16
+msgid "correo no deseado"
+msgstr ""
+
+#: app/templates/correo_enviado.html:20
+msgid "Si tienes problemas, contácta con"
+msgstr ""
+
+#: app/templates/crear_grupo.html:5
+msgid "Crear nuevo grupo"
+msgstr ""
+
+#: app/templates/crear_grupo.html:8
+msgid "Consejos para completar el formulario:"
+msgstr ""
+
+#: app/templates/crear_grupo.html:11
+msgid "Código para compartir:"
+msgstr ""
+
+#: app/templates/crear_grupo.html:12
+msgid ""
+"es único y lo inventas tú. Se usará para que otros puedan ver el horario "
+"de citas (Puedes usar el mismo número de tu estado)."
+msgstr ""
+
+#: app/templates/crear_grupo.html:19
+msgid "Este código ya está en uso."
+msgstr ""
+
+#: app/templates/crear_grupo.html:25
+msgid "Número del estado"
+msgstr ""
+
+#: app/templates/crear_grupo.html:34
+msgid "Código para compartir"
+msgstr ""
+
+#: app/templates/crear_grupo.html:39
+msgid "Código aleatorio"
+msgstr ""
+
+#: app/templates/crear_grupo.html:43
+msgid "Puedes escribir uno personalizado o generar uno aleatorio."
+msgstr ""
+
+#: app/templates/crear_grupo.html:53
+msgid "Siguiente"
+msgstr ""
+
+#: app/templates/dashboard.html:5
+msgid "¡ Bienvenido"
+msgstr ""
+
+#: app/templates/dashboard.html:8
+msgid "Desde aquí puedes administrar tu actividad en la plataforma."
+msgstr ""
+
+#: app/templates/dashboard.html:12
+msgid "Tu ID es:"
+msgstr ""
+
+#: app/templates/dashboard.html:13
+msgid "Compártelo si un administrador quiere agregarte a un grupo."
+msgstr ""
+
+#: app/templates/dashboard.html:21
+msgid "Nuevo grupo"
+msgstr ""
+
+#: app/templates/dashboard.html:27
+msgid "Ver mis grupos"
+msgstr ""
+
+#: app/templates/dashboard.html:30 app/templates/home.html:16
+msgid "Buscar estado por código"
+msgstr ""
+
+#: app/templates/grupo_creado.html:6
+msgid "¡Grupo creado exitosamente!"
+msgstr ""
+
+#: app/templates/grupo_creado.html:8
+msgid ""
+"Puedes compartir este código para que otras personas puedan ver su hora "
+"de cita."
+msgstr ""
+
+#: app/templates/grupo_creado.html:12
+msgid "Copiar al portapapeles"
+msgstr ""
+
+#: app/templates/grupo_creado.html:19
+msgid "Ir al grupo"
+msgstr ""
+
+#: app/templates/grupo_creado.html:25
+msgid "¡Código copiado!"
+msgstr ""
+
+#: app/templates/grupo_home.html:15 app/templates/mis_grupos.html:18
+msgid "Estado"
+msgstr ""
+
+#: app/templates/grupo_home.html:16
+msgid "Código del estado:"
+msgstr ""
+
+#: app/templates/grupo_home.html:23
+msgid "Agregar/Eliminar editor"
+msgstr ""
+
+#: app/templates/grupo_home.html:28
+msgid "Ajustes"
+msgstr ""
+
+#: app/templates/grupo_home.html:43
+msgid "Alianzas registradas"
+msgstr ""
+
+#: app/templates/grupo_home.html:49 app/templates/grupo_settings.html:84
+msgid "Otra"
+msgstr ""
+
+#: app/templates/grupo_home.html:49
+msgid "(obligatoriaaaaaa)"
+msgstr ""
+
+#: app/templates/grupo_home.html:51 app/templates/grupo_home.html:62
+#: app/templates/grupo_home.html:72
+msgid "Total:"
+msgstr ""
+
+#: app/templates/grupo_home.html:56
+msgid "Días organizados"
+msgstr ""
+
+#: app/templates/grupo_home.html:66
+msgid "Miembros"
+msgstr ""
+
+#: app/templates/grupo_home.html:83 app/templates/grupo_settings.html:5
+#: app/templates/grupo_settings_create.html:5
+#: app/templates/grupo_settings_edit.html:5
+msgid "Configuración del grupo"
+msgstr ""
+
+#: app/templates/grupo_home.html:84
+msgid "Cerrar"
+msgstr ""
+
+#: app/templates/grupo_home.html:98 app/templates/grupo_settings.html:14
+#: app/templates/grupo_settings_create.html:14
+#: app/templates/grupo_settings_edit.html:17
+msgid "Número de alianzas (1 a 12)"
+msgstr ""
+
+#: app/templates/grupo_home.html:100 app/templates/grupo_home.html:114
+#: app/templates/grupo_settings.html:16 app/templates/grupo_settings.html:30
+#: app/templates/grupo_settings_create.html:16
+#: app/templates/grupo_settings_create.html:30
+#: app/templates/grupo_settings_edit.html:19
+#: app/templates/grupo_settings_edit.html:33
+msgid "Selecciona una opción"
+msgstr ""
+
+#: app/templates/grupo_home.html:112 app/templates/grupo_settings.html:28
+#: app/templates/grupo_settings_create.html:28
+#: app/templates/grupo_settings_edit.html:31
+msgid "Número de días a organizar (1 a 4)"
+msgstr ""
+
+#: app/templates/grupo_home.html:127 app/templates/grupo_home.html:175
+#: app/templates/grupo_settings_edit.html:46
+msgid "Guardar cambios"
+msgstr ""
+
+#: app/templates/grupo_home.html:149
+msgid "Miembros del grupo"
+msgstr ""
+
+#: app/templates/grupo_home.html:156
+msgid "ID del usuario"
+msgstr ""
+
+#: app/templates/grupo_home.html:164
+msgid "Agregar editor "
+msgstr ""
+
+#: app/templates/grupo_home.html:169
+msgid "Miembros actuales"
+msgstr ""
+
+#: app/templates/grupo_home.html:189
+msgid "Confirmar"
+msgstr ""
+
+#: app/templates/grupo_home.html:193
+msgid "Agregar"
+msgstr ""
+
+#: app/templates/grupo_no_encontrado.html:7
+msgid "El grupo que buscas no existe."
+msgstr ""
+
+#: app/templates/grupo_settings.html:43
+#: app/templates/grupo_settings_create.html:43
+msgid "Confirmar configuración"
+msgstr ""
+
+#: app/templates/grupo_settings.html:73
+msgid "Alianza"
+msgstr ""
+
+#: app/templates/grupo_settings.html:73
+msgid "caracteres"
+msgstr ""
+
+#: app/templates/grupo_settings.html:84
+msgid "Alianza adicional no editable"
+msgstr ""
+
+#: app/templates/grupo_settings.html:100
+msgid "Nombre del día"
+msgstr ""
 
 #: app/templates/home.html:5
-msgid "Bienvenido a la plataforma de citas de tu estado!"
-msgstr "Bienvenido a la plataforma de citas de tu estado!"
+msgid "Bienvenido a la plataforma de citas"
+msgstr ""
 
 #: app/templates/home.html:6
-msgid "Organiza tus citas sin estrés, de forma automatizada y colaborativa."
-msgstr "Organiza tus citas sin estrés, de forma automatizada y colaborativa."
+msgid "Organiza tu alianza y estado de forma eficiente"
+msgstr ""
 
-#: app/templates/home.html:9 app/templates/register.html:4
-#: app/templates/register.html:32
+#: app/templates/home.html:10 app/templates/register.html:64
 msgid "Registrarse"
-msgstr "Registrarse"
+msgstr ""
 
-#: app/templates/home.html:10 app/templates/login.html:4
-#: app/templates/login.html:21
+#: app/templates/home.html:11 app/templates/login.html:5
 msgid "Iniciar sesión"
-msgstr "Iniciar sesión"
+msgstr ""
 
-#: app/templates/login.html:7 app/templates/register.html:7
+#: app/templates/home.html:24
+msgid "Tu sesión ha expirado. Por favor, inicia sesión nuevamente."
+msgstr ""
+
+#: app/templates/login.html:8
+msgid "Tu sesión expiró, vuelve a iniciar sesión."
+msgstr ""
+
+#: app/templates/login.html:21 app/templates/recuperar_clave.html:9
+#: app/templates/register.html:15
 msgid "Nombre de usuario"
-msgstr "Nombre de usuario"
+msgstr ""
 
-#: app/templates/login.html:12 app/templates/register.html:12
+#: app/templates/login.html:27 app/templates/register.html:25
 msgid "Contraseña"
-msgstr "Contraseña"
+msgstr ""
 
-#: app/templates/login.html:18 app/templates/register.html:23
+#: app/templates/login.html:35
 msgid "Mostrar contraseña"
-msgstr "Mostrar contraseña"
+msgstr ""
 
-#: app/templates/login.html:24 app/templates/register.html:35
-msgid "Volver al inicio"
-msgstr "Volver al inicio"
+#: app/templates/login.html:40
+msgid "Ingresar"
+msgstr ""
 
-#: app/templates/register.html:17
+#: app/templates/login.html:42
+msgid "¿Olvidaste tu contraseña?"
+msgstr ""
+
+#: app/templates/mis_grupos.html:10
+msgid "Mis grupos"
+msgstr ""
+
+#: app/templates/mis_grupos.html:20
+msgid "Código:"
+msgstr ""
+
+#: app/templates/mis_grupos.html:29
+msgid "Aún no perteneces a ningún grupo."
+msgstr ""
+
+#: app/templates/recuperar_clave.html:5
+msgid "Recuperar contraseña"
+msgstr ""
+
+#: app/templates/recuperar_clave.html:14
+msgid "Verificar"
+msgstr ""
+
+#: app/templates/register.html:5
+msgid "Registro de usuario"
+msgstr ""
+
+#: app/templates/register.html:20
+msgid ""
+"Solo letras (de cualquier idioma), números, guion (-) y guion bajo (_). "
+"Máximo 15 caracteres."
+msgstr ""
+
+#: app/templates/register.html:31
 msgid "Confirmar contraseña"
-msgstr "Confirmar contraseña"
+msgstr ""
 
-#: app/templates/register.html:27
+#: app/templates/register.html:35
+msgid "✔️ Las contraseñas coinciden"
+msgstr ""
+
+#: app/templates/register.html:36
+msgid "❌ Las contraseñas no coinciden"
+msgstr ""
+
+#: app/templates/register.html:41
+msgid "Las contraseñas no coinciden"
+msgstr ""
+
+#: app/templates/register.html:50
+msgid "Mostrar contraseñas"
+msgstr ""
+
+#: app/templates/register.html:55
 msgid "Correo electrónico (opcional)"
-msgstr "Correo electrónico (opcional)"
+msgstr ""
 
-#: app/templates/register.html:29
-msgid "Solo lo usaremos para recuperar tu contraseña si la olvidas."
-msgstr "Solo lo usaremos para recuperar tu contraseña si la olvidas."
+#: app/templates/register.html:58
+msgid "Se usará para recuperar tu contraseña si la olvidas."
+msgstr ""
+
+#: app/templates/registro_exitoso.html:5
+msgid "¡Registro exitoso!"
+msgstr ""
+
+#: app/templates/registro_exitoso.html:6
+msgid "Tu cuenta ha sido creada exitosamente. Ahora puedes iniciar sesión."
+msgstr ""
+
+#: app/templates/registro_exitoso.html:7
+msgid "Ir a iniciar sesión"
+msgstr ""
+
+#: app/templates/sin_correo.html:5
+msgid "No se puede recuperar la contraseña"
+msgstr ""
+
+#: app/templates/sin_correo.html:6
+msgid ""
+"Este usuario no tiene un correo electrónico asociado para enviar la "
+"recuperación."
+msgstr ""
+
+#: app/templates/usuario_no_existe.html:5
+msgid "Usuario no encontrado"
+msgstr ""
+
+#: app/templates/usuario_no_existe.html:6
+msgid "No existe ninguna cuenta con el nombre de usuario:"
+msgstr ""
+
+#: app/templates/usuario_no_existe.html:8
+msgid "Intentar de nuevo"
+msgstr ""
 

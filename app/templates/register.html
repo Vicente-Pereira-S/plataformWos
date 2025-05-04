@@ -16,9 +16,19 @@
             <input type="text" class="form-control" id="username" name="username" maxlength="15"
             required oninput="validateUsernameInput()" 
             value="{{ '' if error == 'Username already registered' else username or '' }}">
+            
             <div class="form-label form-label-hint">
-                {{ _('Solo letras (de cualquier idioma), números, guion (-) y guion bajo (_). Máximo 15 caracteres.') }}
+                <small>
+                    {{ _('Permitido:') }} 
+                    <span class="text-success">{{ _('Letras') }}</span>, 
+                    <span class="text-success">{{ _('Números (0-9)') }}</span>, 
+                    <span class="text-success">{{ _('Guion (-)') }}</span>, 
+                    <span class="text-success">{{ _('Guion bajo (_)') }}</span>.
+                    <br>
+                    <span class="text-danger">{{ _('Máximo 15 caracteres.') }}</span>
+                </small>
             </div>
+
         </div>
 
         <div class="mb-3">
@@ -31,16 +41,12 @@
             <label for="confirm_password" class="form-label">{{ _('Confirmar contraseña') }}</label>
             <input type="password" class="form-control" id="confirm_password" name="confirm_password"
                    oninput="checkPasswordsMatch()" required>
+            
+            <!-- Creo una lista de opciones con data-* y con JS muestro la que me interesa, el * lo remplazo por lo quiero -->
             <small id="password-match-msg" class="form-text"
                    data-valid="{{ _('✔️ Las contraseñas coinciden') }}"
                    data-invalid="{{ _('❌ Las contraseñas no coinciden') }}">
             </small>
-
-            {% if error == 'Passwords do not match' %}
-                <div class="text-danger mt-1" style="font-size: 0.9rem;">
-                    {{ _('Las contraseñas no coinciden') }}
-                </div>
-            {% endif %}
         </div>
 
         <!-- Mostrar/Ocultar contraseña -->

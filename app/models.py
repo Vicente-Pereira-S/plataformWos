@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Time
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Time, DateTime
+from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -12,8 +13,8 @@ class User(Base):
     username = Column(String, unique=True, nullable=False, index=True)
     email = Column(String, nullable=True)
     hashed_password = Column(String, nullable=False)
-    is_active = Column(Boolean, default=True)
-
+    is_active = Column(Boolean, default=True)       # No se usa, es para desactivar cuenta si algun dia lo quiero hacer
+    last_login = Column(DateTime, default=func.now())
     groups = relationship("GroupMember", back_populates="user")
 
 
@@ -35,7 +36,7 @@ class Group(Base):
 
 
 # ------------------------------
-# MODELO DE MIEMBRO DEL GRUPO
+# MODELO DE MIEMBRO DEL GRUPO 
 # ------------------------------
 class GroupMember(Base):
     __tablename__ = "group_members"

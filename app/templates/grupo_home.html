@@ -19,9 +19,10 @@
         <!-- Botones para el creador del grupo -->
         {% if is_creator %}
         <div class="d-flex gap-2">
-            <a href="#" class="btn btn-outline-primary">
+            <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalGestionMiembros" id="btnEditarMiembros">
                 👥 {{ _('Agregar/Eliminar editor') }}
             </a>
+            
 
             <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#ajustesModal">
                 ⚙️ {{ _('Ajustes') }}
@@ -45,7 +46,7 @@
                     {% for alliance in alianzas_validas %}
                         <li class="list-group-item">[{{ alliance.name }}]</li>
                     {% endfor %}
-                    <li class="list-group-item text-muted">[{{ _('Otra') }}] {{ _('(obligatoria)') }}</li>
+                    <li class="list-group-item text-muted">[{{ _('Otra') }}] {{ _('(obligatoriaaaaaa)') }}</li>
                 </ul>
                 <small class="text-muted">{{ _('Total:') }} {{ alianzas_validas|length + 1 }}</small>
             </div>
@@ -56,6 +57,16 @@
                 <ul class="list-group">
                     {% for day in group.days %}
                         <li class="list-group-item">{{ day.name }}</li>
+                    {% endfor %}
+                </ul>
+                <small class="text-muted">{{ _('Total:') }} {{ group.days|length }}</small>
+            </div>
+
+            <div class="mb-4">
+                <h4>{{ _('Miembros') }}</h4>
+                <ul class="list-group">
+                    {% for member in group.members %}
+                        <li class="list-group-item">{{ member.user.username }}</li>
                     {% endfor %}
                 </ul>
                 <small class="text-muted">{{ _('Total:') }} {{ group.days|length }}</small>
@@ -93,7 +104,7 @@
                         </select>
                     </div>
                 
-                    <!-- Campos de nombres de alianzas -->
+                    <!-- Campos de nombres de alianzas EDIT-->
                     <div id="alliancesContainer" class="mb-4"></div>
                 
                     <!-- Número de días -->
@@ -125,17 +136,110 @@
     </div>
 </div>
   
+
+
+<!-- Data del grupo -->
+<div id="groupData"
+    data-group-code="{{ group.group_code }}"
+    data-creator-id="{{ group.creator_id }}"
+    data-error-message="{{ _('Usuario no encontrado, ID incorrecto o no existe.') }}"
+    data-error-catch-message1="{{ _('Error de red o parsing:')}}"
+    data-error-catch-message2="{{ _('Error de conexión. Intenta más tarde.')}}"
+    data-owner-label="{{ _('Dueño!!')}}">
+</div>
+
+<!-- Modal 1: Gestión de miembros -->
+<div class="modal fade" id="modalGestionMiembros" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content glassmorphic">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ _('Miembros del grupo') }}</h5>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <!-- Buscador -->
+                <div class="input-group mb-3">
+                    <input type="number" id="inputBuscarID" class="form-control" placeholder="{{ _('ID del usuario') }}">
+                    <button class="btn btn-outline-primary" id="btnBuscarID">🔍 {{ _('Buscar') }}</button>
+                </div>
+
+                <!-- Resultado de búsqueda -->
+                <div id="resultadoBusqueda" class="d-none mb-3">
+                    <div class="alert alert-info d-flex justify-content-between align-items-center d-none" id="alertSuccess">
+                        <span id="nombreUsuarioEncontrado"></span>
+                        <button class="btn btn-sm btn-outline-secondary" id="btnVerConfirmarAgregar">{{ _('Agregar editor ') }}➕</button>
+                    </div>
+
+                    <div class="alert alert-danger d-flex justify-content-between align-items-center d-none" id="alertError">
+                        <span id="usuarioNoEncontrado"></span>
+                    </div>
+                </div>
+
+                <!-- Lista de miembros -->
+                <h6>{{ _('Miembros actuales') }}</h6>
+                <ul class="list-group" id="listaMiembrosGrupo"></ul>
+
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+                <button class="btn btn-primary" id="btnGuardarMiembros">{{ _('Guardar cambios') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal 2: Confirmar agregar -->
+<div class="modal fade" id="modalConfirmarAgregar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content glassmorphic">
+      <div class="modal-header">
+        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-target="#modalGestionMiembros" data-bs-toggle="modal">
+          ←
+        </button>
+        <h5 class="modal-title">{{ _('Confirmar') }}</h5>
+      </div>
+      <div class="modal-body text-center">
+        <p id="usuarioAConfirmar"></p>
+        <button class="btn btn-success me-2" id="btnConfirmarAgregar">{{ _('Agregar') }}</button>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div id="msgContainer" class="d-none"
+    data-alliance-invalid="{{ _('Debe tener exactamente 3 caracteres alfanuméricos.') }}"
+    data-alianza="{{ _('Alianza') }}"
+    data-otra="{{ _('[Otra] (Alianza por defecto)') }}"
+    data-day-invalid="{{ _('Máximo 20 caracteres. Solo letras, números y espacios.') }}"
+    data-day="{{ _('Nombre del día. Ej:') }}">
+</div>
+
+
+</div>
+
 {% endblock %}
 
 {% block scripts %}
 <script src="{{ url_for('static', path='js/codigo.js') }}"></script>
+<script src="{{ url_for('static', path='js/gestionar_miembros.js') }}"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById("groupSettingsData");
         const alliancesData = JSON.parse(container.dataset.alliances || "[]");
         const daysData = JSON.parse(container.dataset.days || "[]");
 
-        initGrupoSettingsEdit(alliancesData, daysData);
+        const ajustesModal = document.getElementById('ajustesModal');
+        ajustesModal.addEventListener('show.bs.modal', () => {
+            initGrupoSettingsEdit(alliancesData, daysData);
+        });
     });
 </script>
 {% endblock %}

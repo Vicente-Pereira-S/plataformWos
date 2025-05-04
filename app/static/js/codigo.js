@@ -16,14 +16,19 @@ function togglePasswords() {
     const pass2 = document.getElementById("confirm_password");
 
     const type = pass1.type === "password" ? "text" : "password";
-    pass1.type = type;
-    pass2.type = type;
+    if(pass1){
+        pass1.type = type;
+    }
+    if(pass1){
+        pass2.type = type;
+    }
+    
 }
 
 function checkPasswordsMatch() {
     const pass1 = document.getElementById("password");
     const pass2 = document.getElementById("confirm_password");
-    const msg = document.getElementById("password-match-msg");
+    const msg = document.getElementById("password-match-msg");  // Donde quiero mostrar mi mensaje error
     const registerBtn = document.getElementById("registerBtn");
 
     if (!pass1 || !pass2 || !msg || !registerBtn) return;
@@ -56,24 +61,28 @@ function validateGroupCode() {
     input.value = input.value.toUpperCase();
     
     const regex = /^[A-Z0-9-]*$/;
-
+    
     if (input.value === "") {
         msg.textContent = "";
         msg.style.color = "";
+        btn.disabled = true
         return;
+    } else {
+        if (!regex.test(input.value)) {
+            msg.textContent = msg.dataset.invalid;
+            msg.style.color = "red";
+            btn.disabled = true;
+        } else {
+            msg.textContent = msg.dataset.valid;
+            msg.style.color = "green";
+            btn.disabled = false;
+        }
     }
 
-    if (!regex.test(input.value)) {
-        msg.textContent = msg.dataset.invalid;
-        msg.style.color = "red";
-        btn.disabled = true;
-    } else {
-        msg.textContent = msg.dataset.valid;
-        msg.style.color = "green";
-        btn.disabled = false;
-    }
 }
 
+// Funcion pedida a la IA, no sabia como hacerlo para que fuera multiplataforma
+// Soporta navegadores modernos y antiguos (tiene fallback para navegadores que no soportan el API navigator.clipboard).
 function copyGroupCode() {
     const input = document.getElementById("groupCodeInput");
     if (!input) return;
@@ -94,10 +103,12 @@ function fallbackCopyText(input) {
     input.focus();
     input.setSelectionRange(0, input.value.length); // compatible con móviles
     const successful = document.execCommand('copy'); // método clásico
+    
     if (successful) {
         showCopyToast();
     } else {
-        alert("No se pudo copiar el código. Intenta seleccionarlo manualmente.");
+        const errorToast = new bootstrap.Toast(document.getElementById('copyErrorToast'));
+        errorToast.show();
     }
 }
 
@@ -119,10 +130,13 @@ function showCopyToast() {
 // UTILIDADES COMUNES PARA CREACIÓN Y EDICIÓN DE GRUPOS
 // -----------------------------------------------
 
+
+//Esta función controla dinámicamente si el botón "Guardar cambios" del
+// formulario de alianzas y días debe estar habilitado o deshabilitado.
 function updateConfirmButton() {
-    const allianceInputs = document.querySelectorAll('.alliance-field');
-    const dayInputs = document.querySelectorAll('.day-field');
-    const confirmBtn = document.getElementById('confirmButton');
+    const allianceInputs = document.querySelectorAll('.alliance-field');        // Campos renderizados por funciones
+    const dayInputs = document.querySelectorAll('.day-field');                  // Campos renderizados por funciones
+    const confirmBtn = document.getElementById('confirmButton');                // boton en modal y settings_create
 
     const allianceRegex = /^[A-Za-z0-9]{3}$/;
     const allAlliancesFilled = Array.from(allianceInputs).every(input => input.value.trim() !== '' && allianceRegex.test(input.value.trim()));
@@ -134,6 +148,8 @@ function updateConfirmButton() {
     confirmBtn.disabled = !(alliancesValid && daysValid && allAlliancesFilled && allDaysFilled);
 }
 
+
+// Funcion especializada en render alianzas
 function renderAllianceFields(count, existingAlliances = []) {
     const container = document.getElementById('alliancesContainer');
     container.innerHTML = '';
@@ -145,6 +161,11 @@ function renderAllianceFields(count, existingAlliances = []) {
         return;
     }
 
+
+    // obtengo centro de mensajes
+    const myMsg = document.getElementById("msgContainer")
+
+    // creo un div con los campos necesarios para incrustar el modal
     for (let i = 1; i <= count; i++) {
         const wrapper = document.createElement('div');
         wrapper.className = 'mb-3';
@@ -152,7 +173,7 @@ function renderAllianceFields(count, existingAlliances = []) {
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'form-control alliance-field';
-        input.placeholder = `Alianza ${i} (3 caracteres)`;
+        input.placeholder = `${myMsg.dataset.alianza} ${i}`;
         input.maxLength = 3;
         input.required = true;
         input.name = `alliance_${i}`;
@@ -160,7 +181,7 @@ function renderAllianceFields(count, existingAlliances = []) {
         // Mensaje de error
         const feedback = document.createElement('div');
         feedback.className = 'invalid-feedback';
-        feedback.textContent = 'Debe tener exactamente 3 caracteres alfanuméricos.';
+        feedback.textContent = myMsg.dataset.allianceInvalid;
 
         // Evento de validación
         input.addEventListener("input", () => {
@@ -192,13 +213,12 @@ function renderAllianceFields(count, existingAlliances = []) {
         container.appendChild(wrapper);
     }
 
-    // Campo readonly para la alianza "Otra"
+    // Campo readonly para la alianza "Otra" / en create y edite muestra esta alianza!
     const otherInput = document.createElement('input');
     otherInput.type = 'text';
-    otherInput.className = 'form-control mb-2';
-    otherInput.placeholder = '[Otra] (Alianza adicional obligatoria)';
+    otherInput.className = 'form-control mb-2 text-muted';
     otherInput.readOnly = true;
-    otherInput.value = 'Otra';
+    otherInput.value = myMsg.dataset.otra; 
     container.appendChild(otherInput);
 
     updateConfirmButton();
@@ -206,6 +226,8 @@ function renderAllianceFields(count, existingAlliances = []) {
 
 
 
+
+// render de nombre de los dias
 function renderDayFields(count, existingDays = []) {
     const container = document.getElementById('daysContainer');
     container.innerHTML = '';
@@ -217,6 +239,18 @@ function renderDayFields(count, existingDays = []) {
         return;
     }
 
+    // obtengo centro de mensajes
+    const myMsg = document.getElementById("msgContainer")
+
+    const day_ex = [
+        "",
+        "VP Monday",
+        "Friday Research",
+        "MoE Thursday",
+        "VP Tuesday"
+    ];
+
+    // creo un div con los campos necesarios para incrustar el modal
     for (let i = 1; i <= count; i++) {
         const wrapper = document.createElement('div');
         wrapper.className = 'mb-3';
@@ -224,7 +258,7 @@ function renderDayFields(count, existingDays = []) {
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'form-control day-field';
-        input.placeholder = `Nombre de la cita ${i} (Ej: VP Monday)`;
+        input.placeholder = `${myMsg.dataset.day} ${day_ex[i]}`;
         input.maxLength = 20;
         input.required = true;
         input.name = `day_${i}`;
@@ -232,7 +266,7 @@ function renderDayFields(count, existingDays = []) {
         // Mensaje de error
         const feedback = document.createElement('div');
         feedback.className = 'invalid-feedback';
-        feedback.textContent = 'Máximo 20 caracteres. Solo letras, números y espacios.';
+        feedback.textContent = myMsg.dataset.dayInvalid;
 
         // Evento de validación
         input.addEventListener("input", () => {
@@ -290,7 +324,7 @@ function initGrupoSettingsEdit(existingAlliances = [], existingDays = []) {
     const selectAlliances = document.getElementById('numAlliances');
     const selectDays = document.getElementById('numDays');
 
-    // Prellenar los select
+    // Prellenar los select, no sé donde se aplica
     selectAlliances.value = existingAlliances.filter(a => a.name !== "Otra").length;
     selectDays.value = existingDays.length;
 

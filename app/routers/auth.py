@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Form, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.responses import RedirectResponse, HTMLResponse
 from sqlalchemy.orm import Session
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 import re
 
 from app import models, schemas
@@ -70,16 +70,21 @@ def register(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
 # API JSON: Login user
 # ------------------------------
 @router.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+    ):
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Account disabled")
-
+    
+    user.last_login = datetime.now(timezone.utc)
+    db.commit()
+    
     access_token = create_access_token(
-        {"sub": str(user.id)},
-        expires_delta=timedelta(minutes=60)  # ← aquí defines la duración
+        {"sub": str(user.id)}
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
