@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const catch1 = dataDiv.dataset.errorCatchMessage1;
     const catch2 = dataDiv.dataset.errorCatchMessage2;
     const ownerLabel = dataDiv.dataset.ownerLabel;
+    const errorTransferencia = dataDiv.dataset.errorTransfer;
 
     let miembros = [];
     let miembrosOriginales = [];
@@ -168,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .then(res => {
             if (res.ok) location.reload();
-            else alert("Error al transferir el grupo");
+            else alert(errorTransferencia);
         });
     });
 });

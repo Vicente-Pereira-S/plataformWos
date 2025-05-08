@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Body, HTTPException, Request, Depends, Form
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 import re
 
 from app.database import get_db
@@ -361,3 +362,38 @@ def leave_group(
     db.delete(member)
     db.commit()
     return RedirectResponse("/groups/my-groups", status_code=303)
+
+
+
+
+
+
+class TransferRequest(BaseModel):
+    group_code: str
+    new_owner_id: int
+
+@router.post("/transfer")
+def transfer_group_ownership(
+    data: TransferRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    # Buscar grupo
+    group = db.query(models.Group).filter_by(group_code=data.group_code).first()
+    if not group:
+        raise HTTPException(status_code=404, detail="Grupo no encontrado")
+
+    # Verificar que quien solicita sea el creador
+    if group.creator_id != current_user.id:
+        raise HTTPException(status_code=403, detail="No tienes permisos para transferir este grupo")
+
+    # Verificar que el nuevo dueño esté en la lista de miembros
+    miembro = db.query(models.GroupMember).filter_by(group_id=group.id, user_id=data.new_owner_id).first()
+    if not miembro:
+        raise HTTPException(status_code=400, detail="El nuevo dueño no es miembro del grupo")
+
+    # Actualizar el grupo
+    group.creator_id = data.new_owner_id
+    db.commit()
+
+    return {"success": True}

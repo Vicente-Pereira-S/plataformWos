@@ -152,6 +152,7 @@
     data-error-message="{{ _('Usuario no encontrado, ID incorrecto o no existe.') }}"
     data-error-catch-message1="{{ _('Error de red o parsing:')}}"
     data-error-catch-message2="{{ _('Error de conexión. Intenta más tarde.')}}"
+    data-error-transfer="{{ _('Error al transferir el grupo')}}"
     data-owner-label="{{ _('Dueño!!')}}"
 
     data-creator-cant-leave="{{ _('Eres el creador del grupo y no puedes abandonarlo mientras haya otros miembros.') }}"
@@ -163,6 +164,7 @@
     data-leave-delete="{{ _('Abandonar y eliminar grupo') }}"
     data-confirm-leave="{{ _('¿Estás seguro de que deseas abandonar este grupo?') }}"
     data-leave-group="{{ _('Abandonar grupo') }}">
+
 </div>
 
 <!-- Modal 1: Gestión de miembros -->
@@ -228,6 +230,27 @@
     </div>
   </div>
 </div>
+
+<!-- Modal: Confirmar transferencia de grupo -->
+<div class="modal fade" id="modalTransferencia" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content glassmorphic">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ _('Confirmar transferencia de grupo') }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p>{{ _('¿Estás seguro que deseas transferir el grupo a:') }}</p>
+          <p class="fw-bold" id="usuarioTransferenciaConfirmar"></p>
+          <div class="d-flex justify-content-center gap-2 mt-3">
+            <button class="btn btn-warning" id="btnTransferirGrupo">{{ _('Transferir') }}</button>
+            <button class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 
 
 <!-- Modal: Confirmación de abandono -->
