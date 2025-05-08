@@ -16,3 +16,6 @@ __pycache__/
 
 # Sistema
 .DS_Store
+
+# apuntes
+borrar.txt

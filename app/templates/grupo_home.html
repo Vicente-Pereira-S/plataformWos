@@ -29,6 +29,10 @@
             </button>
         </div>
         {% endif %}
+
+        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#leaveGroupModal">
+            {{ _('Abandonar grupo') }}
+        </button>
     </div>
 
     <!-- Aquí irá el contenido del grupo más adelante -->
@@ -142,10 +146,23 @@
 <div id="groupData"
     data-group-code="{{ group.group_code }}"
     data-creator-id="{{ group.creator_id }}"
+    data-member-count="{{ group.members | length }}"
+    data-current-user-id="{{ current_user.id }}"
+
     data-error-message="{{ _('Usuario no encontrado, ID incorrecto o no existe.') }}"
     data-error-catch-message1="{{ _('Error de red o parsing:')}}"
     data-error-catch-message2="{{ _('Error de conexión. Intenta más tarde.')}}"
-    data-owner-label="{{ _('Dueño!!')}}">
+    data-owner-label="{{ _('Dueño!!')}}"
+
+    data-creator-cant-leave="{{ _('Eres el creador del grupo y no puedes abandonarlo mientras haya otros miembros.') }}"
+    data-must-transfer="{{ _('Primero debes ceder el grupo a otro usuario.') }}"
+    data-understood="{{ _('Entendido') }}"
+    data-only-member="{{ _('Eres el único miembro del grupo.') }}"
+    data-will-delete="{{ _('Si abandonas, el grupo será eliminado automáticamente.') }}"
+    data-cancel="{{ _('Cancelar') }}"
+    data-leave-delete="{{ _('Abandonar y eliminar grupo') }}"
+    data-confirm-leave="{{ _('¿Estás seguro de que deseas abandonar este grupo?') }}"
+    data-leave-group="{{ _('Abandonar grupo') }}">
 </div>
 
 <!-- Modal 1: Gestión de miembros -->
@@ -213,6 +230,26 @@
 </div>
 
 
+<!-- Modal: Confirmación de abandono -->
+<div class="modal fade" id="leaveGroupModal" tabindex="-1" aria-labelledby="leaveGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content glassmorphic" id="leaveGroupModalContent">
+        <div class="modal-header">
+          <h5 class="modal-title" id="leaveGroupModalLabel">{{ _('¿Estás seguro?') }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
+        </div>
+        <div class="modal-body" id="leaveGroupModalBody">
+          <!-- Este contenido se llena dinámicamente con JS -->
+        </div>
+        <div class="modal-footer" id="leaveGroupModalFooter">
+          <!-- Botones dinámicos según el caso -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  
 <div id="msgContainer" class="d-none"
     data-alliance-invalid="{{ _('Debe tener exactamente 3 caracteres alfanuméricos.') }}"
     data-alianza="{{ _('Alianza') }}"
@@ -228,7 +265,7 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', path='js/codigo.js') }}"></script>
-<script src="{{ url_for('static', path='js/gestionar_miembros.js') }}"></script>
+<script src="{{ url_for('static', path='js/gestion_grupos.js') }}"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {

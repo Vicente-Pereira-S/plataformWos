@@ -36,14 +36,6 @@
                 <!-- Contenido colapsable -->
                 <div class="collapse navbar-collapse" id="navbarOpciones">
                     <ul class="navbar-nav ms-auto d-flex align-items-lg-center gap-2">
-                        {% if is_logged_in %}
-                            <li class="nav-item">
-                                <a class="btn btn-outline-light" href="/dashboard">🏠 {{ _('Inicio') }}</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="btn btn-outline-light" href="/auth/logout">🔓 {{ _('Cerrar sesión') }}</a>
-                            </li>
-                        {% endif %}
                         <!-- Tema -->
                         <li class="nav-item dropdown">
                             <button class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown">
@@ -66,6 +58,16 @@
                                 <li><a class="dropdown-item lang-select" href="#" data-lang="tr">🇹🇷 Türkçe</a></li>
                             </ul>
                         </li>
+                        
+                        <!-- Cerrar sesion -->
+                        {% if is_logged_in %}
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light" href="/dashboard">🏠 {{ _('Inicio') }}</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-light" href="/auth/logout">🔓 {{ _('Cerrar sesión') }}</a>
+                        </li>
+                    {% endif %}
                     </ul>
                 </div>
             </div>
@@ -88,23 +90,25 @@
     <script src="{{ url_for('static', path='js/lang.js') }}"></script>
     <script src="{{ url_for('static', path='js/theme.js') }}"></script>
     <script>
-        const toastMsg = "{{ request.cookies.get('toast_msg', '') }}";
-        if (toastMsg) {
-            const toast = document.createElement('div');
-            toast.className = "toast align-items-center text-white bg-danger border-0 show";
-            toast.style.position = "fixed";
-            toast.style.bottom = "20px";
-            toast.style.right = "20px";
-            toast.style.zIndex = "9999";
-            toast.innerHTML = `
-                <div class="d-flex">
-                    <div class="toast-body">${toastMsg}</div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
-                </div>
-            `;
-            document.body.appendChild(toast);
-        }
-    </script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const toastMsg = "{{ request.cookies.get('toast_msg', '') }}";
+            if (toastMsg) {
+                const toast = document.createElement('div');
+                toast.className = "toast align-items-center text-white bg-danger border-0 show";
+                toast.style.position = "fixed";
+                toast.style.bottom = "20px";
+                toast.style.right = "20px";
+                toast.style.zIndex = "9999";
+                toast.innerHTML = `
+                    <div class="d-flex">
+                        <div class="toast-body">${toastMsg}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.parentElement.parentElement.remove()"></button>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+            }
+        });
+    </script>    
     {% block scripts %}{% endblock %}
 </body>
 </html>

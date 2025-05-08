@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Body, HTTPException, Request, Depends
+from fastapi import APIRouter, Body, HTTPException, Request, Depends, Form
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 import re
@@ -214,6 +214,7 @@ def view_group(
     return templates.TemplateResponse("grupo_home.html", {
         "request": request,
         "group": group,
+        "current_user": current_user,
         "is_creator": is_creator,       # Boolean 
         "alliances_serializable": alliances_serializable,
         "days_serializable": days_serializable
@@ -325,3 +326,38 @@ def save_members(
         db.add(models.GroupMember(group_id=group.id, user_id=uid))
     db.commit()
     return {"success": True}
+
+
+
+
+@router.post("/leave")
+def leave_group(
+    request: Request,
+    group_code: str = Form(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    group = db.query(models.Group).filter_by(group_code=group_code).first()
+    if not group:
+        raise HTTPException(status_code=404, detail="Grupo no encontrado")
+
+    # Verificar si el usuario es miembro
+    member = db.query(models.GroupMember).filter_by(group_id=group.id, user_id=current_user.id).first()
+    if not member:
+        raise HTTPException(status_code=403, detail="No eres miembro de este grupo")
+
+    # Si es el creador, validamos cantidad de miembros
+    if group.creator_id == current_user.id:
+        total_miembros = db.query(models.GroupMember).filter_by(group_id=group.id).count()
+        if total_miembros > 1:
+            raise HTTPException(status_code=403, detail="Eres el creador. Transfiere el grupo antes de salir.")
+
+        # Es el único miembro → se borra el grupo entero
+        db.delete(group)
+        db.commit()
+        return RedirectResponse("/groups/my-groups", status_code=303)
+
+    # Si no es el creador, simplemente se elimina del grupo
+    db.delete(member)
+    db.commit()
+    return RedirectResponse("/groups/my-groups", status_code=303)
