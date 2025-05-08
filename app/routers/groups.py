@@ -397,3 +397,26 @@ def transfer_group_ownership(
     db.commit()
 
     return {"success": True}
+
+
+@router.post("/delete")
+def delete_group(
+    request: Request,
+    group_code: str = Form(...),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    # Buscar el grupo
+    group = db.query(models.Group).filter_by(group_code=group_code).first()
+    if not group:
+        raise HTTPException(status_code=404, detail="Grupo no encontrado")
+
+    # Verificar que el usuario actual sea el creador
+    if group.creator_id != current_user.id:
+        raise HTTPException(status_code=403, detail="No tienes permiso para eliminar este grupo")
+
+    # Eliminar el grupo (relaciones con cascade eliminarán alianzas, días y miembros)
+    db.delete(group)
+    db.commit()
+
+    return RedirectResponse("/groups/my-groups", status_code=303)

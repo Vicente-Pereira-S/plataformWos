@@ -27,6 +27,10 @@
             <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#ajustesModal">
                 ⚙️ {{ _('Ajustes') }}
             </button>
+
+            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarGrupo">
+                🗑️ {{ _('Eliminar grupo') }}
+            </button>
         </div>
         {% endif %}
 
@@ -234,24 +238,51 @@
 <!-- Modal: Confirmar transferencia de grupo -->
 <div class="modal fade" id="modalTransferencia" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content glassmorphic">
-        <div class="modal-header">
-          <h5 class="modal-title">{{ _('Confirmar transferencia de grupo') }}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
+        <div class="modal-content glassmorphic">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ _('Confirmar transferencia de grupo') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p>{{ _('¿Estás seguro que deseas transferir el grupo a:') }}</p>
+                <p class="fw-bold" id="usuarioTransferenciaConfirmar"></p>
+                <div class="d-flex justify-content-center gap-2 mt-3">
+                    <button class="btn btn-warning" id="btnTransferirGrupo">{{ _('Transferir') }}</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+                </div>
+            </div>
         </div>
-        <div class="modal-body text-center">
-          <p>{{ _('¿Estás seguro que deseas transferir el grupo a:') }}</p>
-          <p class="fw-bold" id="usuarioTransferenciaConfirmar"></p>
-          <div class="d-flex justify-content-center gap-2 mt-3">
-            <button class="btn btn-warning" id="btnTransferirGrupo">{{ _('Transferir') }}</button>
-            <button class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
-          </div>
+    </div>
+</div>
+  
+
+
+<!-- Modal: Confirmar eliminación del grupo -->
+<div class="modal fade" id="modalEliminarGrupo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glassmorphic">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">{{ _('¿Eliminar grupo?') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">{{ _('Estás a punto de eliminar este grupo permanentemente.') }}</p>
+                <p class="text-danger fw-bold">{{ _('Esta acción no se puede deshacer.') }}</p>
+            </div>
+            <div class="modal-footer">
+                <form method="POST" action="/groups/delete">
+                    <input type="hidden" name="group_code" value="{{ group.group_code }}">
+                    <button type="submit" class="btn btn-danger">{{ _('Eliminar definitivamente') }}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+                </form>
+            </div>
         </div>
-      </div>
     </div>
   </div>
   
 
+
+  
 
 <!-- Modal: Confirmación de abandono -->
 <div class="modal fade" id="leaveGroupModal" tabindex="-1" aria-labelledby="leaveGroupModalLabel" aria-hidden="true">
