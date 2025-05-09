@@ -57,15 +57,41 @@
             </label>
         </div>
 
-        <div class="mb-3">
-            <label for="email" class="form-label">{{ _('Correo electrónico (opcional)') }}</label>
-            <input type="email" class="form-control" id="email" name="email" value="{{ email or '' }}">
-            <div class="form-label form-label-hint">
-                {{ _('Se usará para recuperar tu contraseña si la olvidas.') }}
-            </div>
+        <!-- Toggle visual para activar opción -->
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="toggleRecoveryFields">
+            <label class="form-check-label" for="toggleRecoveryFields">
+                {{ _('¿Deseas agregar una opción de recuperación de contraseña?') }}
+            </label>
         </div>
 
-        <div class="d-grid gap-2">
+        <!-- Contenedor que se muestra solo si se activa el toggle -->
+        <div id="recoveryFields" class="border rounded p-3 recovery-box d-none">
+
+        
+            <div class="mb-3">
+                <label for="secret_question" class="form-label">{{ _('Pregunta secreta (opcional)') }}</label>
+                <select class="form-select" name="secret_question" id="secret_question">
+                    <option value="">{{ _('Selecciona una pregunta') }}</option>
+                    <option value="1">{{ _('¿Nombre de tu primera mascota?') }}</option>
+                    <option value="2">{{ _('¿Nombre de tu escuela primaria?') }}</option>
+                    <option value="3">{{ _('¿Ciudad donde naciste?') }}</option>
+                </select>
+            </div>
+        
+            <div class="mb-3">
+                <label for="secret_answer" class="form-label">{{ _('Respuesta secreta') }}</label>
+                <input type="text" class="form-control" id="secret_answer" name="secret_answer">
+            </div>
+        
+            <div class="form-text text-muted">
+                {{ _('Podrás usar esta información si olvidas tu contraseña.') }}
+            </div>
+        
+        </div>
+
+
+        <div class="d-grid gap-2 py-3">
             <button type="submit" class="btn btn-primary" id="registerBtn" disabled>
                 {{ _('Registrarse') }}
             </button>
@@ -77,4 +103,22 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', path='js/codigo.js') }}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const toggle = document.getElementById("toggleRecoveryFields");
+        const container = document.getElementById("recoveryFields");
+
+        toggle.addEventListener("change", () => {
+            if (toggle.checked) {
+                container.classList.remove("d-none");
+            } else {
+                container.classList.add("d-none");
+                // Limpia los campos si desactiva
+                document.getElementById("secret_question").value = "";
+                document.getElementById("secret_answer").value = "";
+            }
+        });
+    });
+</script>
+
 {% endblock %}

@@ -9,35 +9,65 @@
 <div class="container py-3">
 
     <!-- Encabezado del grupo -->
-    <div class="d-flex justify-content-between align-items-start flex-wrap">
+     
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 p-3 border-bottom">
         <!-- Información del grupo -->
         <div>
             <h2 class="mb-2">{{ _('Estado') }} {{ group.state_number }}</h2>
-            <p class=" mb-0">{{ _('Código del estado:') }} <strong>{{ group.group_code }}</strong></p>
+            <p class="mb-0">{{ _('Código del estado:') }} <strong>{{ group.group_code }}</strong></p>
         </div>
-
-        <!-- Botones para el creador del grupo -->
-        {% if is_creator %}
+    
+        <!-- Botones agrupados por funcionalidad -->
         <div class="d-flex gap-2">
-            <a href="#" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalGestionMiembros" id="btnEditarMiembros">
-                👥 {{ _('Agregar/Eliminar editor') }}
-            </a>
-            
+            {% if is_creator %}
+            <!-- Botón desplegable de Administración -->
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-gear-fill me-1"></i> {{ _('Administrar') }}
+                </button>
+                <ul class="dropdown-menu shadow border-0" aria-labelledby="adminDropdown">
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#modalGestionMiembros" id="btnEditarMiembros">
+                            <i class="bi bi-people me-2 text-primary"></i> {{ _('Gestionar editores') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#ajustesModal">
+                            <i class="bi bi-sliders me-2 text-primary"></i> {{ _('Configuración') }}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            {% endif %}
+    
+            <!-- Botón desplegable de Acciones del grupo -->
+            <div class="dropdown">
+                <button class="btn {% if is_creator %}btn-outline-danger{% else %}btn-danger{% endif %} dropdown-toggle" type="button" id="groupActionsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-three-dots-vertical me-1"></i> {{ _('Acciones') }}
+                </button>
+                <ul class="dropdown-menu shadow border-0" aria-labelledby="groupActionsDropdown">
+                    {% if is_creator %}
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center text-danger" href="#" data-bs-toggle="modal" data-bs-target="#leaveGroupModal">
+                            <i class="bi bi-box-arrow-right me-2"></i> {{ _('Abandonar grupo') }}
+                        </a>
+                    </li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center text-danger" href="#" data-bs-toggle="modal" data-bs-target="#modalEliminarGrupo">
+                            <i class="bi bi-trash me-2"></i> {{ _('Eliminar grupo') }}
+                        </a>
+                    </li>
+                    {% endif %}
 
-            <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#ajustesModal">
-                ⚙️ {{ _('Ajustes') }}
-            </button>
-
-            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarGrupo">
-                🗑️ {{ _('Eliminar grupo') }}
-            </button>
+                </ul>
+            </div>
         </div>
-        {% endif %}
-
-        <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#leaveGroupModal">
-            {{ _('Abandonar grupo') }}
-        </button>
     </div>
+
+
+
+
 
     <!-- Aquí irá el contenido del grupo más adelante -->
      <hr class="my-4">
@@ -147,7 +177,7 @@
 
 
 <!-- Data del grupo -->
-<div id="groupData"
+<div id="groupData" class="d-none"
     data-group-code="{{ group.group_code }}"
     data-creator-id="{{ group.creator_id }}"
     data-member-count="{{ group.members | length }}"

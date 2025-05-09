@@ -365,3 +365,27 @@ function validateUsernameInput() {
         registerBtn.disabled = true;
     }
 }
+
+
+
+// -----------------------------------------------
+// SE USA EN RENDERIZAR PREGUNTA SECRETA AL INTENTAR RECUPEAR PASSWORD
+// -----------------------------------------------
+
+function mostrarPreguntaSecreta() {
+    const myContainer = document.getElementById("questionContainer");
+    const questionShow = document.getElementById("questionShow");
+    if (!myContainer || !questionShow) return;
+
+    const myVar = myContainer.dataset.question0;
+
+    const preguntas = {
+        "1": myContainer.dataset.question1,
+        "2": myContainer.dataset.question2,
+        "3": myContainer.dataset.question3,
+        "4": myContainer.dataset.question4,
+    };
+
+    questionShow.textContent = preguntas[myVar] || "-";
+}
+document.addEventListener("DOMContentLoaded", mostrarPreguntaSecreta);

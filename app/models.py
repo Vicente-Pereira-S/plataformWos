@@ -11,11 +11,12 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, nullable=False, index=True)
-    email = Column(String, nullable=True)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)       # No se usa, es para desactivar cuenta si algun dia lo quiero hacer
     last_login = Column(DateTime, default=func.now())
     groups = relationship("GroupMember", back_populates="user")
+    secret_question = Column(String, nullable=True)
+    secret_answer = Column(String, nullable=True)
 
 
 # ------------------------------

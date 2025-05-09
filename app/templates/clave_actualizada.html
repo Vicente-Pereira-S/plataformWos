@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <h2 class="mb-4">{{ _('¡Contraseña actualizada!') }}</h2>
+    <p>{{ _('Tu nueva contraseña ha sido guardada correctamente.') }}</p>
+    <a href="/auth/login" class="btn btn-primary">{{ _('Iniciar sesión') }}</a>
+</div>
+{% endblock %}

@@ -56,7 +56,6 @@ def register(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
     hashed_pw = hash_password(user_data.password)
     new_user = models.User(
         username=user_data.username,
-        email=user_data.email,
         hashed_password=hashed_pw,
         is_active=True
     )
@@ -107,9 +106,10 @@ def logout():
 def register_form(
     request: Request,
     username: str = Form(...),
-    email: str = Form(None),
     password: str = Form(...),
     confirm_password: str = Form(...),
+    secret_question: str = Form(None),
+    secret_answer: str = Form(None),
     db: Session = Depends(get_db)
 ):
     templates = get_templates(request)
@@ -118,40 +118,45 @@ def register_form(
         return templates.TemplateResponse("register.html", {
             "request": request,
             "error": "Passwords do not match",
-            "username": username,
-            "email": email
+            "username": username
         })
 
-    # Validación estricta del nombre de usuario
+    # Validación del username
     if not re.match(r"^[\w\-]{1,15}$", username):
         return templates.TemplateResponse("register.html", {
             "request": request,
             "error": "Invalid username format",
-            "username": username,
-            "email": email
+            "username": username
         })
 
+    # Usuario duplicado
     existing_user = db.query(models.User).filter(models.User.username == username).first()
     if existing_user:
         return templates.TemplateResponse("register.html", {
             "request": request,
             "error": "Username already registered",
-            "username": username,
-            "email": email
+            "username": username
         })
 
+    # Crear usuario
     hashed_pw = hash_password(password)
     new_user = models.User(
         username=username,
-        email=email,
         hashed_password=hashed_pw,
         is_active=True
     )
+
+    # Solo guarda la pregunta y respuesta si ambas están presentes
+    if secret_question and secret_answer:
+        new_user.secret_question = secret_question.strip()
+        new_user.secret_answer = secret_answer.strip()
+
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
     return templates.TemplateResponse("registro_exitoso.html", {"request": request})
+
 
 
 
@@ -199,8 +204,11 @@ def show_recovery_form(request: Request):
     return templates.TemplateResponse("recuperar_clave.html", {"request": request})
 
 
-@router.post("/recover", response_class=HTMLResponse)
-def process_recovery_form(
+# ------------------------------
+# POST: Verificar si el usuario tiene pregunta secreta
+# ------------------------------
+@router.post("/recover-question", response_class=HTMLResponse)
+def recover_question(
     request: Request,
     username: str = Form(...),
     db: Session = Depends(get_db)
@@ -208,55 +216,90 @@ def process_recovery_form(
     templates = get_templates(request)
     user = db.query(models.User).filter(models.User.username == username).first()
 
-    if user and user.email:
-        masked = mask_email(user.email)
-        return templates.TemplateResponse("confirmar_envio.html", {
-            "request": request,
-            "username": username,
-            "masked_email": masked
-        })
-    else:
-        return templates.TemplateResponse("sin_correo.html", {
-            "request": request,
-            "username": username
-        })
-
-
-@router.post("/verify-recovery")
-def verify_recovery(request: Request, username: str = Form(...), db: Session = Depends(get_db)):
-    templates = get_templates(request)
-
-    user = db.query(models.User).filter(models.User.username == username).first()
     if not user:
         return templates.TemplateResponse("usuario_no_existe.html", {
             "request": request,
             "username": username
         })
 
-    if not user.email:
-        return templates.TemplateResponse("sin_correo.html", {
+    if not user.secret_question:
+        return templates.TemplateResponse("sin_pregunta.html", {
+            "request": request,
+            "username": username
+        })
+
+    return templates.TemplateResponse("mostrar_pregunta.html", {
+        "request": request,
+        "username": username,
+        "question": user.secret_question
+    })
+
+
+# ------------------------------
+# POST: Validar respuesta secreta y mostrar formulario de nueva contraseña
+# ------------------------------
+@router.post("/verify-answer", response_class=HTMLResponse)
+def verify_secret_answer(
+    request: Request,
+    username: str = Form(...),
+    secret_answer: str = Form(...),
+    db: Session = Depends(get_db)
+):
+    templates = get_templates(request)
+    user = db.query(models.User).filter(models.User.username == username).first()
+
+    if not user or not user.secret_answer:
+        return templates.TemplateResponse("usuario_no_existe.html", {
             "request": request
         })
 
-    email = user.email
-    parts = email.split("@")
-    masked_email = parts[0][:5] + "******@" + parts[1][:2] + "****"
+    if user.secret_answer.strip().lower() != secret_answer.strip().lower():
+        return templates.TemplateResponse("mostrar_pregunta.html", {
+            "request": request,
+            "username": username,
+            "question": user.secret_question,
+            "error": "Respuesta incorrecta"
+        })
 
-    return templates.TemplateResponse("confirmar_envio.html", {
+    return templates.TemplateResponse("nueva_clave.html", {
         "request": request,
-        "email_mascara": masked_email,
         "username": username
     })
 
 
-@router.post("/send-recovery")
-def send_recovery(request: Request, username: str = Form(...)):
+# ------------------------------
+# POST: Guardar nueva contraseña
+# ------------------------------
+@router.post("/reset-password", response_class=HTMLResponse)
+def reset_password(
+    request: Request,
+    username: str = Form(...),
+    new_password: str = Form(...),
+    confirm_password: str = Form(...),
+    db: Session = Depends(get_db)
+):
     templates = get_templates(request)
-    return templates.TemplateResponse("correo_enviado.html", {
+
+    if new_password != confirm_password:
+        return templates.TemplateResponse("nueva_clave.html", {
+            "request": request,
+            "username": username,
+            "error": "Las contraseñas no coinciden"
+        })
+
+    user = db.query(models.User).filter(models.User.username == username).first()
+    if not user:
+        return templates.TemplateResponse("usuario_no_existe.html", {
+            "request": request
+        })
+
+    user.hashed_password = hash_password(new_password)
+    db.commit()
+
+    return templates.TemplateResponse("clave_actualizada.html", {
         "request": request,
         "username": username
     })
-
 
 # ------------------------------
 # Get current user (protected)

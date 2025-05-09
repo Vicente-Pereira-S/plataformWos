@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 600px;">
+    <h2 class="text-center mb-4">{{ _('Recuperar contraseña') }}</h2>
+
+    {% if error %}
+        <div class="alert alert-danger">{{ _('Respuesta incorrecta') }}</div>
+    {% endif %}
+
+    <form method="post" action="/auth/verify-answer">
+        <input type="hidden" name="username" value="{{ username }}">
+
+        <div class="mb-3">
+            <label class="form-label">{{ _('Pregunta secreta') }}</label>
+            <div class="form-control" id="questionShow" readonly></div>
+        </div>
+
+        <div class="mb-3">
+            <label for="secret_answer" class="form-label">{{ _('Tu respuesta') }}</label>
+            <input type="text" class="form-control" id="secret_answer" name="secret_answer" required>
+        </div>
+
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-primary">{{ _('Verificar respuesta') }}</button>
+        </div>
+    </form>
+
+    <div id="questionContainer" class="d-none" 
+    data-question0="{{ question }}"
+    data-question1="{{ _('Selecciona una pregunta') }}"
+    data-question2="{{ _('¿Nombre de tu primera mascota?') }}"
+    data-question3="{{ _('¿Nombre de tu escuela primaria?') }}"
+    data-question4="{{ _('¿Ciudad donde naciste?') }}">
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/codigo.js') }}"></script>
+{% endblock %}

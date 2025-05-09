@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 600px;">
+    <h2 class="text-center mb-4">{{ _('Nueva contraseña') }}</h2>
+
+    {% if error %}
+        <div class="alert alert-danger">{{ _('Las contraseñas no coinciden') }}</div>
+    {% endif %}
+
+    <form method="post" action="/auth/reset-password">
+        <input type="hidden" name="username" value="{{ username }}">
+
+        <div class="mb-3">
+            <label for="new_password" class="form-label">{{ _('Nueva contraseña') }}</label>
+            <input type="password" class="form-control" id="new_password" name="new_password" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="confirm_password" class="form-label">{{ _('Confirmar nueva contraseña') }}</label>
+            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+        </div>
+
+        <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-success">{{ _('Actualizar contraseña') }}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

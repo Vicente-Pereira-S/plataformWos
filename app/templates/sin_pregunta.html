@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <h2 class="mb-4">{{ _('Sin método de recuperación') }}</h2>
+    <p>{{ _('El usuario') }} <strong>{{ username }}</strong> {{ _('no ha configurado una pregunta secreta.') }}</p>
+    <p>{{ _('Imposible recuperar la contraseña para este usuario')}}</p>
+    <a href="/" class="btn btn-primary">{{ _('Volver al inicio') }}</a>
+</div>
+{% endblock %}
