@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 800px;">
+    <h2 class="text-center mb-4">{{ _('Enviar disponibilidad') }}</h2>
+
+    <form id="groupForm">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header">
+                <h5 class="card-title mb-0">{{ _('Información del usuario') }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="userName" class="form-label">{{ _('Nombre') }}</label>
+                    <input type="text" class="form-control" id="userName" name="userName" required>
+                </div>
+                <div class="mb-3">
+                    <label for="userID" class="form-label">{{ _('ID (opcional)') }}</label>
+                    <input type="text" class="form-control" id="userID" name="userID">
+                </div>
+                <div class="mb-3">
+                    <label for="alliance" class="form-label">{{ _('Alianza') }}</label>
+                    <select id="alliance" name="alliance" class="form-select" required>
+                        <option value="">{{ _('Seleccione una alianza') }}</option>
+                        {% for a in alliances %}
+                        <option value="{{ a.id }}">[{{ a.name }}]</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">{{ _('Seleccione los días para enviar información:') }}</label>
+                    <div id="daySelections">
+                        {% for day in days %}
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" id="selectDay{{ day.id }}" name="selectedDays" value="{{ day.id }}">
+                            <label class="form-check-label ms-2" for="selectDay{{ day.id }}">{{ day.name }}</label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="daysContainer">
+            {% for day in days %}
+            <div class="card mb-3 day-container hide" id="day{{ day.id }}">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">{{ day.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="speedups-day{{ day.id }}" class="form-label">Número de Speedups para {{ day.name }}:</label>
+                        <input type="number" class="form-control" id="speedups-day{{ day.id }}" name="speedups-day{{ day.id }}" min="0" required disabled>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Intervalos de disponibilidad:</label>
+                        <div id="intervals-day{{ day.id }}">
+                            <div class="interval-container mt-1">
+                                <select class="form-select form-select-sm d-inline w-auto" name="start-day{{ day.id }}-interval1" required disabled></select>
+                                <span class="mx-1">-</span>
+                                <select class="form-select form-select-sm d-inline w-auto" name="end-day{{ day.id }}-interval1" required disabled></select>
+                                <button type="button" class="btn btn-sm btn-danger ms-2 remove-btn" onclick="removeInterval(this)" disabled>Eliminar</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="addInterval('day{{ day.id }}')" id="addInterval-day{{ day.id }}" disabled>Añadir intervalo</button>
+                        <input type="hidden" id="intervalCount-day{{ day.id }}" value="1">
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-primary">{{ _('Guardar información') }}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/enviar_disponibilidad.js') }}"></script>
+<style>
+    .day-container {
+        transition: all 0.3s ease;
+    }
+    .hide {
+        display: none;
+    }
+    .interval-container {
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}

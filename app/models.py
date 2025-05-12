@@ -12,13 +12,13 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, nullable=False, index=True)
     hashed_password = Column(String, nullable=False)
-    is_active = Column(Boolean, default=True)       # No se usa, es para desactivar cuenta si algun dia lo quiero hacer
+    is_active = Column(Boolean, default=True) # No se usa, es para desactivar cuenta si algun dia lo quiero hacer
     last_login = Column(DateTime, default=func.now())
-    groups = relationship("GroupMember", back_populates="user")
     secret_question = Column(String, nullable=True)
     secret_answer = Column(String, nullable=True)
 
-
+    groups = relationship("GroupMember", back_populates="user")
+    
 # ------------------------------
 # MODELO DE GRUPO
 # ------------------------------
@@ -61,6 +61,7 @@ class Alliance(Base):
     name = Column(String(3), nullable=False)
 
     group = relationship("Group", back_populates="alliances")
+    submissions = relationship("UserSubmission", back_populates="alliance", cascade="all, delete-orphan")
 
 
 # ------------------------------
@@ -78,19 +79,32 @@ class GroupDay(Base):
 
 
 # ------------------------------
-# INFORMACIÓN ENVIADA POR USUARIO (SUBMISIÓN)
+# MODELO DE ENVÍO ANÓNIMO DE INFORMACIÓN
 # ------------------------------
 class UserSubmission(Base):
     __tablename__ = "user_submissions"
 
     id = Column(Integer, primary_key=True, index=True)
     group_day_id = Column(Integer, ForeignKey("group_days.id"))
-    start_time = Column(Time, nullable=False)
-    end_time = Column(Time, nullable=False)
-    speedups = Column(Integer, nullable=False)
     alliance_id = Column(Integer, ForeignKey("alliances.id"))
     nickname = Column(String, nullable=False)
     ingame_id = Column(String, nullable=True)
+    speedups = Column(Integer, nullable=False)
 
     group_day = relationship("GroupDay", back_populates="submissions")
-    alliance = relationship("Alliance")
+    alliance = relationship("Alliance", back_populates="submissions")
+    availability = relationship("AvailabilitySlot", back_populates="submission", cascade="all, delete-orphan")
+
+
+# ------------------------------
+# MODELO DE HORARIOS DISPONIBLES (por envío)
+# ------------------------------
+class AvailabilitySlot(Base):
+    __tablename__ = "availability_slots"
+
+    id = Column(Integer, primary_key=True, index=True)
+    submission_id = Column(Integer, ForeignKey("user_submissions.id"))
+    start_time = Column(Time, nullable=False)
+    end_time = Column(Time, nullable=False)
+
+    submission = relationship("UserSubmission", back_populates="availability")
