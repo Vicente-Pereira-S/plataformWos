@@ -140,3 +140,22 @@ body[data-theme="dark"] .modal-content.glassmorphic {
 body[data-theme="dark"] .text-theme-muted {
     color: #f5f5f5;
 }
+
+
+
+body[data-theme="dark"] .tab-content {
+    background-color: var(--dark-card);
+}
+
+body[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(odd) {
+    background-color: #2a2a2a;
+}
+
+body[data-theme="dark"] .table-striped > tbody > tr:nth-of-type(even) {
+    background-color: #1f1f1f;
+}
+
+body[data-theme="dark"] .table-dark th {
+    background-color: #333;
+    color: var(--dark-text);
+}

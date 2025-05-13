@@ -59,6 +59,7 @@ class Alliance(Base):
     id = Column(Integer, primary_key=True, index=True)
     group_id = Column(Integer, ForeignKey("groups.id"))
     name = Column(String(3), nullable=False)
+    limit = Column(Integer, nullable=True)
 
     group = relationship("Group", back_populates="alliances")
     submissions = relationship("UserSubmission", back_populates="alliance", cascade="all, delete-orphan")
@@ -108,3 +109,4 @@ class AvailabilitySlot(Base):
     end_time = Column(Time, nullable=False)
 
     submission = relationship("UserSubmission", back_populates="availability")
+

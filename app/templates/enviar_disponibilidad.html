@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container py-4" style="max-width: 800px;">
-    <h2 class="text-center mb-4">{{ _('Enviar disponibilidad') }}</h2>
+    <h2 class="text-center mb-4">{{ _('Citas del estado ') }}{{ group.state_number }}</h2>
 
     <form id="groupForm">
         <div class="card mb-4 shadow-sm">
@@ -11,11 +11,11 @@
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <label for="userName" class="form-label">{{ _('Nombre') }}</label>
+                    <label for="userName" class="form-label">{{ _('Tu nombre en el juego') }}</label>
                     <input type="text" class="form-control" id="userName" name="userName" required>
                 </div>
                 <div class="mb-3">
-                    <label for="userID" class="form-label">{{ _('ID (opcional)') }}</label>
+                    <label for="userID" class="form-label">{{ _('Tu ID del juego (opcional)') }}</label>
                     <input type="text" class="form-control" id="userID" name="userID">
                 </div>
                 <div class="mb-3">
@@ -28,7 +28,7 @@
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label">{{ _('Seleccione los días para enviar información:') }}</label>
+                    <label class="form-label">{{ _('Seleccione los días que necesitas:') }}</label>
                     <div id="daySelections">
                         {% for day in days %}
                         <div class="form-check form-switch mb-2">
@@ -49,17 +49,17 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label for="speedups-day{{ day.id }}" class="form-label">Número de Speedups para {{ day.name }}:</label>
+                        <label for="speedups-day{{ day.id }}" class="form-label">{{ _('Cantidad de speedups en ') }}<strong>{{ _('DÍAS') }}</strong> {{ _('para') }} {{ day.name }}:</label>
                         <input type="number" class="form-control" id="speedups-day{{ day.id }}" name="speedups-day{{ day.id }}" min="0" required disabled>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Intervalos de disponibilidad:</label>
+                        <label class="form-label">{{ _('Hora de las citas deseables') }}</label>
                         <div id="intervals-day{{ day.id }}">
                             <div class="interval-container mt-1">
                                 <select class="form-select form-select-sm d-inline w-auto" name="start-day{{ day.id }}-interval1" required disabled></select>
                                 <span class="mx-1">-</span>
                                 <select class="form-select form-select-sm d-inline w-auto" name="end-day{{ day.id }}-interval1" required disabled></select>
-                                <button type="button" class="btn btn-sm btn-danger ms-2 remove-btn" onclick="removeInterval(this)" disabled>Eliminar</button>
+                                <button type="button" class="btn btn-sm btn-danger ms-2 remove-btn" onclick="removeInterval(this)" disabled>{{ _('Eliminar') }}</button>
                             </div>
                         </div>
                         <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="addInterval('day{{ day.id }}')" id="addInterval-day{{ day.id }}" disabled>Añadir intervalo</button>

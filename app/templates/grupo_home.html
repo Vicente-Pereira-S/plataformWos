@@ -65,6 +65,86 @@
         </div>
     </div>
 
+    <div class="mt-4">
+        <h4 class="mb-3 text-theme-muted">📋 {{ _('Postulaciones por día') }}</h4>
+    
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" id="dayTabs" role="tablist">
+            {% for day in group.days %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if loop.first %}active{% endif %}"
+                        id="tab-{{ day.id }}"
+                        data-bs-toggle="tab"
+                        data-bs-target="#content-{{ day.id }}"
+                        type="button"
+                        role="tab"
+                        aria-controls="content-{{ day.id }}"
+                        aria-selected="{{ 'true' if loop.first else 'false' }}">
+                    {{ day.name }}
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
+    
+        <!-- Tab panes -->
+        <div class="tab-content border border-top-0 p-3" style="background-color: var(--light-card); border-radius: 0 0 0.5rem 0.5rem;">
+            {% for day in group.days %}
+            <div class="tab-pane fade {% if loop.first %}show active{% endif %}" id="content-{{ day.id }}" role="tabpanel" aria-labelledby="tab-{{ day.id }}">
+                {% if day.submissions %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th class="text-center">{{ _('Alianza') }}</th>
+                                <th class="text-start">{{ _('Nombre') }}</th>
+                                <th class="text-center">{{ _('ID') }}</th>
+                                <th class="text-center">{{ _('Speedups (días)') }}</th>
+                                <th class="text-start">{{ _('Citas deseables') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sub in day.submissions|sort(attribute='speedups', reverse=True) %}
+
+                            <tr>
+                                <td class="text-center">[{{ sub.alliance.name }}]</td>
+                                <td class="text-start">{{ sub.nickname }}</td>
+                                <td class="text-center">{{ sub.ingame_id or '-' }}</td>
+                                <td class="text-center">{{ sub.speedups }}</td>
+                                <td class="text-start">
+                                    {% for slot in sub.availability %}
+                                        {{ "%02d:%02d" | format(slot.start_time.hour, slot.start_time.minute) }}
+                                        -
+                                        {{ "%02d:%02d" | format(slot.end_time.hour, slot.end_time.minute) }}
+                                        {% if not loop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        
+                    </table>
+                </div>
+                {% else %}
+                    <p class="text-muted">{{ _('No hay postulaciones para este día.') }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    
+    
+    
+    
+    
+
+
+
+
+
+
+
+
 
 
 
@@ -89,17 +169,6 @@
                 <small class="text-muted">{{ _('Total:') }} {{ alianzas_validas|length + 1 }}</small>
             </div>
 
-            <!-- Días -->
-            <div class="mb-4">
-                <h4>{{ _('Días organizados') }}</h4>
-                <ul class="list-group">
-                    {% for day in group.days %}
-                        <li class="list-group-item">{{ day.name }}</li>
-                    {% endfor %}
-                </ul>
-                <small class="text-muted">{{ _('Total:') }} {{ group.days|length }}</small>
-            </div>
-
             <div class="mb-4">
                 <h4>{{ _('Miembros') }}</h4>
                 <ul class="list-group">
@@ -107,12 +176,20 @@
                         <li class="list-group-item">{{ member.user.username }}</li>
                     {% endfor %}
                 </ul>
-                <small class="text-muted">{{ _('Total:') }} {{ group.days|length }}</small>
+                <small class="text-muted">{{ _('Total:') }} {{ group.members|length }}</small>
             </div>
 
         </div>
     </div>
 </div>
+
+
+
+
+
+
+
+
 <!-- Modal: Ajustes de grupo -->
 <div class="modal fade" id="ajustesModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
