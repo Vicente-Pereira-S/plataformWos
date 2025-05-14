@@ -83,46 +83,45 @@ function validateGroupCode() {
 
 // Funcion pedida a la IA, no sabia como hacerlo para que fuera multiplataforma
 // Soporta navegadores modernos y antiguos (tiene fallback para navegadores que no soportan el API navigator.clipboard).
-function copyGroupCode() {
-    const input = document.getElementById("groupCodeInput");
+function copyTextById(inputId, toastId = "copyToast", errorToastId = "copyErrorToast") {
+    const input = document.getElementById(inputId);
     if (!input) return;
 
-    // Para asegurar compatibilidad, creamos un rango y lo seleccionamos manualmente
     if (navigator.clipboard && window.isSecureContext) {
-        // Método moderno y seguro
         navigator.clipboard.writeText(input.value)
-            .then(showCopyToast)
-            .catch(() => fallbackCopyText(input));
+            .then(() => showCopyToast(toastId))
+            .catch(() => fallbackCopyText(input, toastId, errorToastId));
     } else {
-        // Fallback para navegadores más antiguos o no seguros (iOS Safari)
-        fallbackCopyText(input);
+        fallbackCopyText(input, toastId, errorToastId);
     }
 }
 
-function fallbackCopyText(input) {
+function fallbackCopyText(input, toastId, errorToastId) {
     input.focus();
-    input.setSelectionRange(0, input.value.length); // compatible con móviles
-    const successful = document.execCommand('copy'); // método clásico
-    
+    input.setSelectionRange(0, input.value.length);
+    const successful = document.execCommand('copy');
+
     if (successful) {
-        showCopyToast();
+        showCopyToast(toastId);
     } else {
-        const errorToast = new bootstrap.Toast(document.getElementById('copyErrorToast'));
-        errorToast.show();
+        const errorToast = document.getElementById(errorToastId);
+        if (errorToast) {
+            const toast = new bootstrap.Toast(errorToast);
+            toast.show();
+        }
     }
 }
 
-
-function showCopyToast() {
-    const toast = document.getElementById("copyToast");
+function showCopyToast(toastId) {
+    const toast = document.getElementById(toastId);
     if (!toast) return;
 
     toast.classList.add("show");
-
     setTimeout(() => {
         toast.classList.remove("show");
     }, 2000);
 }
+
 
 
 
@@ -161,11 +160,8 @@ function renderAllianceFields(count, existingAlliances = []) {
         return;
     }
 
+    const myMsg = document.getElementById("msgContainer");
 
-    // obtengo centro de mensajes
-    const myMsg = document.getElementById("msgContainer")
-
-    // creo un div con los campos necesarios para incrustar el modal
     for (let i = 1; i <= count; i++) {
         const wrapper = document.createElement('div');
         wrapper.className = 'mb-3';
@@ -178,12 +174,10 @@ function renderAllianceFields(count, existingAlliances = []) {
         input.required = true;
         input.name = `alliance_${i}`;
 
-        // Mensaje de error
         const feedback = document.createElement('div');
         feedback.className = 'invalid-feedback';
         feedback.textContent = myMsg.dataset.allianceInvalid;
 
-        // Evento de validación
         input.addEventListener("input", () => {
             const val = input.value.trim();
             if (regex.test(val)) {
@@ -196,8 +190,7 @@ function renderAllianceFields(count, existingAlliances = []) {
             updateConfirmButton();
         });
 
-        // Valor precargado si existe
-        if (existingAlliances[i - 1] && existingAlliances[i - 1].name !== "Otra") {
+        if (existingAlliances[i - 1]) {
             input.value = existingAlliances[i - 1].name;
             const val = input.value.trim();
             if (regex.test(val)) {
@@ -207,22 +200,14 @@ function renderAllianceFields(count, existingAlliances = []) {
             }
         }
 
-        // Armar bloque
         wrapper.appendChild(input);
         wrapper.appendChild(feedback);
         container.appendChild(wrapper);
     }
 
-    // Campo readonly para la alianza "Otra" / en create y edite muestra esta alianza!
-    const otherInput = document.createElement('input');
-    otherInput.type = 'text';
-    otherInput.className = 'form-control mb-2 text-muted';
-    otherInput.readOnly = true;
-    otherInput.value = myMsg.dataset.otra; 
-    container.appendChild(otherInput);
-
     updateConfirmButton();
 }
+
 
 
 
@@ -325,7 +310,7 @@ function initGrupoSettingsEdit(existingAlliances = [], existingDays = []) {
     const selectDays = document.getElementById('numDays');
 
     // Prellenar los select, no sé donde se aplica
-    selectAlliances.value = existingAlliances.filter(a => a.name !== "Otra").length;
+    selectAlliances.value = existingAlliances.length;
     selectDays.value = existingDays.length;
 
     // Renderizar los campos
@@ -377,15 +362,96 @@ function mostrarPreguntaSecreta() {
     const questionShow = document.getElementById("questionShow");
     if (!myContainer || !questionShow) return;
 
-    const myVar = myContainer.dataset.question0;
+    const myVar = myContainer.dataset.question;   // Numero ID de la pregunta
 
     const preguntas = {
         "1": myContainer.dataset.question1,
         "2": myContainer.dataset.question2,
-        "3": myContainer.dataset.question3,
-        "4": myContainer.dataset.question4,
+        "3": myContainer.dataset.question3
     };
 
     questionShow.textContent = preguntas[myVar] || "-";
 }
 document.addEventListener("DOMContentLoaded", mostrarPreguntaSecreta);
+
+
+
+function runAssign(dayId) {
+    const resultadosDiv = document.getElementById(`resultados-algoritmo-${dayId}`);
+    const tablaBody = document.getElementById(`tabla-asignaciones-${dayId}`);
+    const listaNoAsignados = document.getElementById(`lista-no-asignados-${dayId}`);
+
+    // Mostrar el contenedor
+    resultadosDiv.style.display = "block";
+
+    // Mensaje de carga temporal
+    tablaBody.innerHTML = `
+        <tr><td colspan="6" class="text-center text-theme-muted py-3">Cargando asignaciones...</td></tr>
+    `;
+    listaNoAsignados.innerHTML = "";
+
+    fetch(`/groups/asignar/${dayId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                tablaBody.innerHTML = `<tr><td colspan="6" class="text-danger">Error al ejecutar el algoritmo.</td></tr>`;
+                return;
+            }
+
+            const asignaciones = data.data.assignments || [];
+            const noAsignados = data.data.unassigned || [];
+
+            // Crear un mapa por bloque horario
+            const mapa = new Map();
+            for (const r of asignaciones) {
+                mapa.set(r.hour_block, r);
+            }
+
+            // Generar las 48 filas
+            let rows = "";
+            for (let b = 0; b < 48; b++) {
+                const hora = `${String(Math.floor(b / 2)).padStart(2, '0')}:${b % 2 === 0 ? '00' : '30'}`;
+
+                if (mapa.has(b)) {
+                    const r = mapa.get(b);
+                    rows += `
+                        <tr>
+                            <td><strong>${hora}</strong></td>
+                            <td>[${r.alliance}]</td>
+                            <td>${r.nickname}</td>
+                            <td>${r.ingame_id || '-'}</td>
+                            <td>${r.speedups}</td>
+                            <td>${r.availability_str}</td>
+                        </tr>
+                    `;
+                } else {
+                    rows += `
+                        <tr class="table-secondary">
+                            <td><strong>${hora}</strong></td>
+                            <td colspan="5"><em>— Sin asignación —</em></td>
+                        </tr>
+                    `;
+                }
+            }
+
+            tablaBody.innerHTML = rows;
+
+            if (noAsignados.length > 0) {
+                for (const u of noAsignados) {
+                    const item = document.createElement("li");
+                    item.className = "list-group-item";
+                    item.innerHTML = `
+                        <strong>${u.nickname}</strong> (${u.speedups} speedups)
+                        <span class="ms-2 text-theme-muted">[${u.alliance}]</span>
+                    `;
+                    listaNoAsignados.appendChild(item);
+                }
+            } else {
+                listaNoAsignados.innerHTML = `<li class="list-group-item text-muted">Todos fueron asignados.</li>`;
+            }
+        })
+        .catch(err => {
+            tablaBody.innerHTML = `<tr><td colspan="6" class="text-danger">Error inesperado.</td></tr>`;
+            console.error(err);
+        });
+}

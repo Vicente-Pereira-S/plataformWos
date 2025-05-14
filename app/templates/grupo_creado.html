@@ -9,7 +9,7 @@
 
     <div class="input-group justify-content-center mb-4" style="max-width: 340px; margin: 0 auto;">
         <input type="text" id="groupCodeInput" class="form-control text-center" value="{{ group_code }}" readonly>
-        <button class="btn btn-outline-secondary" type="button" onclick="copyGroupCode()" title="{{ _('Copiar al portapapeles') }}">
+        <button class="btn btn-outline-secondary" type="button" onclick="copyTextById('groupCodeInput')" title="{{ _('Copiar al portapapeles') }}">
             📋
         </button>
     </div>

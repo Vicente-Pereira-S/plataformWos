@@ -110,3 +110,21 @@ class AvailabilitySlot(Base):
 
     submission = relationship("UserSubmission", back_populates="availability")
 
+
+
+# ------------------------------
+# MODELO DE ASIGNACIONES GUARDADAS
+# ------------------------------
+class GroupAssignment(Base):
+    __tablename__ = "group_assignments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    group_day_id = Column(Integer, ForeignKey("group_days.id"))
+    hour_block = Column(Integer, nullable=False)  # De 0 a 47
+    nickname = Column(String, nullable=False)
+    ingame_id = Column(String, nullable=True)
+    alliance = Column(String(3), nullable=False)
+    speedups = Column(Integer, nullable=False)
+    availability_str = Column(String, nullable=False)
+
+    group_day = relationship("GroupDay", backref="assignments")

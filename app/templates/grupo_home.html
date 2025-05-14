@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid px-4 pt-3">
-    <a href="/groups/my-groups" class="btn btn-outline-secondary btn-sm">
-        ← {{ _('Volver') }}
-    </a>
-</div>
-<div class="container py-3">
+<div class="container">
 
+    <div class="d-flex mb-2 mt-3">
+        <a href="/groups/my-groups" class="btn btn-outline-secondary btn-sm">
+            ← {{ _('Volver') }}
+        </a>
+    </div>
     <!-- Encabezado del grupo -->
      
     <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 p-3 border-bottom">
@@ -46,12 +46,12 @@
                     <i class="bi bi-three-dots-vertical me-1"></i> {{ _('Acciones') }}
                 </button>
                 <ul class="dropdown-menu shadow border-0" aria-labelledby="groupActionsDropdown">
-                    {% if is_creator %}
                     <li>
                         <a class="dropdown-item d-flex align-items-center text-danger" href="#" data-bs-toggle="modal" data-bs-target="#leaveGroupModal">
                             <i class="bi bi-box-arrow-right me-2"></i> {{ _('Abandonar grupo') }}
                         </a>
                     </li>
+                    {% if is_creator %}
                     <li><hr class="dropdown-divider"></li>
                     <li>
                         <a class="dropdown-item d-flex align-items-center text-danger" href="#" data-bs-toggle="modal" data-bs-target="#modalEliminarGrupo">
@@ -65,10 +65,19 @@
         </div>
     </div>
 
-    <div class="mt-4">
-        <h4 class="mb-3 text-theme-muted">📋 {{ _('Postulaciones por día') }}</h4>
+
+    <button class="btn btn-outline-primary btn-sm mt-3" data-bs-toggle="modal" data-bs-target="#modalLinkCita">
+        <i class="bi bi-link-45deg me-1"></i> Obtener link de postulación
+    </button>
     
-        <!-- Nav tabs -->
+
+
+    <!-- Cuerpo del grupo -->
+
+    <div class="mt-3">
+        <h4 class="mb-5">📋 Postulaciones y asignación</h4>
+    
+        <!-- Tabs por día -->
         <ul class="nav nav-tabs" id="dayTabs" role="tablist">
             {% for day in group.days %}
             <li class="nav-item" role="presentation">
@@ -86,34 +95,40 @@
             {% endfor %}
         </ul>
     
-        <!-- Tab panes -->
-        <div class="tab-content border border-top-0 p-3" style="background-color: var(--light-card); border-radius: 0 0 0.5rem 0.5rem;">
+        <!-- Contenido de cada día -->
+        <div class="tab-content border border-top-0 p-3">
             {% for day in group.days %}
-            <div class="tab-pane fade {% if loop.first %}show active{% endif %}" id="content-{{ day.id }}" role="tabpanel" aria-labelledby="tab-{{ day.id }}">
-                {% if day.submissions %}
-                <div class="table-responsive">
-                    <table class="table table-striped table-bordered align-middle">
-                        <thead class="table-dark">
+            <div class="tab-pane fade {% if loop.first %}show active{% endif %}"
+                 id="content-{{ day.id }}"
+                 role="tabpanel"
+                 aria-labelledby="tab-{{ day.id }}">
+    
+                <!-- Título y botón -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Previsualización rápida</h5>
+                </div>
+    
+                {% if day.submissions|length > 0 %}
+                <!-- Tabla previa -->
+                <div class="position-relative overflow-hidden rounded border" style="max-height: 185px;">
+                    <table class="table table-sm table-bordered mb-0 text-center">
+                        <thead class="table-light">
                             <tr>
-                                <th class="text-center">{{ _('Alianza') }}</th>
-                                <th class="text-start">{{ _('Nombre') }}</th>
-                                <th class="text-center">{{ _('ID') }}</th>
-                                <th class="text-center">{{ _('Speedups (días)') }}</th>
-                                <th class="text-start">{{ _('Citas deseables') }}</th>
+                                <th>Alianza</th>
+                                <th>Nombre</th>
+                                <th>Speedups</th>
+                                <th>Citas deseables</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% for sub in day.submissions|sort(attribute='speedups', reverse=True) %}
-
+                            {% for sub in day.submissions[:3] %}
                             <tr>
-                                <td class="text-center">[{{ sub.alliance.name }}]</td>
-                                <td class="text-start">{{ sub.nickname }}</td>
-                                <td class="text-center">{{ sub.ingame_id or '-' }}</td>
-                                <td class="text-center">{{ sub.speedups }}</td>
-                                <td class="text-start">
+                                <td>[{{ sub.alliance.name }}]</td>
+                                <td>{{ sub.nickname }}</td>
+                                <td>{{ sub.speedups }}</td>
+                                <td>
                                     {% for slot in sub.availability %}
-                                        {{ "%02d:%02d" | format(slot.start_time.hour, slot.start_time.minute) }}
-                                        -
+                                        {{ "%02d:%02d" | format(slot.start_time.hour, slot.start_time.minute) }} -
                                         {{ "%02d:%02d" | format(slot.end_time.hour, slot.end_time.minute) }}
                                         {% if not loop.last %}, {% endif %}
                                     {% endfor %}
@@ -121,22 +136,68 @@
                             </tr>
                             {% endfor %}
                         </tbody>
-                        
                     </table>
+    
+                    <!-- Gradiente -->
+                    <div class="position-absolute bottom-0 start-0 w-100" style="height: 40px; pointer-events: none; z-index: 1;">
+                        <div data-theme="light" style="height: 100%; background: linear-gradient(to bottom, transparent, var(--light-bg));"></div>
+                        <div data-theme="dark" style="height: 100%; background: linear-gradient(to bottom, transparent, var(--dark-bg)); display: none;"></div>
+                    </div>
+                </div>
+    
+                <!-- Link a ver todo -->
+                <div class="mt-2 text-start">
+                    <a href="/groups/postulaciones/{{ day.id }}" class="btn btn-warning btn-sm">
+                        {{ _('Ver/Editar postulaciones') }}
+                    </a>
                 </div>
                 {% else %}
-                    <p class="text-muted">{{ _('No hay postulaciones para este día.') }}</p>
+                <p class="text-theme-muted">No hay postulaciones aún para este día.</p>
                 {% endif %}
+
+                <hr/>
+                
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Generar/Actualizar horas de ministerio</h5>
+                </div>
+
+                <button class="btn btn-primary" onclick="runAssign('{{ day.id }}')" {% if day.submissions|length == 0 %}disabled{% endif %}>
+                    Asignar citas
+                </button>
+    
+                <!-- Resultados del algoritmo -->
+                <div id="resultados-algoritmo-{{ day.id }}" class="mt-5" style="display: none;">
+                    <h6 class="mb-3">⏱️ Resultados de la asignación</h6>
+    
+                    <div class="table-responsive">
+                        <table class="table table-sm table-striped border text-center">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Hora (UTC)</th>
+                                    <th>Alianza</th>
+                                    <th>Nombre</th>
+                                    <th>ID</th>
+                                    <th>Speedups</th>
+                                    <th>Disponibilidad</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-asignaciones-{{ day.id }}"></tbody>
+                        </table>
+                    </div>
+    
+                    <div class="mt-4">
+                        <h6>🚫 No asignados</h6>
+                        <p></p>
+                        <ul id="lista-no-asignados-{{ day.id }}" class="list-group"></ul>
+                    </div>
+                </div>
+    
             </div>
             {% endfor %}
         </div>
     </div>
     
     
-    
-    
-    
-    
 
 
 
@@ -147,277 +208,262 @@
 
 
 
+    <!-- Inicio de modales -->
 
 
-    <!-- Aquí irá el contenido del grupo más adelante -->
-    <hr class="my-4">
-
-    <!-- Información del grupo -->
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-
-            <!-- Alianzas -->
-            <div class="mb-4">
-                <h4>{{ _('Alianzas registradas') }}</h4>
-                <ul class="list-group">
-                    {% set alianzas_validas = group.alliances | selectattr('name', 'ne', 'Otra') | list %}
-                    {% for alliance in alianzas_validas %}
-                        <li class="list-group-item">[{{ alliance.name }}]</li>
-                    {% endfor %}
-                    <li class="list-group-item text-muted">[{{ _('Otra') }}] {{ _('(obligatoriaaaaaa)') }}</li>
-                </ul>
-                <small class="text-muted">{{ _('Total:') }} {{ alianzas_validas|length + 1 }}</small>
-            </div>
-
-            <div class="mb-4">
-                <h4>{{ _('Miembros') }}</h4>
-                <ul class="list-group">
-                    {% for member in group.members %}
-                        <li class="list-group-item">{{ member.user.username }}</li>
-                    {% endfor %}
-                </ul>
-                <small class="text-muted">{{ _('Total:') }} {{ group.members|length }}</small>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-
-
-
-
-
-
-
-<!-- Modal: Ajustes de grupo -->
-<div class="modal fade" id="ajustesModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
-        <div class="modal-content glassmorphic">
-            <div class="modal-header">
-                <h5 class="modal-title">{{ _('Configuración del grupo') }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
-            </div>
-            <div class="modal-body">
-            
-                <!-- Contenedor con data-* -->
-                <div id="groupSettingsData"
-                    data-alliances='{{ alliances_serializable | tojson | safe }}'
-                    data-days='{{ days_serializable | tojson | safe }}'>
+    <!-- Modal: Ajustes de grupo -->
+    <div class="modal fade" id="ajustesModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
+            <div class="modal-content glassmorphic">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ _('Configuración del grupo') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
                 </div>
-          
-                <!-- FORMULARIO -->
-                <form method="post" action="/groups/update-settings/{{ group.group_code }}" id="settingsFormModal">
-                    <!-- Número de alianzas -->
-                    <div class="mb-4">
-                        <label for="numAlliances" class="form-label">{{ _('Número de alianzas (1 a 12)') }}</label>
-                        <select id="numAlliances" name="num_alliances" class="form-select">
-                            <option value="">{{ _('Selecciona una opción') }}</option>
-                            {% for i in range(1, 13) %}
-                                <option value="{{ i }}">{{ i }}</option>
-                            {% endfor %}
-                        </select>
+                <div class="modal-body">
+                
+                    <!-- Contenedor con data-* -->
+                    <div id="groupSettingsData"
+                        data-alliances='{{ alliances_serializable | tojson | safe }}'
+                        data-days='{{ days_serializable | tojson | safe }}'>
                     </div>
                 
-                    <!-- Campos de nombres de alianzas EDIT-->
-                    <div id="alliancesContainer" class="mb-4"></div>
-                
-                    <!-- Número de días -->
-                    <div class="mb-4">
-                        <label for="numDays" class="form-label">{{ _('Número de días a organizar (1 a 4)') }}</label>
-                        <select id="numDays" name="num_days" class="form-select">
-                            <option value="">{{ _('Selecciona una opción') }}</option>
-                            {% for i in range(1, 5) %}
-                                <option value="{{ i }}">{{ i }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                
-                    <!-- Campos de nombres de días -->
-                    <div id="daysContainer" class="mb-4"></div>
-                
-                    <!-- Botones -->
-                    <div class="text-center d-flex justify-content-center gap-3">
-                        <button id="confirmButton" type="submit" class="btn btn-primary" disabled>
-                            {{ _('Guardar cambios') }}
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            {{ _('Cancelar') }}
-                        </button>
-                    </div>
-                </form>
+                    <!-- FORMULARIO -->
+                    <form method="post" action="/groups/update-settings/{{ group.group_code }}" id="settingsFormModal">
+                        <!-- Número de alianzas -->
+                        <div class="mb-4">
+                            <label for="numAlliances" class="form-label">{{ _('Número de alianzas (1 a 12)') }}</label>
+                            <select id="numAlliances" name="num_alliances" class="form-select">
+                                <option value="">{{ _('Selecciona una opción') }}</option>
+                                {% for i in range(1, 13) %}
+                                    <option value="{{ i }}">{{ i }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    
+                        <!-- Campos de nombres de alianzas EDIT-->
+                        <div id="alliancesContainer" class="mb-4"></div>
+                    
+                        <!-- Número de días -->
+                        <div class="mb-4">
+                            <label for="numDays" class="form-label">{{ _('Número de días a organizar (1 a 4)') }}</label>
+                            <select id="numDays" name="num_days" class="form-select">
+                                <option value="">{{ _('Selecciona una opción') }}</option>
+                                {% for i in range(1, 5) %}
+                                    <option value="{{ i }}">{{ i }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    
+                        <!-- Campos de nombres de días -->
+                        <div id="daysContainer" class="mb-4"></div>
+                    
+                        <!-- Botones -->
+                        <div class="text-center d-flex justify-content-center gap-3">
+                            <button id="confirmButton" type="submit" class="btn btn-primary" disabled>
+                                {{ _('Guardar cambios') }}
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                {{ _('Cancelar') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
   
 
 
-<!-- Data del grupo -->
-<div id="groupData" class="d-none"
-    data-group-code="{{ group.group_code }}"
-    data-creator-id="{{ group.creator_id }}"
-    data-member-count="{{ group.members | length }}"
-    data-current-user-id="{{ current_user.id }}"
+    <!-- Data del grupo -->
+    <div id="groupData" class="d-none"
+        data-group-code="{{ group.group_code }}"
+        data-creator-id="{{ group.creator_id }}"
+        data-member-count="{{ group.members | length }}"
+        data-current-user-id="{{ current_user.id }}"
 
-    data-error-message="{{ _('Usuario no encontrado, ID incorrecto o no existe.') }}"
-    data-error-catch-message1="{{ _('Error de red o parsing:')}}"
-    data-error-catch-message2="{{ _('Error de conexión. Intenta más tarde.')}}"
-    data-error-transfer="{{ _('Error al transferir el grupo')}}"
-    data-owner-label="{{ _('Dueño!!')}}"
+        data-error-message="{{ _('Usuario no encontrado, ID incorrecto o no existe.') }}"
+        data-error-catch-message1="{{ _('Error de red o parsing:')}}"
+        data-error-catch-message2="{{ _('Error de conexión. Intenta más tarde.')}}"
+        data-error-transfer="{{ _('Error al transferir el grupo')}}"
+        data-owner-label="{{ _('Dueño!!')}}"
 
-    data-creator-cant-leave="{{ _('Eres el creador del grupo y no puedes abandonarlo mientras haya otros miembros.') }}"
-    data-must-transfer="{{ _('Primero debes ceder el grupo a otro usuario.') }}"
-    data-understood="{{ _('Entendido') }}"
-    data-only-member="{{ _('Eres el único miembro del grupo.') }}"
-    data-will-delete="{{ _('Si abandonas, el grupo será eliminado automáticamente.') }}"
-    data-cancel="{{ _('Cancelar') }}"
-    data-leave-delete="{{ _('Abandonar y eliminar grupo') }}"
-    data-confirm-leave="{{ _('¿Estás seguro de que deseas abandonar este grupo?') }}"
-    data-leave-group="{{ _('Abandonar grupo') }}">
+        data-creator-cant-leave="{{ _('Eres el creador del grupo y no puedes abandonarlo mientras haya otros miembros.') }}"
+        data-must-transfer="{{ _('Primero debes ceder el grupo a otro usuario.') }}"
+        data-understood="{{ _('Entendido') }}"
+        data-only-member="{{ _('Eres el único miembro del grupo.') }}"
+        data-will-delete="{{ _('Si abandonas, el grupo será eliminado automáticamente.') }}"
+        data-cancel="{{ _('Cancelar') }}"
+        data-leave-delete="{{ _('Abandonar y eliminar grupo') }}"
+        data-confirm-leave="{{ _('¿Estás seguro de que deseas abandonar este grupo?') }}"
+        data-leave-group="{{ _('Abandonar grupo') }}">
 
-</div>
+    </div>
 
-<!-- Modal 1: Gestión de miembros -->
-<div class="modal fade" id="modalGestionMiembros" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
-        <div class="modal-content glassmorphic">
-            <div class="modal-header">
-                <h5 class="modal-title">{{ _('Miembros del grupo') }}</h5>
+    <!-- Modal 1: Gestión de miembros -->
+    <div class="modal fade" id="modalGestionMiembros" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content glassmorphic">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ _('Miembros del grupo') }}</h5>
 
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-
-            <div class="modal-body">
-
-                <!-- Buscador -->
-                <div class="input-group mb-3">
-                    <input type="number" id="inputBuscarID" class="form-control" placeholder="{{ _('ID del usuario') }}">
-                    <button class="btn btn-outline-primary" id="btnBuscarID">🔍 {{ _('Buscar') }}</button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
-                <!-- Resultado de búsqueda -->
-                <div id="resultadoBusqueda" class="d-none mb-3">
-                    <div class="alert alert-info d-flex justify-content-between align-items-center d-none" id="alertSuccess">
-                        <span id="nombreUsuarioEncontrado"></span>
-                        <button class="btn btn-sm btn-outline-secondary" id="btnVerConfirmarAgregar">{{ _('Agregar editor ') }}➕</button>
+                <div class="modal-body">
+
+                    <!-- Buscador -->
+                    <div class="input-group mb-3">
+                        <input type="number" id="inputBuscarID" class="form-control" placeholder="{{ _('ID del usuario') }}">
+                        <button class="btn btn-outline-primary" id="btnBuscarID">🔍 {{ _('Buscar') }}</button>
                     </div>
 
-                    <div class="alert alert-danger d-flex justify-content-between align-items-center d-none" id="alertError">
-                        <span id="usuarioNoEncontrado"></span>
+                    <!-- Resultado de búsqueda -->
+                    <div id="resultadoBusqueda" class="d-none mb-3">
+                        <div class="alert alert-info d-flex justify-content-between align-items-center d-none" id="alertSuccess">
+                            <span id="nombreUsuarioEncontrado"></span>
+                            <button class="btn btn-sm btn-outline-secondary" id="btnVerConfirmarAgregar">{{ _('Agregar editor ') }}➕</button>
+                        </div>
+
+                        <div class="alert alert-danger d-flex justify-content-between align-items-center d-none" id="alertError">
+                            <span id="usuarioNoEncontrado"></span>
+                        </div>
                     </div>
+
+                    <!-- Lista de miembros -->
+                    <h6>{{ _('Miembros actuales') }}</h6>
+                    <ul class="list-group" id="listaMiembrosGrupo"></ul>
+
                 </div>
 
-                <!-- Lista de miembros -->
-                <h6>{{ _('Miembros actuales') }}</h6>
-                <ul class="list-group" id="listaMiembrosGrupo"></ul>
-
-            </div>
-            
-            <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
-                <button class="btn btn-primary" id="btnGuardarMiembros">{{ _('Guardar cambios') }}</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- Modal 2: Confirmar agregar -->
-<div class="modal fade" id="modalConfirmarAgregar" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content glassmorphic">
-      <div class="modal-header">
-        <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-target="#modalGestionMiembros" data-bs-toggle="modal">
-          ←
-        </button>
-        <h5 class="modal-title">{{ _('Confirmar') }}</h5>
-      </div>
-      <div class="modal-body text-center">
-        <p id="usuarioAConfirmar"></p>
-        <button class="btn btn-success me-2" id="btnConfirmarAgregar">{{ _('Agregar') }}</button>
-        <button class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Confirmar transferencia de grupo -->
-<div class="modal fade" id="modalTransferencia" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content glassmorphic">
-            <div class="modal-header">
-                <h5 class="modal-title">{{ _('Confirmar transferencia de grupo') }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
-            </div>
-            <div class="modal-body text-center">
-                <p>{{ _('¿Estás seguro que deseas transferir el grupo a:') }}</p>
-                <p class="fw-bold" id="usuarioTransferenciaConfirmar"></p>
-                <div class="d-flex justify-content-center gap-2 mt-3">
-                    <button class="btn btn-warning" id="btnTransferirGrupo">{{ _('Transferir') }}</button>
+                <div class="modal-footer">
                     <button class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+                    <button class="btn btn-primary" id="btnGuardarMiembros">{{ _('Guardar cambios') }}</button>
                 </div>
             </div>
         </div>
     </div>
-</div>
-  
 
 
-<!-- Modal: Confirmar eliminación del grupo -->
-<div class="modal fade" id="modalEliminarGrupo" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <!-- Modal 2: Confirmar agregar -->
+    <div class="modal fade" id="modalConfirmarAgregar" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content glassmorphic">
-            <div class="modal-header">
-                <h5 class="modal-title text-danger">{{ _('¿Eliminar grupo?') }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
-            </div>
-            <div class="modal-body">
-                <p class="mb-0">{{ _('Estás a punto de eliminar este grupo permanentemente.') }}</p>
-                <p class="text-danger fw-bold">{{ _('Esta acción no se puede deshacer.') }}</p>
-            </div>
-            <div class="modal-footer">
-                <form method="POST" action="/groups/delete">
-                    <input type="hidden" name="group_code" value="{{ group.group_code }}">
-                    <button type="submit" class="btn btn-danger">{{ _('Eliminar definitivamente') }}</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
-                </form>
-            </div>
-        </div>
-    </div>
-  </div>
-  
-
-
-  
-
-<!-- Modal: Confirmación de abandono -->
-<div class="modal fade" id="leaveGroupModal" tabindex="-1" aria-labelledby="leaveGroupModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content glassmorphic" id="leaveGroupModalContent">
-        <div class="modal-header">
-          <h5 class="modal-title" id="leaveGroupModalLabel">{{ _('¿Estás seguro?') }}</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
-        </div>
-        <div class="modal-body" id="leaveGroupModalBody">
-          <!-- Este contenido se llena dinámicamente con JS -->
-        </div>
-        <div class="modal-footer" id="leaveGroupModalFooter">
-          <!-- Botones dinámicos según el caso -->
+          <div class="modal-header">
+            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-target="#modalGestionMiembros" data-bs-toggle="modal">
+              ←
+            </button>
+            <h5 class="modal-title">{{ _('Confirmar') }}</h5>
+          </div>
+          <div class="modal-body text-center">
+            <p id="usuarioAConfirmar"></p>
+            <button class="btn btn-success me-2" id="btnConfirmarAgregar">{{ _('Agregar') }}</button>
+            <button class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+
+    <!-- Modal: Confirmar transferencia de grupo -->
+    <div class="modal fade" id="modalTransferencia" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glassmorphic">
+                <div class="modal-header">
+                    <h5 class="modal-title">{{ _('Confirmar transferencia de grupo') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p>{{ _('¿Estás seguro que deseas transferir el grupo a:') }}</p>
+                    <p class="fw-bold" id="usuarioTransferenciaConfirmar"></p>
+                    <div class="d-flex justify-content-center gap-2 mt-3">
+                        <button class="btn btn-warning" id="btnTransferirGrupo">{{ _('Transferir') }}</button>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+
+
+    <!-- Modal: Confirmar eliminación del grupo -->
+    <div class="modal fade" id="modalEliminarGrupo" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glassmorphic">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">{{ _('¿Eliminar grupo?') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">{{ _('Estás a punto de eliminar este grupo permanentemente.') }}</p>
+                    <p class="text-danger fw-bold">{{ _('Esta acción no se puede deshacer.') }}</p>
+                </div>
+                <div class="modal-footer">
+                    <form method="POST" action="/groups/delete">
+                        <input type="hidden" name="group_code" value="{{ group.group_code }}">
+                        <button type="submit" class="btn btn-danger">{{ _('Eliminar definitivamente') }}</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+  
 
 
   
-<div id="msgContainer" class="d-none"
-    data-alliance-invalid="{{ _('Debe tener exactamente 3 caracteres alfanuméricos.') }}"
-    data-alianza="{{ _('Alianza') }}"
-    data-otra="{{ _('[Otra] (Alianza por defecto)') }}"
-    data-day-invalid="{{ _('Máximo 20 caracteres. Solo letras, números y espacios.') }}"
-    data-day="{{ _('Nombre del día. Ej:') }}">
-</div>
+
+    <!-- Modal: Confirmación de abandono -->
+    <div class="modal fade" id="leaveGroupModal" tabindex="-1" aria-labelledby="leaveGroupModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content glassmorphic" id="leaveGroupModalContent">
+            <div class="modal-header">
+              <h5 class="modal-title" id="leaveGroupModalLabel">{{ _('¿Estás seguro?') }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
+            </div>
+            <div class="modal-body" id="leaveGroupModalBody">
+              <!-- Este contenido se llena dinámicamente con JS -->
+            </div>
+            <div class="modal-footer" id="leaveGroupModalFooter">
+              <!-- Botones dinámicos según el caso -->
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <!-- Modal para obtener el link -->
+    <div class="modal fade" id="modalLinkCita" tabindex="-1" aria-labelledby="modalLinkLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content glassmorphic" style="border-radius: 12px;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLinkLabel">🔗 Link para recibir postulaciones</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="mb-2">Comparte este link con los miembros que quieren una cita para SvS prep</p>
+
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="groupLinkInput" readonly
+                            value="{{ request.base_url }}public/enviar-disponibilidad/{{ group.group_code }}">
+                        <button class="btn btn-outline-secondary" type="button" onclick="copyTextById('groupLinkInput', 'copyLinkToast')">📋</button>
+                    </div>
+
+                    <small class="d-block mt-2">El link es único por grupo.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast para el link copiado -->
+    <div id="copyLinkToast" class="toast-custom">¡Link copiado al portapapeles!</div>
+
+  
+  
+    <div id="msgContainer" class="d-none"
+        data-alliance-invalid="{{ _('Debe tener exactamente 3 caracteres alfanuméricos.') }}"
+        data-alianza="{{ _('Alianza') }}"
+        data-day-invalid="{{ _('Máximo 20 caracteres. Solo letras, números y espacios.') }}"
+        data-day="{{ _('Nombre del día. Ej:') }}">
+    </div>
 
 
 </div>
@@ -439,5 +485,18 @@
             initGrupoSettingsEdit(alliancesData, daysData);
         });
     });
+</script>
+
+<script>
+    function copiarLink() {
+        const input = document.getElementById("linkPostulacionInput");
+        input.select();
+        input.setSelectionRange(0, 99999); // Para móviles
+        document.execCommand("copy");
+
+        // Feedback visual (puedes cambiarlo a toast si prefieres)
+        alert("Link copiado al portapapeles ✅");
+    }
+
 </script>
 {% endblock %}

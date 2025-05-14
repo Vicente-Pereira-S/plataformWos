@@ -37,7 +37,6 @@ def show_submission_form(group_code: str, request: Request, db: Session = Depend
     if not group:
         return templates.TemplateResponse("grupo_no_encontrado.html", {"request": request})
 
-    # Alianzas del grupo (excluye "Otra")
     alliances = db.query(models.Alliance).filter(models.Alliance.group_id == group.id).all()
     alliances_serializable = [{"id": a.id, "name": a.name} for a in alliances]
 

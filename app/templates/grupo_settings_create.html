@@ -38,10 +38,13 @@
         <div id="daysContainer" class="mb-4"></div>
 
         <!-- Botón de confirmación -->
-        <div class="text-center">
-            <button id="confirmButton" type="submit" class="btn btn-primary" disabled>
+        <div class="d-flex flex-column flex-md-row justify-content-center gap-3 mt-4">
+            <button type="submit" id="confirmButton" class="btn btn-primary w-100 w-md-auto" disabled>
                 {{ _('Confirmar configuración') }}
             </button>
+            <a href="/dashboard" class="btn btn-secondary w-100 w-md-auto">
+                {{ _('Cancelar') }}
+            </a>
         </div>
     </form>
 </div>
@@ -49,7 +52,6 @@
 <div id="msgContainer" class="d-none"
     data-alliance-invalid="{{ _('Debe tener exactamente 3 caracteres alfanuméricos.') }}"
     data-alianza="{{ _('Alianza') }}"
-    data-otra="{{ _('[Otra] (Alianza por defecto)') }}"
     data-day-invalid="{{ _('Máximo 20 caracteres. Solo letras, números y espacios.') }}"
     data-day="{{ _('Nombre del día. Ej:') }}">
 </div>

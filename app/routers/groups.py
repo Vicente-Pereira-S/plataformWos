@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Body, HTTPException, Request, Depends, Form
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 import re
@@ -7,6 +7,7 @@ import re
 from app.database import get_db
 from app import models
 from app.utils_auth import get_current_user
+from app.utils import run_assignment_for_group_day
 from app.dependencies import get_templates
 
 router = APIRouter(
@@ -143,8 +144,6 @@ async def create_group_post(
             })
         db.add(models.Alliance(group_id=new_group.id, name=name))
 
-    db.add(models.Alliance(group_id=new_group.id, name="Otra"))
-
     # Seguridad por si fuerzan el html desde el navegador
     for i in range(1, num_days + 1):
         day_name = form.get(f"day_{i}", "").strip()
@@ -206,7 +205,7 @@ def view_group(
         "request": request
     })
     
-    alliances_serializable = [{"id": a.id, "name": a.name} for a in group.alliances if a.name != "Otra"]
+    alliances_serializable = [{"id": a.id, "name": a.name} for a in group.alliances]
     days_serializable = [{"id": d.id, "name": d.name} for d in group.days]
     
 
@@ -261,8 +260,6 @@ async def update_group_settings(
             return RedirectResponse(f"/groups/view/{group.group_code}")
         db.add(models.Alliance(group_id=group.id, name=name))
 
-    # Siempre agregar "Otra"
-    db.add(models.Alliance(group_id=group.id, name="Otra"))
 
     # Validar y guardar nuevos días
     for i in range(1, num_days + 1):
@@ -420,3 +417,128 @@ def delete_group(
     db.commit()
 
     return RedirectResponse("/groups/my-groups", status_code=303)
+
+
+
+
+# Página separada para ver todos los postulantes
+@router.get("/postulaciones/{day_id}", response_class=HTMLResponse)
+def ver_postulaciones_dia(
+    day_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    templates = get_templates(request)
+
+    # Buscar el día
+    day = db.query(models.GroupDay).filter(models.GroupDay.id == day_id).first()
+    if not day:
+        return templates.TemplateResponse("grupo_no_encontrado.html", {"request": request})
+
+    group = day.group
+
+    # Verificar que el usuario sea miembro del grupo
+    es_miembro = db.query(models.GroupMember).filter_by(
+        group_id=group.id,
+        user_id=current_user.id
+    ).first()
+
+    if not es_miembro:
+        raise HTTPException(status_code=403, detail="No autorizado")
+
+    # Obtener todas las alianzas disponibles (para mostrar en el select en modo edición)
+    alliances = db.query(models.Alliance).filter(models.Alliance.group_id == group.id).all()
+
+    return templates.TemplateResponse("ver_postulaciones.html", {
+        "request": request,
+        "day": day,
+        "alliances": alliances,
+        "current_user": current_user
+    })
+
+
+# Endpoint AJAX que ejecuta el algoritmo y devuelve los resultados
+@router.get("/asignar/{day_id}")
+def ejecutar_asignacion(day_id: int, db: Session = Depends(get_db)):
+    from app.utils import run_assignment_for_group_day
+
+    try:
+        asignaciones, no_asignados = run_assignment_for_group_day(db, day_id)
+
+        # 🔁 Convertir valores a tipos estándar de Python
+        safe_asignaciones = [
+            {
+                "hour_block": int(a["hour_block"]),
+                "nickname": a["nickname"],
+                "ingame_id": a["ingame_id"],
+                "alliance": a["alliance"],
+                "speedups": int(a["speedups"]),
+                "availability_str": a["availability_str"],
+            }
+            for a in asignaciones
+        ]
+
+        safe_no_asignados = [
+            {
+                "nickname": u["nickname"],
+                "ingame_id": u["ingame_id"],
+                "alliance": u["alliance"],
+                "speedups": int(u["speedups"]),
+            }
+            for u in no_asignados
+        ]
+
+        return {
+            "success": True,
+            "data": {
+                "assignments": safe_asignaciones,
+                "unassigned": safe_no_asignados
+            }
+        }
+
+    except Exception as e:
+        return JSONResponse(status_code=500, content={
+            "success": False,
+            "error": str(e)
+        })
+
+
+
+from fastapi import Form
+
+@router.post("/delete-submissions")
+def eliminar_postulaciones(
+    request: Request,
+    day_id: int = Form(...),
+    submission_ids: str = Form(...),  # Recibe como string
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    # Convertir string "59,6" -> [59, 6]
+    try:
+        ids = [int(x.strip()) for x in submission_ids.split(",") if x.strip()]
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Formato inválido de IDs")
+
+    # Verificar existencia del día
+    day = db.query(models.GroupDay).filter(models.GroupDay.id == day_id).first()
+    if not day:
+        raise HTTPException(status_code=404, detail="Día no encontrado")
+
+    # Verificar que el usuario es miembro del grupo
+    miembro = db.query(models.GroupMember).filter_by(
+        group_id=day.group.id,
+        user_id=current_user.id
+    ).first()
+    if not miembro:
+        raise HTTPException(status_code=403, detail="No tienes permisos para esta acción")
+
+    # Eliminar las postulaciones
+    for sub_id in ids:
+        sub = db.query(models.UserSubmission).filter_by(id=sub_id, group_day_id=day.id).first()
+        if sub:
+            db.delete(sub)
+
+    db.commit()
+    return RedirectResponse(f"/groups/postulaciones/{day.id}", status_code=303)

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    
+    <div class="d-flex mb-2 mt-3">
+        <a href="/groups/view/{{ day.group.group_code }}" class="btn btn-outline-secondary btn-sm">
+            ← {{ _('Volver al grupo') }}
+        </a>
+    </div>
+    
+    <h3 class="mb-3">📝 {{ _('Postulaciones para ') }} {{ day.name }}</h3>
+
+    <div class="d-flex mb-2">
+        <button id="btnToggleEditMode" class="btn btn-outline-primary btn-sm">
+            ✏️ {{ _('Editar postulaciones') }}
+        </button>
+    </div>
+
+    {% if day.submissions %}
+    <div id="deleteSelectedBox" class="mt-3 d-none mb-3">
+        <form method="post" action="/groups/delete-submissions">
+            <input type="hidden" name="day_id" value="{{ day.id }}">
+            <input type="hidden" id="selectedIdsInput" name="submission_ids">
+            <button type="submit" class="btn btn-danger btn-sm">
+                🗑️ {{ _('Eliminar seleccionados') }}
+            </button>
+        </form>
+    </div>
+    {% set ordenadas = day.submissions|sort(attribute='speedups', reverse=True) %}
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th id="colSelector">#</th>
+                    <th>Alianza</th>
+                    <th>Nombre (in-game)</th>
+                    <th>ID (in-game)</th>
+                    <th>Speedups (días)</th>
+                    <th>Citas deseables</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                {% for sub in ordenadas %}
+                <tr class="{% if loop.index0 < 48 %}table-success{% endif %}">
+                    <td>
+                        <span class="row-index">{{ loop.index }}</span>
+                        <input type="checkbox" class="form-check-input d-none selector-checkbox" value="{{ sub.id }}">
+                    </td>            
+                    <td>[{{ sub.alliance.name }}]</td>
+                    <td>{{ sub.nickname }}</td>
+                    <td>{{ sub.ingame_id or '-' }}</td>
+                    <td>{{ sub.speedups }}</td>
+                    <td>
+                        {% for slot in sub.availability %}
+                            {{ "%02d:%02d" | format(slot.start_time.hour, slot.start_time.minute) }}
+                            -
+                            {{ "%02d:%02d" | format(slot.end_time.hour, slot.end_time.minute) }}
+                            {% if not loop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    
+    {% else %}
+        <p>{{ _('No hay postulaciones aún para este día.') }}</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const btnToggle = document.getElementById("btnToggleEditMode");
+        const checkboxes = document.querySelectorAll(".selector-checkbox");
+        const deleteBox = document.getElementById("deleteSelectedBox");
+        const colHeader = document.getElementById("colSelector");
+        const selectedInput = document.getElementById("selectedIdsInput");
+
+        let editMode = false;
+
+        btnToggle.addEventListener("click", () => {
+            editMode = !editMode;
+
+            checkboxes.forEach((cb, i) => {
+                cb.classList.toggle("d-none", !editMode);
+                const indexSpan = cb.parentElement.querySelector(".row-index");
+                indexSpan.style.display = editMode ? "none" : "inline";
+            });
+
+            colHeader.textContent = editMode ? "Eliminar" : "#";
+            deleteBox.classList.toggle("d-none", !editMode);
+            btnToggle.textContent = editMode ? "🚫 Cancelar edición" : "✏️ Editar postulaciones";
+        });
+
+        deleteBox.addEventListener("submit", (e) => {
+            const selected = [...checkboxes].filter(cb => cb.checked).map(cb => cb.value);
+            if (selected.length === 0) {
+                e.preventDefault();
+                alert("Selecciona al menos una postulación para eliminar.");
+                return;
+            }
+            selectedInput.value = selected.join(",");
+        });
+    });
+</script>
+
+{% endblock %}
