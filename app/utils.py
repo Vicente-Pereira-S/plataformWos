@@ -103,21 +103,30 @@ def assign_slots_with_hungarian(submissions):
             "ingame_id": user.get("ingame_id"),
             "alliance": user["alliance"],
             "speedups": int(user["speedups"]),
-            "availability_str": availability_str,
+            "availability_str": availability_str
         })
 
     # Solo mostrar como no asignados a los que estaban en el top 48 y no recibieron bloque
     no_asignados = []
     for i, sub in enumerate(top_48):
         if i not in asignados_idx:
+            availability_str = ", ".join([
+                f"{block_to_time(start)}–{block_to_time(end)}"
+                for (start, end) in sub["availability"]
+            ])
             no_asignados.append({
                 "nickname": sub["nickname"],
                 "ingame_id": sub.get("ingame_id"),
                 "alliance": sub["alliance"],
-                "speedups": int(sub["speedups"])
+                "speedups": int(sub["speedups"]),
+                "availability_str": availability_str
             })
 
     return sorted(results, key=lambda x: x["hour_block"]), no_asignados
+
+
+
+
 
 
 def run_assignment_for_group_day(db: Session, group_day_id: int):
@@ -134,6 +143,10 @@ def run_assignment_for_group_day(db: Session, group_day_id: int):
     if not submissions:
         return [], []
 
+    def block_to_time(b):
+        h, m = divmod(b * 30, 60)
+        return f"{h:02d}:{m:02d}"
+
     formatted = []
     for sub in submissions:
         blocks = []
@@ -142,12 +155,18 @@ def run_assignment_for_group_day(db: Session, group_day_id: int):
             end_block = slot.end_time.hour * 2 + (1 if slot.end_time.minute >= 30 else 0)
             blocks.append((start_block, end_block))
 
+        availability_str = ", ".join([
+            f"{block_to_time(start)}–{block_to_time(end)}"
+            for (start, end) in blocks
+        ])
+
         formatted.append({
             "nickname": sub.nickname,
             "ingame_id": sub.ingame_id,
             "speedups": sub.speedups,
             "alliance": sub.alliance.name,
-            "availability": blocks
+            "availability": blocks,
+            "availability_str": availability_str
         })
 
     return assign_slots_with_hungarian(formatted)

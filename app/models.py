@@ -77,6 +77,8 @@ class GroupDay(Base):
 
     group = relationship("Group", back_populates="days")
     submissions = relationship("UserSubmission", back_populates="group_day", cascade="all, delete-orphan")
+    assignments = relationship("GroupAssignment", back_populates="group_day", cascade="all, delete-orphan")
+
 
 
 # ------------------------------
@@ -127,4 +129,4 @@ class GroupAssignment(Base):
     speedups = Column(Integer, nullable=False)
     availability_str = Column(String, nullable=False)
 
-    group_day = relationship("GroupDay", backref="assignments")
+    group_day = relationship("GroupDay", back_populates="assignments")

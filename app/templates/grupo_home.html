@@ -66,16 +66,16 @@
     </div>
 
 
-    <button class="btn btn-outline-primary btn-sm mt-3" data-bs-toggle="modal" data-bs-target="#modalLinkCita">
+    <button class="btn btn-outline-primary btn-sm my-3" data-bs-toggle="modal" data-bs-target="#modalLinkCita">
         <i class="bi bi-link-45deg me-1"></i> Obtener link de postulación
     </button>
     
 
-
+    
     <!-- Cuerpo del grupo -->
 
-    <div class="mt-3">
-        <h4 class="mb-5">📋 Postulaciones y asignación</h4>
+    <div class="mt-4">
+        <h4 class="mb-4">📋 {{ _('Postulaciones y asignación') }}</h4>
     
         <!-- Tabs por día -->
         <ul class="nav nav-tabs" id="dayTabs" role="tablist">
@@ -105,7 +105,13 @@
     
                 <!-- Título y botón -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">Previsualización rápida</h5>
+                    <h5>{{ _('Solicitudes:') }}</h5>
+                </div>
+                <!-- Link a ver todo -->
+                <div class="my-2 text-start">
+                    <a href="/groups/postulaciones/{{ day.id }}" class="btn btn-warning btn-sm">
+                        {{ _('Ver/Eliminar postulaciones') }}
+                    </a>
                 </div>
     
                 {% if day.submissions|length > 0 %}
@@ -144,54 +150,122 @@
                         <div data-theme="dark" style="height: 100%; background: linear-gradient(to bottom, transparent, var(--dark-bg)); display: none;"></div>
                     </div>
                 </div>
-    
-                <!-- Link a ver todo -->
-                <div class="mt-2 text-start">
-                    <a href="/groups/postulaciones/{{ day.id }}" class="btn btn-warning btn-sm">
-                        {{ _('Ver/Editar postulaciones') }}
-                    </a>
-                </div>
+
+
                 {% else %}
                 <p class="text-theme-muted">No hay postulaciones aún para este día.</p>
                 {% endif %}
 
-                <hr/>
-                
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="mb-0">Generar/Actualizar horas de ministerio</h5>
+                <hr class="mb-4"/>
+
+                <!-- Título -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5>{{ _('Horario:') }}</h5>
                 </div>
 
-                <button class="btn btn-primary" onclick="runAssign('{{ day.id }}')" {% if day.submissions|length == 0 %}disabled{% endif %}>
-                    Asignar citas
+                <!-- Límite de cupos por alianza -->
+                <div class="mt-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="switchLimite-{{ day.id }}" onchange="toggleLimits('{{ day.id }}')">
+                        <label class="form-check-label" for="switchLimite-{{ day.id }}">
+                            {{ _('Limitar cupos por alianza') }}
+                        </label>
+                    </div>
+                
+                    <div class="row g-3 align-items-end d-none" id="limitesContainer-{{ day.id }}">
+                        {% for a in alliances_serializable %}
+                        <div class="col-md-3 col-sm-6">
+                            <label for="limit_{{ day.id }}_{{ a.id }}" class="form-label">[{{ a.name }}]</label>
+                            <select class="form-select form-select-sm limit-selector" 
+                                    name="limit_{{ day.id }}_{{ a.id }}" 
+                                    id="limit_{{ day.id }}_{{ a.id }}" 
+                                    data-day="{{ day.id }}"
+                                    onchange="handleLimitChange('{{ day.id }}')">
+                                <option value="">{{ _('Sin límite') }}</option>
+                                <option value="0">🚫 {{ _('Excluir esta alianza') }}</option>
+                                {% for i in range(1, 49) %}
+                                    <option value="{{ i }}">{{ i }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+
+
+                <button class="btn btn-primary my-3"
+                    onclick="runAssign('{{ day.id }}')"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalAsignaciones-{{ day.id }}"
+                    {% if day.submissions|length == 0 %}disabled{% endif %}>
+                    {{ _('Generar nuevo horario') }}
                 </button>
     
-                <!-- Resultados del algoritmo -->
-                <div id="resultados-algoritmo-{{ day.id }}" class="mt-5" style="display: none;">
-                    <h6 class="mb-3">⏱️ Resultados de la asignación</h6>
-    
-                    <div class="table-responsive">
-                        <table class="table table-sm table-striped border text-center">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Hora (UTC)</th>
-                                    <th>Alianza</th>
-                                    <th>Nombre</th>
-                                    <th>ID</th>
-                                    <th>Speedups</th>
-                                    <th>Disponibilidad</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabla-asignaciones-{{ day.id }}"></tbody>
-                        </table>
-                    </div>
-    
-                    <div class="mt-4">
-                        <h6>🚫 No asignados</h6>
-                        <p></p>
-                        <ul id="lista-no-asignados-{{ day.id }}" class="list-group"></ul>
+
+
+                <!-- Modal Nuevo horario por algoritmo -->
+                <div class="modal fade" id="modalAsignaciones-{{ day.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                        <div class="modal-content glassmorphic">
+                            <div class="modal-header">
+                                <h5 class="modal-title">⏱️ {{ _('Asignaciones para') }} {{ day.name }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body">
+                
+                                <!-- Lista de no asignados -->
+                                <div class="mb-4">
+                                    <h6>🚫 No asignados</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-bordered text-center">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>Alianza</th>
+                                                    <th>Nombre</th>
+                                                    <th>ID</th>
+                                                    <th>Speedups</th>
+                                                    <th>Disponibilidad</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tabla-no-asignados-{{ day.id }}">
+                                                <!-- Rellenado dinámicamente -->
+                                            </tbody>
+                                        </table>
+                                    </div>                                    
+                                </div>
+                
+                                <!-- Tabla de asignaciones -->
+                                <div class="table-responsive">
+                                    <h6>✅ Mejor forma de asignaciones al ministerio</h6>
+                                    <table class="table table-sm table-striped border text-center">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Hora (UTC)</th>
+                                                <th>Alianza</th>
+                                                <th>Nombre</th>
+                                                <th>ID</th>
+                                                <th>Speedups</th>
+                                                <th>Disponibilidad</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tabla-asignaciones-{{ day.id }}"></tbody>
+                                    </table>
+                                </div>
+                
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">
+                                    Cerrar
+                                </button>
+
+                            </div>
+                        </div>
                     </div>
                 </div>
     
+                <!-- Aquí continua la sección del TAB -->
             </div>
             {% endfor %}
         </div>
@@ -220,6 +294,15 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Cerrar') }}"></button>
                 </div>
                 <div class="modal-body">
+                    <!-- Advertencia -->
+                    <div class="alert alert-warning d-flex align-items-start gap-2 mb-4" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill fs-4 text-warning"></i>
+                        <div>
+                            <strong>{{ _('¡Atención!') }}</strong><br>
+                            {{ _('Si modificas la configuración del grupo (nombres de alianzas o días), ') }}<strong>{{ _('se eliminarán todos los datos recibidos') }}</strong> {{ _('hasta ahora.') }} 
+                            <br>{{ _('No modifiques esta sección si ya estás recibiendo postulaciones.') }}
+                        </div>
+                    </div>
                 
                     <!-- Contenedor con data-* -->
                     <div id="groupSettingsData"
@@ -313,7 +396,7 @@
 
                     <!-- Buscador -->
                     <div class="input-group mb-3">
-                        <input type="number" id="inputBuscarID" class="form-control" placeholder="{{ _('ID del usuario') }}">
+                        <input type="number" id="inputBuscarID" class="form-control" placeholder="{{ _('Buscar por ID') }}">
                         <button class="btn btn-outline-primary" id="btnBuscarID">🔍 {{ _('Buscar') }}</button>
                     </div>
 
@@ -439,15 +522,13 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body text-center">
-                    <p class="mb-2">Comparte este link con los miembros que quieren una cita para SvS prep</p>
+                    <p class="mb-2">Comparte este link con los todos los miembros de tu alianza/estado la plataforma se encargará de hacer el trabajo</p>
 
                     <div class="input-group">
                         <input type="text" class="form-control" id="groupLinkInput" readonly
                             value="{{ request.base_url }}public/enviar-disponibilidad/{{ group.group_code }}">
                         <button class="btn btn-outline-secondary" type="button" onclick="copyTextById('groupLinkInput', 'copyLinkToast')">📋</button>
                     </div>
-
-                    <small class="d-block mt-2">El link es único por grupo.</small>
                 </div>
             </div>
         </div>
@@ -497,6 +578,79 @@
         // Feedback visual (puedes cambiarlo a toast si prefieres)
         alert("Link copiado al portapapeles ✅");
     }
+</script>
+
+<script>
+    function toggleLimits(dayId) {
+    const switchInput = document.getElementById(`switchLimite-${dayId}`);
+    const container = document.getElementById(`limitesContainer-${dayId}`);
+    if (switchInput.checked) {
+        container.classList.remove("d-none");
+    } else {
+        container.classList.add("d-none");
+    }
+}
+
+// Cuando cambia un selector de cupos
+function handleLimitChange(dayId) {
+    const selects = document.querySelectorAll(`#limitesContainer-${dayId} .limit-selector`);
+    let total = 0;
+
+    // Recontar total de cupos fijos definidos
+    selects.forEach(select => {
+        const val = parseInt(select.value);
+        if (!isNaN(val) && val > 0) {
+            total += val;
+        }
+    });
+
+    const remaining = 48 - total;
+
+    // Evitar asignaciones que sobrepasen 48
+    if (remaining < 0) {
+        alert("⚠️ No puedes asignar más de 48 cupos en total.");
+        return;
+    }
+
+    // Actualizar selects restantes (máximo permitido dinámico)
+    selects.forEach(select => {
+        const currentValue = parseInt(select.value);
+        const currentOptions = Array.from(select.options);
+
+        // Limpiar y reconstruir opciones
+        select.innerHTML = "";
+
+        // Sin límite
+        const optBlank = document.createElement("option");
+        optBlank.value = "";
+        optBlank.textContent = "Sin límite";
+        select.appendChild(optBlank);
+            
+        // Opción para excluir
+        const opt0 = document.createElement("option");
+        opt0.value = "0";
+        opt0.textContent = "🚫 Excluir esta alianza";
+        select.appendChild(opt0);
+
+
+        // Crear nuevas opciones dinámicas
+        const max = (isNaN(currentValue) || currentValue <= 0) ? remaining : remaining + currentValue;
+        for (let i = 1; i <= Math.min(max, 48); i++) {
+            const opt = document.createElement("option");
+            opt.value = i;
+            opt.textContent = i;
+            if (i === currentValue) {
+                opt.selected = true;
+            }
+            select.appendChild(opt);
+        }
+
+        // Restaurar selección si era 0 o sin límite
+        if (currentValue === 0) select.value = "0";
+        else if (isNaN(currentValue) || currentValue === "") select.value = "";
+    });
+}
+
 
 </script>
 {% endblock %}

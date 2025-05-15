@@ -432,7 +432,13 @@ def ver_postulaciones_dia(
     templates = get_templates(request)
 
     # Buscar el día
-    day = db.query(models.GroupDay).filter(models.GroupDay.id == day_id).first()
+    day = (
+    db.query(models.GroupDay)
+    .join(models.Group)
+    .filter(models.GroupDay.id == day_id, models.GroupDay.group_id == models.Group.id)
+    .first()
+)
+
     if not day:
         return templates.TemplateResponse("grupo_no_encontrado.html", {"request": request})
 
@@ -461,12 +467,11 @@ def ver_postulaciones_dia(
 # Endpoint AJAX que ejecuta el algoritmo y devuelve los resultados
 @router.get("/asignar/{day_id}")
 def ejecutar_asignacion(day_id: int, db: Session = Depends(get_db)):
-    from app.utils import run_assignment_for_group_day
 
     try:
         asignaciones, no_asignados = run_assignment_for_group_day(db, day_id)
 
-        # 🔁 Convertir valores a tipos estándar de Python
+        # Convertir valores a tipos estándar de Python
         safe_asignaciones = [
             {
                 "hour_block": int(a["hour_block"]),
@@ -485,6 +490,7 @@ def ejecutar_asignacion(day_id: int, db: Session = Depends(get_db)):
                 "ingame_id": u["ingame_id"],
                 "alliance": u["alliance"],
                 "speedups": int(u["speedups"]),
+                "availability_str": u["availability_str"]
             }
             for u in no_asignados
         ]
@@ -522,7 +528,13 @@ def eliminar_postulaciones(
         raise HTTPException(status_code=400, detail="Formato inválido de IDs")
 
     # Verificar existencia del día
-    day = db.query(models.GroupDay).filter(models.GroupDay.id == day_id).first()
+    day = (
+    db.query(models.GroupDay)
+    .join(models.Group)
+    .filter(models.GroupDay.id == day_id, models.GroupDay.group_id == models.Group.id)
+    .first()
+)
+
     if not day:
         raise HTTPException(status_code=404, detail="Día no encontrado")
 

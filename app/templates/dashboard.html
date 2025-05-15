@@ -2,14 +2,14 @@
 
 {% block content %}
 <div class="container py-5 text-center" style="max-width: 700px;">
-    <h2 class="mb-2">{{ _('Bienvenido') }} {{ username }}#{{ user_id }}!</h2>
+    <h2 class="mb-2">{{ _('Bienvenido') }} {{ username }}#{{ user_id }}</h2>
 
     <h3 class="h5 text-theme-muted mb-3">
         {{ _('Desde aquí puedes administrar tu actividad en la plataforma.') }}
     </h3>
     
     <p class="text-theme-muted mb-4" style="font-size: 0.9rem;">
-        {{ _('Tu ID es:') }} <strong>#{{ user_id }}</strong><br>
+        {{ _('Tu ID es:') }} <strong>{{ user_id }}</strong><br>
         {{ _('Compártelo si un administrador quiere agregarte a un grupo.') }}
     </p>
     

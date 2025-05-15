@@ -376,19 +376,21 @@ document.addEventListener("DOMContentLoaded", mostrarPreguntaSecreta);
 
 
 
-function runAssign(dayId) {
-    const resultadosDiv = document.getElementById(`resultados-algoritmo-${dayId}`);
-    const tablaBody = document.getElementById(`tabla-asignaciones-${dayId}`);
-    const listaNoAsignados = document.getElementById(`lista-no-asignados-${dayId}`);
 
-    // Mostrar el contenedor
-    resultadosDiv.style.display = "block";
+// -----------------------------------------------
+// SE USA PARA MOSTRAR EL RESULTADO DEL ALGORITMO DE HORARIOS
+// -----------------------------------------------
+
+function runAssign(dayId) {
+    const tablaBody = document.getElementById(`tabla-asignaciones-${dayId}`);
+    const tablaNoAsignados = document.getElementById(`tabla-no-asignados-${dayId}`);
+
+
 
     // Mensaje de carga temporal
     tablaBody.innerHTML = `
         <tr><td colspan="6" class="text-center text-theme-muted py-3">Cargando asignaciones...</td></tr>
     `;
-    listaNoAsignados.innerHTML = "";
 
     fetch(`/groups/asignar/${dayId}`)
         .then(res => res.json())
@@ -435,19 +437,25 @@ function runAssign(dayId) {
             }
 
             tablaBody.innerHTML = rows;
+            tablaNoAsignados.innerHTML = "";
 
             if (noAsignados.length > 0) {
                 for (const u of noAsignados) {
-                    const item = document.createElement("li");
-                    item.className = "list-group-item";
-                    item.innerHTML = `
-                        <strong>${u.nickname}</strong> (${u.speedups} speedups)
-                        <span class="ms-2 text-theme-muted">[${u.alliance}]</span>
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>[${u.alliance}]</td>
+                        <td>${u.nickname}</td>
+                        <td>${u.ingame_id || '-'}</td>
+                        <td>${u.speedups}</td>
+                        <td>${u.availability_str || '<span class="text-muted">No disponible</span>'}</td>
+
                     `;
-                    listaNoAsignados.appendChild(item);
+                    tablaNoAsignados.appendChild(row);
                 }
             } else {
-                listaNoAsignados.innerHTML = `<li class="list-group-item text-muted">Todos fueron asignados.</li>`;
+                tablaNoAsignados.innerHTML = `
+                    <tr><td colspan="5" class="text-muted">Todos fueron asignados.</td></tr>
+                `;
             }
         })
         .catch(err => {
