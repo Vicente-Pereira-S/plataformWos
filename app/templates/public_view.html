@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h3 class="mb-4 text-center">📋 Asignaciones del estado <code>{{ group.state_number }}</code></h3>
+
+    <!-- Tabs por día -->
+    <ul class="nav nav-tabs" id="dayTabs" role="tablist">
+        {% for day in group.days %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link {% if loop.first %}active{% endif %}"
+                    id="tab-{{ day.id }}"
+                    data-bs-toggle="tab"
+                    data-bs-target="#content-{{ day.id }}"
+                    type="button"
+                    role="tab"
+                    aria-controls="content-{{ day.id }}"
+                    aria-selected="{{ 'true' if loop.first else 'false' }}">
+                {{ day.name }}
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <!-- Contenido de cada día -->
+    <div class="tab-content border border-top-0 p-3">
+        {% for day in group.days %}
+        <div class="tab-pane fade {% if loop.first %}show active{% endif %}"
+             id="content-{{ day.id }}"
+             role="tabpanel"
+             aria-labelledby="tab-{{ day.id }}">
+
+            {% set asignaciones = assignments_by_day.get(day.id, []) %}
+
+            {% if asignaciones %}
+            <div class="table-responsive mb-4">
+                <table class="table table-sm table-striped border text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Hora (UTC)</th>
+                            <th>Alianza</th>
+                            <th>Nombre</th>
+                            <th>Disponibilidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in range(48) %}
+                            {% set a = asignaciones | selectattr("hour_block", "equalto", b) | list | first %}
+                            <tr class="{{ 'table-secondary' if not a or not a.nickname }}">
+                                <td><strong>{{ "%02d:%02d"|format((b // 2), (30 if b % 2 else 0)) }}</strong></td>
+                                {% if a and a.nickname %}
+                                    <td>[{{ a.alliance }}]</td>
+                                    <td>{{ a.nickname }}</td>
+                                    <td>{{ a.availability_str }}</td>
+                                {% else %}
+                                    <td colspan="5"><em>— Sin asignación —</em></td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-warning text-center mt-3" role="alert">
+                No hay asignaciones guardadas para este día.
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

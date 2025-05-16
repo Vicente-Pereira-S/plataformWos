@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Request, Depends, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi import APIRouter, Request, Depends, HTTPException, Form
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from sqlalchemy.orm import Session
 from app.dependencies import get_templates
 from app.database import get_db
@@ -11,21 +11,32 @@ router = APIRouter(
     tags=["Public"]
 )
 
-@router.get("/search-state", response_class=HTMLResponse)
-async def search_state(request: Request, group_code: str = None):
+@router.get("/search", response_class=HTMLResponse)
+def show_group_search_form(request: Request):
     templates = get_templates(request)
-    context = {"request": request}
-    if group_code:
-        context["code_found"] = group_code
-    return templates.TemplateResponse("buscar_estado.html", context)
+    return templates.TemplateResponse("public_search.html", {"request": request})
 
-# Ruta AJAX para búsqueda sin recarga
-@router.get("/search-state-ajax")
-def search_state_ajax(code: str, db: Session = Depends(get_db)):
-    group = db.query(models.Group).filter(models.Group.group_code == code).first()
-    if group:
-        return {"success": True, "state_number": group.state_number}
-    return {"success": False}
+
+@router.get("/schedule/{group_code}", response_class=HTMLResponse)
+def public_group_view(group_code: str, request: Request, db: Session = Depends(get_db)):
+    templates = get_templates(request)
+    group = db.query(models.Group).filter(models.Group.group_code == group_code).first()
+    print(group)
+    if not group:
+        return templates.TemplateResponse("grupo_no_encontrado.html", {"request": request})
+
+    assignments_by_day = {
+        d.id: db.query(models.GroupAssignment).filter_by(group_day_id=d.id).all()
+        for d in group.days
+    }
+
+    return templates.TemplateResponse("public_view.html", {
+        "request": request,
+        "group": group,
+        "assignments_by_day": assignments_by_day
+    })
+
+
 
 
 # Muestra el formulario para enviar disponibilidad (HTML)

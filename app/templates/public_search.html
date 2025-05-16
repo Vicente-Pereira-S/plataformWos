@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 500px;">
+    <h3 class="mb-4 text-center">🔍 {{ _('Buscar asignaciones por código de grupo') }}</h3>
+
+    <form onsubmit="buscarGrupo(event)">
+        <div class="mb-3">
+            <label for="group_code" class="form-label">{{ _('Código del grupo') }}</label>
+            <input type="text" class="form-control" id="group_code" name="group_code" placeholder="Ej: R-1987" required>
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">{{ _('Buscar') }}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    function buscarGrupo(e) {
+        e.preventDefault(); // Evita el envío tradicional
+        const codigo = document.getElementById("group_code").value.trim();
+        if (codigo) {
+            window.location.href = `/public/schedule/${codigo}`;
+        }
+    }
+</script>
+
+{% endblock %}
