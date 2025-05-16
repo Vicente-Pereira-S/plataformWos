@@ -78,6 +78,8 @@ class GroupDay(Base):
     group = relationship("Group", back_populates="days")
     submissions = relationship("UserSubmission", back_populates="group_day", cascade="all, delete-orphan")
     assignments = relationship("GroupAssignment", back_populates="group_day", cascade="all, delete-orphan")
+    unassigned = relationship("GroupUnassigned", back_populates="group_day", cascade="all, delete-orphan")
+
 
 
 
@@ -123,10 +125,28 @@ class GroupAssignment(Base):
     id = Column(Integer, primary_key=True, index=True)
     group_day_id = Column(Integer, ForeignKey("group_days.id"))
     hour_block = Column(Integer, nullable=False)  # De 0 a 47
-    nickname = Column(String, nullable=False)
+    nickname = Column(String, nullable=True)
     ingame_id = Column(String, nullable=True)
     alliance = Column(String(3), nullable=False)
     speedups = Column(Integer, nullable=False)
     availability_str = Column(String, nullable=False)
 
     group_day = relationship("GroupDay", back_populates="assignments")
+
+
+
+# ------------------------------
+# MODELO DE USUARIOS NO ASIGNADOS
+# ------------------------------
+class GroupUnassigned(Base):
+    __tablename__ = "group_unassigned"
+
+    id = Column(Integer, primary_key=True, index=True)
+    group_day_id = Column(Integer, ForeignKey("group_days.id"))
+    nickname = Column(String, nullable=False)
+    ingame_id = Column(String, nullable=True)
+    alliance = Column(String(3), nullable=False)
+    speedups = Column(Integer, nullable=False)
+    availability_str = Column(String, nullable=False)
+
+    group_day = relationship("GroupDay", back_populates="unassigned")

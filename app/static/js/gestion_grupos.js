@@ -234,3 +234,81 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+
+
+
+
+
+function guardarAsignaciones(dayId, sobrescribir = false) {
+    const tablaAsignados = document.getElementById(`tabla-asignaciones-${dayId}`);
+    const filasAsignados = tablaAsignados.querySelectorAll("tr");
+
+    const asignaciones = [];
+    for (const fila of filasAsignados) {
+        const celdas = fila.querySelectorAll("td");
+        if (celdas.length !== 6) continue;
+
+        const horaTexto = celdas[0].innerText.trim();
+        const [hora, minuto] = horaTexto.split(":").map(Number);
+        const hour_block = hora * 2 + (minuto >= 30 ? 1 : 0);
+
+        const nickname = celdas[2].innerText.trim();
+        if (nickname === "— Sin asignación —") {
+            asignaciones.push({
+                hour_block: hour_block,
+                nickname: null
+            });
+        } else {
+            asignaciones.push({
+                hour_block: hour_block,
+                alliance: celdas[1].innerText.replace("[", "").replace("]", "").trim(),
+                nickname: nickname,
+                ingame_id: celdas[3].innerText.trim() === "-" ? null : celdas[3].innerText.trim(),
+                speedups: parseInt(celdas[4].innerText.trim()),
+                availability_str: celdas[5].innerText.trim()
+            });
+        }
+    }
+
+    // 👉 Capturar NO asignados
+    const tablaNoAsignados = document.getElementById(`tabla-no-asignados-${dayId}`);
+    const filasNoAsignados = tablaNoAsignados.querySelectorAll("tr");
+
+    const no_asignados = [];
+    for (const fila of filasNoAsignados) {
+        const celdas = fila.querySelectorAll("td");
+        if (celdas.length !== 5) continue;
+
+        no_asignados.push({
+            alliance: celdas[0].innerText.replace("[", "").replace("]", "").trim(),
+            nickname: celdas[1].innerText.trim(),
+            ingame_id: celdas[2].innerText.trim() === "-" ? null : celdas[2].innerText.trim(),
+            speedups: parseInt(celdas[3].innerText.trim()),
+            availability_str: celdas[4].innerText.trim()
+        });
+    }
+
+    fetch(`/groups/guardar-asignaciones/${dayId}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            sobrescribir: sobrescribir,
+            asignaciones: asignaciones,
+            no_asignados: no_asignados
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert("⚠️ Ocurrió un error al guardar las asignaciones.");
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("❌ Error inesperado al enviar al servidor.");
+    });
+}

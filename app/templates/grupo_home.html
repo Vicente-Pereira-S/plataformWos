@@ -99,10 +99,13 @@
         <div class="tab-content border border-top-0 p-3">
             {% for day in group.days %}
             <div class="tab-pane fade {% if loop.first %}show active{% endif %}"
-                 id="content-{{ day.id }}"
-                 role="tabpanel"
-                 aria-labelledby="tab-{{ day.id }}">
-    
+                    id="content-{{ day.id }}"
+                    role="tabpanel"
+                    aria-labelledby="tab-{{ day.id }}">
+
+                
+                {% set asignaciones_guardadas = assignments_by_day.get(day.id, []) %}
+
                 <!-- Título y botón -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5>{{ _('Solicitudes:') }}</h5>
@@ -209,7 +212,7 @@
                     <div class="modal-dialog modal-xl modal-dialog-scrollable">
                         <div class="modal-content glassmorphic">
                             <div class="modal-header">
-                                <h5 class="modal-title">⏱️ {{ _('Asignaciones para') }} {{ day.name }}</h5>
+                                <h5 class="modal-title">⏱️ {{ _('Propuesta de asignaciones para') }} {{ day.name }}</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
                             <div class="modal-body">
@@ -237,7 +240,8 @@
                 
                                 <!-- Tabla de asignaciones -->
                                 <div class="table-responsive">
-                                    <h6>✅ Mejor forma de asignaciones al ministerio</h6>
+                                    <h6>✅ {{ _('Propuesta óptima de asignación de horarios') }}
+                                    </h6>
                                     <table class="table table-sm table-striped border text-center">
                                         <thead class="table-light">
                                             <tr>
@@ -255,15 +259,127 @@
                 
                             </div>
                             <div class="modal-footer">
+                                <button type="button"
+                                        class="btn btn-success"
+                                        data-day-id="{{ day.id }}"
+                                        data-has-assignments="{{ 'true' if assignments_by_day.get(day.id) else 'false' }}"
+                                        onclick="confirmarGuardarAsignaciones(this)">
+                                    Guardar asignaciones
+                                </button>
+
                                 <button type="button" class="btn btn-secondary"
                                         data-bs-dismiss="modal">
                                     Cerrar
                                 </button>
-
                             </div>
                         </div>
                     </div>
                 </div>
+
+
+                <!-- Modal de confirmacion remplazar informacion actual -->
+                <div class="modal fade" id="confirmModal-{{ day.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content glassmorphic border border-danger">
+                            <div class="modal-header">
+                                <h5 class="modal-title text-danger">¿Sobrescribir asignaciones?</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body">
+                                Ya existen asignaciones guardadas para este día. ¿Deseas reemplazarlas con la nueva propuesta?
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button class="btn btn-danger" onclick="guardarAsignaciones('{{ day.id }}', true)">
+                                    Sí, sobrescribir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+
+                <!-- Mostrar asignaciones guardadas en BD -->
+                <div class="mt-4">
+                    <h6>📌 {{ _('Últimas asignaciones guardadas') }}</h6>
+                
+                    {% if asignaciones_guardadas %}
+                    
+                    <!-- Tabla de NO asignados -->
+                    {% set no_asignados = no_asignados_by_day.get(day.id, []) %}
+                    {% if no_asignados %}
+                    <div class="table-responsive mb-4">
+                        <h6>🚫 {{ _('No asignados (guardados)') }}</h6>
+                        <table class="table table-sm table-bordered text-center">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Alianza</th>
+                                    <th>Nombre</th>
+                                    <th>ID</th>
+                                    <th>Speedups</th>
+                                    <th>Disponibilidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for u in no_asignados %}
+                                <tr>
+                                    <td>[{{ u.alliance }}]</td>
+                                    <td>{{ u.nickname }}</td>
+                                    <td>{{ u.ingame_id or '-' }}</td>
+                                    <td>{{ u.speedups }}</td>
+                                    <td>{{ u.availability_str }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+                
+                    <!-- Tabla de asignaciones por bloque horario -->
+                    <div class="table-responsive mb-3">
+                        <h6>✅ {{ _('Asignaciones guardadas por horario') }}</h6>
+                        <table class="table table-sm table-striped border text-center">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Hora (UTC)</th>
+                                    <th>Alianza</th>
+                                    <th>Nombre</th>
+                                    <th>ID</th>
+                                    <th>Speedups</th>
+                                    <th>Disponibilidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set asignaciones_map = asignaciones_guardadas | map(attribute="hour_block") | list %}
+                                {% for b in range(48) %}
+                                    {% set a = asignaciones_guardadas | selectattr("hour_block", "equalto", b) | list | first %}
+                                    <tr class="{{ 'table-secondary' if not a or not a.nickname }}">
+                                        <td><strong>{{ "%02d:%02d"|format((b // 2), (30 if b % 2 else 0)) }}</strong></td>
+                                        {% if a and a.nickname %}
+                                            <td>[{{ a.alliance }}]</td>
+                                            <td>{{ a.nickname }}</td>
+                                            <td>{{ a.ingame_id or '-' }}</td>
+                                            <td>{{ a.speedups }}</td>
+                                            <td>{{ a.availability_str }}</td>
+                                        {% else %}
+                                            <td colspan="5"><em>— Sin asignación —</em></td>
+                                        {% endif %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                
+                    {% else %}
+                    <div class="alert alert-info text-center mt-3" role="alert">
+                        {{ _('Aún no hay asignaciones guardadas para este día.') }}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                
+                
+                
     
                 <!-- Aquí continua la sección del TAB -->
             </div>
@@ -650,7 +766,21 @@ function handleLimitChange(dayId) {
         else if (isNaN(currentValue) || currentValue === "") select.value = "";
     });
 }
+</script>
+<script>
+    function confirmarGuardarAsignaciones(button) {
+        const dayId = button.getAttribute("data-day-id");
+        const hasAssignments = button.getAttribute("data-has-assignments") === "true";
 
+        if (hasAssignments) {
+            // Mostrar modal de confirmación
+            const confirmModal = new bootstrap.Modal(document.getElementById(`confirmModal-${dayId}`));
+            confirmModal.show();
+        } else {
+            // Guardar directamente
+            guardarAsignaciones(dayId, false);
+        }
+    }
 
 </script>
 {% endblock %}

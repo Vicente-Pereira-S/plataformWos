@@ -195,30 +195,44 @@ def view_group(
     current_user: models.User = Depends(get_current_user)
 ):
     templates = get_templates(request)
-    
-    
-    # Convertir objetos SQLAlchemy a estructuras nativas serializables
+
+    # Buscar grupo
     group = db.query(models.Group).filter(models.Group.group_code == group_code).first()
-    
+
     if not group:
         return templates.TemplateResponse("grupo_no_encontrado.html", {
-        "request": request
-    })
-    
+            "request": request
+        })
+
+    # Estructuras auxiliares para frontend
     alliances_serializable = [{"id": a.id, "name": a.name} for a in group.alliances]
     days_serializable = [{"id": d.id, "name": d.name} for d in group.days]
-    
 
     is_creator = (group.creator_id == current_user.id)
+
+    # Cargar asignaciones por día (GroupAssignment)
+    assignments_by_day = {
+        d.id: db.query(models.GroupAssignment).filter_by(group_day_id=d.id).all()
+        for d in group.days
+    }
+
+    # Cargar no asignados por día (GroupUnassigned)
+    no_asignados_by_day = {
+        d.id: db.query(models.GroupUnassigned).filter_by(group_day_id=d.id).all()
+        for d in group.days
+    }
 
     return templates.TemplateResponse("grupo_home.html", {
         "request": request,
         "group": group,
         "current_user": current_user,
-        "is_creator": is_creator,       # Boolean 
+        "is_creator": is_creator,
         "alliances_serializable": alliances_serializable,
-        "days_serializable": days_serializable
+        "days_serializable": days_serializable,
+        "assignments_by_day": assignments_by_day,
+        "no_asignados_by_day": no_asignados_by_day
     })
+
 
 
 # ----------------------------------
@@ -554,3 +568,68 @@ def eliminar_postulaciones(
 
     db.commit()
     return RedirectResponse(f"/groups/postulaciones/{day.id}", status_code=303)
+
+
+
+
+
+@router.post("/guardar-asignaciones/{day_id}")
+def guardar_asignaciones(
+    day_id: int,
+    data: dict,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    from app.models import GroupDay, GroupAssignment, GroupUnassigned
+
+    group_day = db.query(GroupDay).filter(GroupDay.id == day_id).first()
+    if not group_day or group_day.group.creator_id != current_user.id:
+        return JSONResponse({"success": False, "error": "No autorizado"}, status_code=403)
+
+    sobrescribir = data.get("sobrescribir", False)
+    asignaciones = data.get("asignaciones", [])
+    no_asignados = data.get("no_asignados", [])
+
+    if sobrescribir:
+        db.query(GroupAssignment).filter_by(group_day_id=day_id).delete()
+        db.query(GroupUnassigned).filter_by(group_day_id=day_id).delete()
+
+    # Guardar asignaciones
+    for a in asignaciones:
+        if a.get("nickname") is None:
+            # Bloque vacío
+            new_assignment = GroupAssignment(
+                group_day_id=day_id,
+                hour_block=a["hour_block"],
+                nickname=None,
+                ingame_id=None,
+                alliance="---",
+                speedups=0,
+                availability_str=""
+            )
+        else:
+            new_assignment = GroupAssignment(
+                group_day_id=day_id,
+                hour_block=a["hour_block"],
+                nickname=a["nickname"],
+                ingame_id=a.get("ingame_id"),
+                alliance=a["alliance"],
+                speedups=a["speedups"],
+                availability_str=a["availability_str"]
+            )
+        db.add(new_assignment)
+
+    # Guardar no asignados
+    for u in no_asignados:
+        nuevo = GroupUnassigned(
+            group_day_id=day_id,
+            nickname=u["nickname"],
+            ingame_id=u.get("ingame_id"),
+            alliance=u["alliance"],
+            speedups=u["speedups"],
+            availability_str=u["availability_str"]
+        )
+        db.add(nuevo)
+
+    db.commit()
+    return {"success": True}
