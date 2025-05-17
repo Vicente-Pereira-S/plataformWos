@@ -85,8 +85,6 @@ def assign_slots_with_hungarian(submissions):
     Asigna 48 bloques de 30 minutos a los 48 usuarios con más speedups.
     (la lógica del Hungarian permanece intacta)
     """
-    import numpy as np
-    from scipy.optimize import linear_sum_assignment
 
     MAX_BLOCKS = 48
     top_48 = sorted(submissions, key=lambda x: x["speedups"], reverse=True)[:MAX_BLOCKS]
