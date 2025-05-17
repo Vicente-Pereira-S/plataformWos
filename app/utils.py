@@ -36,30 +36,59 @@ def delete_inactive_users(db: Session):
 # ------------------------------
 
 
+def seleccionar_top_48(submissions, cupos=None):
+    """
+    Selecciona las 48 submissions que serán usadas por el algoritmo húngaro,
+    en función de los cupos por alianza (si se definen).
+
+    Retorna:
+        - Lista de submissions seleccionadas (máximo 48)
+        - Diccionario de cupos restantes (incluye B)
+    """
+    MAX_BLOCKS = 48
+    submissions_sorted = sorted(submissions, key=lambda x: x["speedups"], reverse=True)
+
+    # Si no hay cupos definidos, usar el comportamiento actual
+    if cupos is None:
+        return submissions_sorted[:MAX_BLOCKS], {}
+
+    # Inicializar variables de trabajo
+    cupos_restantes = dict(cupos)  # copia segura
+    total_cupos_fijos = sum(v for v in cupos_restantes.values())
+    B = MAX_BLOCKS - total_cupos_fijos
+    top_48 = []
+
+    for sub in submissions_sorted:
+        alliance = sub["alliance"]
+
+        if alliance in cupos_restantes:
+            if cupos_restantes[alliance] > 0:
+                cupos_restantes[alliance] -= 1
+                top_48.append(sub)
+        else:
+            if B > 0:
+                B -= 1
+                top_48.append(sub)
+
+        # Salida anticipada si ya tenemos 48 asignaciones
+        if len(top_48) >= MAX_BLOCKS:
+            break
+
+    # Agregar B al resultado
+    cupos_restantes["B"] = B
+
+    return top_48, cupos_restantes
+
+
 def assign_slots_with_hungarian(submissions):
     """
     Asigna 48 bloques de 30 minutos a los 48 usuarios con más speedups.
-
-    Parámetros:
-        submissions: lista de dicts con estructura:
-            {
-                "nickname": str,
-                "ingame_id": str | None,
-                "speedups": int,
-                "alliance": str,
-                "availability": [ (start_block:int, end_block:int), ... ]
-            }
-
-    Retorna:
-        - Lista de asignaciones ordenadas por hora.
-        - Lista de usuarios no asignados (de los 48 seleccionados).
+    (la lógica del Hungarian permanece intacta)
     """
     import numpy as np
     from scipy.optimize import linear_sum_assignment
 
     MAX_BLOCKS = 48
-
-    # Tomar solo los 48 con más speedups
     top_48 = sorted(submissions, key=lambda x: x["speedups"], reverse=True)[:MAX_BLOCKS]
 
     cost_matrix = np.full((len(top_48), MAX_BLOCKS), 9999)
@@ -70,12 +99,10 @@ def assign_slots_with_hungarian(submissions):
 
     for i, sub in enumerate(top_48):
         for start, end in sub["availability"]:
-            # Caso especial: si start == end → solo ese bloque
             if start == end:
                 if 0 <= start < MAX_BLOCKS:
                     cost_matrix[i, start] = -sub["speedups"]
             else:
-                # Caso normal: incluir también el bloque que inicia en "end"
                 for b in range(start, end + 1):
                     if 0 <= b < MAX_BLOCKS:
                         cost_matrix[i, b] = -sub["speedups"]
@@ -106,7 +133,6 @@ def assign_slots_with_hungarian(submissions):
             "availability_str": availability_str
         })
 
-    # Solo mostrar como no asignados a los que estaban en el top 48 y no recibieron bloque
     no_asignados = []
     for i, sub in enumerate(top_48):
         if i not in asignados_idx:
@@ -125,23 +151,16 @@ def assign_slots_with_hungarian(submissions):
     return sorted(results, key=lambda x: x["hour_block"]), no_asignados
 
 
-
-
-
-
-def run_assignment_for_group_day(db: Session, group_day_id: int):
+def run_assignment_for_group_day(db: Session, group_day_id: int, cupos=None):
     """
-    Ejecuta la asignación de citas para un día específico del grupo usando el algoritmo húngaro.
-
-    Retorna:
-        - Lista de asignaciones exitosas (dicts)
-        - Lista de usuarios no asignados (dicts)
+    Ejecuta la asignación de citas para un día específico del grupo.
+    Admite cupos por alianza si se pasan.
     """
     from app.models import UserSubmission
 
     submissions = db.query(UserSubmission).filter(UserSubmission.group_day_id == group_day_id).all()
     if not submissions:
-        return [], []
+        return [], [], {}
 
     def block_to_time(b):
         h, m = divmod(b * 30, 60)
@@ -169,4 +188,8 @@ def run_assignment_for_group_day(db: Session, group_day_id: int):
             "availability_str": availability_str
         })
 
-    return assign_slots_with_hungarian(formatted)
+    top_48, cupos_restantes = seleccionar_top_48(formatted, cupos)
+    asignaciones, no_asignados = assign_slots_with_hungarian(top_48)
+
+    return asignaciones, no_asignados, cupos_restantes
+

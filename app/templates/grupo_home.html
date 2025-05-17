@@ -108,7 +108,7 @@
 
                 <!-- Título y botón -->
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5>{{ _('Solicitudes:') }}</h5>
+                    <h5>{{ _('Postulantes:') }}</h5>
                 </div>
                 <!-- Link a ver todo -->
                 <div class="my-2 text-start">
@@ -216,9 +216,19 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
                             <div class="modal-body">
-                
+                                
+                                <!-- Resumen de cupos usados (se muestra solo si el switch está activado) -->
+                                <div class="mb-4 d-none" id="resumen-cupos-{{ day.id }}">
+                                    <h6>📊 Cupos utilizados por alianza</h6>
+                                    <ul class="list-group small" id="lista-cupos-{{ day.id }}">
+                                        <!-- Generado por JavaScript -->
+                                    </ul>
+                                </div>
+
+
+
                                 <!-- Lista de no asignados -->
-                                <div class="mb-4">
+                                <div class="mb-4" id="bloque-no-asignados-{{ day.id }}">
                                     <h6>🚫 No asignados</h6>
                                     <div class="table-responsive">
                                         <table class="table table-sm table-bordered text-center">
@@ -309,7 +319,7 @@
                     {% set no_asignados = no_asignados_by_day.get(day.id, []) %}
                     {% if no_asignados %}
                     <div class="table-responsive mb-4">
-                        <h6>🚫 {{ _('No asignados (guardados)') }}</h6>
+                        <h6>🚫 {{ _('No asignados por problemas de horario') }}</h6>
                         <table class="table table-sm table-bordered text-center">
                             <thead class="table-light">
                                 <tr>
@@ -337,7 +347,7 @@
                 
                     <!-- Tabla de asignaciones por bloque horario -->
                     <div class="table-responsive mb-3">
-                        <h6>✅ {{ _('Asignaciones guardadas por horario') }}</h6>
+                        <h6>✅ {{ _('Asignaciones para ministerio') }}</h6>
                         <table class="table table-sm table-striped border text-center">
                             <thead class="table-light">
                                 <tr>

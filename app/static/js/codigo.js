@@ -384,61 +384,119 @@ document.addEventListener("DOMContentLoaded", mostrarPreguntaSecreta);
 function runAssign(dayId) {
     const tablaBody = document.getElementById(`tabla-asignaciones-${dayId}`);
     const tablaNoAsignados = document.getElementById(`tabla-no-asignados-${dayId}`);
+    const switchLimite = document.getElementById(`switchLimite-${dayId}`);
+    const containerLimites = document.getElementById(`limitesContainer-${dayId}`);
+    const resumenCupos = document.getElementById(`resumen-cupos-${dayId}`);
+    const listaCupos = document.getElementById(`lista-cupos-${dayId}`);
 
-
-
-    // Mensaje de carga temporal
+    // Mostrar mensaje temporal de carga
     tablaBody.innerHTML = `
         <tr><td colspan="6" class="text-center text-theme-muted py-3">Cargando asignaciones...</td></tr>
     `;
+    tablaNoAsignados.innerHTML = "";
+    listaCupos.innerHTML = "";
+    resumenCupos.classList.add("d-none");
 
-    fetch(`/groups/asignar/${dayId}`)
-        .then(res => res.json())
-        .then(data => {
-            if (!data.success) {
-                tablaBody.innerHTML = `<tr><td colspan="6" class="text-danger">Error al ejecutar el algoritmo.</td></tr>`;
-                return;
+    // Construir objeto de cupos si el switch está activado
+    let cupos = null;
+    let cuposIniciales = {};
+    const alianzasB = [];  // ← NUEVO: Alianzas sin límite definido
+    const switchActivo = switchLimite && switchLimite.checked;
+
+    if (switchActivo) {
+        document.getElementById(`bloque-no-asignados-${dayId}`).classList.add("d-none");
+        cupos = {};
+        const selects = containerLimites.querySelectorAll("select");
+        selects.forEach(select => {
+            const value = select.value;
+            const allianceName = select.labels[0].innerText.replace(/\[|\]/g, "").trim();
+            if (value !== "") {
+                const val = parseInt(value);
+                cupos[allianceName] = val;
+                cuposIniciales[allianceName] = val;
+            } else {
+                alianzasB.push(allianceName); // ← Guardamos alianzas sin límite
             }
+        });
+    }
 
-            const asignaciones = data.data.assignments || [];
-            const noAsignados = data.data.unassigned || [];
+    // Enviar solicitud al backend
+    fetch(`/groups/asignar/${dayId}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ cupos: cupos })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) {
+            tablaBody.innerHTML = `<tr><td colspan="6" class="text-danger">Error al ejecutar el algoritmo.</td></tr>`;
+            return;
+        }
 
-            // Crear un mapa por bloque horario
-            const mapa = new Map();
-            for (const r of asignaciones) {
-                mapa.set(r.hour_block, r);
+        const asignaciones = data.data.assignments || [];
+        const noAsignados = data.data.unassigned || [];
+        const cuposRestantes = data.data.remaining || {};
+
+        // Crear un mapa por bloque horario
+        const mapa = new Map();
+        for (const r of asignaciones) {
+            mapa.set(r.hour_block, r);
+        }
+
+        // Generar las 48 filas
+        let rows = "";
+        for (let b = 0; b < 48; b++) {
+            const hora = `${String(Math.floor(b / 2)).padStart(2, '0')}:${b % 2 === 0 ? '00' : '30'}`;
+            if (mapa.has(b)) {
+                const r = mapa.get(b);
+                rows += `
+                    <tr>
+                        <td><strong>${hora}</strong></td>
+                        <td>[${r.alliance}]</td>
+                        <td>${r.nickname}</td>
+                        <td>${r.ingame_id || '-'}</td>
+                        <td>${r.speedups}</td>
+                        <td>${r.availability_str}</td>
+                    </tr>
+                `;
+            } else {
+                rows += `
+                    <tr class="table-secondary">
+                        <td><strong>${hora}</strong></td>
+                        <td colspan="5"><em>— Sin asignación —</em></td>
+                    </tr>
+                `;
             }
+        }
 
-            // Generar las 48 filas
-            let rows = "";
-            for (let b = 0; b < 48; b++) {
-                const hora = `${String(Math.floor(b / 2)).padStart(2, '0')}:${b % 2 === 0 ? '00' : '30'}`;
+        tablaBody.innerHTML = rows;
 
-                if (mapa.has(b)) {
-                    const r = mapa.get(b);
-                    rows += `
-                        <tr>
-                            <td><strong>${hora}</strong></td>
-                            <td>[${r.alliance}]</td>
-                            <td>${r.nickname}</td>
-                            <td>${r.ingame_id || '-'}</td>
-                            <td>${r.speedups}</td>
-                            <td>${r.availability_str}</td>
-                        </tr>
-                    `;
-                } else {
-                    rows += `
-                        <tr class="table-secondary">
-                            <td><strong>${hora}</strong></td>
-                            <td colspan="5"><em>— Sin asignación —</em></td>
-                        </tr>
-                    `;
-                }
-            }
-
-            tablaBody.innerHTML = rows;
+        // Si el switch estaba activo, ocultar tabla de no asignados y mostrar resumen
+        if (switchActivo) {
             tablaNoAsignados.innerHTML = "";
+            const resumen = [];
 
+            for (const [alianza, total] of Object.entries(cuposIniciales)) {
+                const restante = cuposRestantes[alianza] ?? 0;
+                const usados = total - restante;
+                resumen.push(`<li class="list-group-item">[${alianza}]: ${usados}/${total}</li>`);
+            }
+
+            // Mostrar "B" con nombres de alianzas que no tenían límite
+            if ("B" in cuposRestantes) {
+                const usadosB = 48 - Object.entries(cuposIniciales).reduce((a, [k, v]) => a + v, 0) - cuposRestantes.B;
+                const totalB = 48 - Object.entries(cuposIniciales).reduce((a, [k, v]) => a + v, 0);
+                const alianzasBstr = alianzasB.length > 0 ? ` [${alianzasB.map(a => a).join('], [')}]` : "";
+                resumen.push(`<li class="list-group-item">${alianzasBstr}: ${usadosB}/${totalB}</li>`);
+            }
+
+            listaCupos.innerHTML = resumen.join("");
+            resumenCupos.classList.remove("d-none");
+
+        } else {
+            // Mostrar no asignados si el switch está apagado y hay datos
             if (noAsignados.length > 0) {
                 for (const u of noAsignados) {
                     const row = document.createElement("tr");
@@ -448,7 +506,6 @@ function runAssign(dayId) {
                         <td>${u.ingame_id || '-'}</td>
                         <td>${u.speedups}</td>
                         <td>${u.availability_str || '<span class="text-muted">No disponible</span>'}</td>
-
                     `;
                     tablaNoAsignados.appendChild(row);
                 }
@@ -457,9 +514,11 @@ function runAssign(dayId) {
                     <tr><td colspan="5" class="text-muted">Todos fueron asignados.</td></tr>
                 `;
             }
-        })
-        .catch(err => {
-            tablaBody.innerHTML = `<tr><td colspan="6" class="text-danger">Error inesperado.</td></tr>`;
-            console.error(err);
-        });
+            document.getElementById(`bloque-no-asignados-${dayId}`).classList.remove("d-none");
+        }
+    })
+    .catch(err => {
+        tablaBody.innerHTML = `<tr><td colspan="6" class="text-danger">Error inesperado.</td></tr>`;
+        console.error(err);
+    });
 }

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Body, HTTPException, Request, Depends, Form
 from fastapi.responses import RedirectResponse, HTMLResponse, JSONResponse
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
+
 import re
 
 from app.database import get_db
@@ -479,13 +480,29 @@ def ver_postulaciones_dia(
 
 
 # Endpoint AJAX que ejecuta el algoritmo y devuelve los resultados
-@router.get("/asignar/{day_id}")
-def ejecutar_asignacion(day_id: int, db: Session = Depends(get_db)):
-
+@router.post("/asignar/{day_id}")
+def ejecutar_asignacion(
+    day_id: int,
+    db: Session = Depends(get_db),
+    body: dict = Body(default={})
+):
     try:
-        asignaciones, no_asignados = run_assignment_for_group_day(db, day_id)
+        # Extraer "cupos" desde el cuerpo del request
+        raw_cupos = body.get("cupos", {})
+        cupos = {}
 
-        # Convertir valores a tipos estándar de Python
+        if raw_cupos and isinstance(raw_cupos, dict):
+            cupos = {
+                str(k): int(v)
+                for k, v in raw_cupos.items()
+                if isinstance(k, str) and isinstance(v, int) and v >= 0
+            }
+
+        # Ejecutar el algoritmo con los cupos recibidos
+        asignaciones, no_asignados, restantes = run_assignment_for_group_day(db, day_id, cupos=cupos)
+
+
+        # Preparar estructura segura para frontend
         safe_asignaciones = [
             {
                 "hour_block": int(a["hour_block"]),
@@ -513,7 +530,8 @@ def ejecutar_asignacion(day_id: int, db: Session = Depends(get_db)):
             "success": True,
             "data": {
                 "assignments": safe_asignaciones,
-                "unassigned": safe_no_asignados
+                "unassigned": safe_no_asignados,
+                "remaining": restantes
             }
         }
 
@@ -522,6 +540,7 @@ def ejecutar_asignacion(day_id: int, db: Session = Depends(get_db)):
             "success": False,
             "error": str(e)
         })
+
 
 
 
