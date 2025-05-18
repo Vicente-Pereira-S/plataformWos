@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Depends
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -89,6 +89,12 @@ async def set_language(lang_code: str, request: Request):
 # ------------------------------
 # Public Routes
 # ------------------------------
+
+
+@app.get("/ping")
+def ping():
+    return JSONResponse(content={"message": "pong"}, status_code=200)
+
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
