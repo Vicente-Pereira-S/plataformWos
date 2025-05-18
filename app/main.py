@@ -12,6 +12,9 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from sqlalchemy.orm import Session
 import os
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # ------------------------------
 # Local Modules
 # ------------------------------
