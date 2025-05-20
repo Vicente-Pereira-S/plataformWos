@@ -10,14 +10,8 @@
                 <h5 class="card-title mb-0">{{ _('Información del usuario') }}</h5>
             </div>
             <div class="card-body">
-                <div class="mb-3">
-                    <label for="userName" class="form-label">{{ _('Tu nombre en el juego') }}</label>
-                    <input type="text" class="form-control" id="userName" name="userName" required>
-                </div>
-                <div class="mb-3">
-                    <label for="userID" class="form-label">{{ _('Tu ID del juego (opcional)') }}</label>
-                    <input type="text" class="form-control" id="userID" name="userID">
-                </div>
+
+                <!-- Seleccion de alianza -->
                 <div class="mb-3">
                     <label for="alliance" class="form-label">{{ _('Alianza') }}</label>
                     <select id="alliance" name="alliance" class="form-select" required>
@@ -27,6 +21,20 @@
                         {% endfor %}
                     </select>
                 </div>
+
+                <!-- Nombre in-game -->
+                <div class="mb-3">
+                    <label for="userName" class="form-label">{{ _('Tu nombre en el juego') }}</label>
+                    <input type="text" class="form-control" id="userName" name="userName" required>
+                </div>
+
+                <!-- ID in-game de la persona -->
+                <div class="mb-3">
+                    <label for="userID" class="form-label">{{ _('Tu ID del juego (opcional)') }}</label>
+                    <input type="text" class="form-control" id="userID" name="userID">
+                </div>
+
+                <!-- Seleccion de cuantos dias va a querer -->
                 <div class="mb-3">
                     <label class="form-label">{{ _('Seleccione los días que necesitas:') }}</label>
                     <div id="daySelections">
@@ -53,7 +61,7 @@
                         <input type="number" class="form-control" id="speedups-day{{ day.id }}" name="speedups-day{{ day.id }}" min="0" required disabled>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">{{ _('Hora de las citas deseables') }}</label>
+                        <label class="form-label">{{ _('Selecciona los horarios en que estás disponible (UTC)') }}</label>
                         <div id="intervals-day{{ day.id }}">
                             <div class="interval-container mt-1">
                                 <select class="form-select form-select-sm d-inline w-auto" name="start-day{{ day.id }}-interval1" required disabled></select>
@@ -70,8 +78,16 @@
             {% endfor %}
         </div>
 
+
+        <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="confirmCheckbox">
+            <label class="form-check-label" for="confirmCheckbox">
+                {{ _('Confirmo que ingresé correctamente los datos') }}
+            </label>
+        </div>
+
         <div class="d-grid gap-2 mt-4">
-            <button type="submit" class="btn btn-primary">{{ _('Guardar información') }}</button>
+            <button type="submit" class="btn btn-primary" id="submitButton" disabled>{{ _('Enviar información') }}</button>
         </div>
     </form>
 </div>
@@ -79,6 +95,26 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', path='js/enviar_disponibilidad.js') }}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const checkbox = document.getElementById("confirmCheckbox");
+        const submitBtn = document.getElementById("submitButton");
+
+        checkbox.addEventListener("change", function () {
+            if (this.checked) {
+                this.classList.remove("is-invalid");
+                this.classList.add("is-valid");
+                submitBtn.disabled = false;
+            } else {
+                this.classList.remove("is-valid");
+                this.classList.add("is-invalid");
+                submitBtn.disabled = true;
+            }
+        });
+    });
+</script>
+
+
 <style>
     .day-container {
         transition: all 0.3s ease;

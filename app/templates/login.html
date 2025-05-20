@@ -16,7 +16,7 @@
         </div>
     {% endif %}
 
-    <form method="post" action="/auth/login-form">
+    <form method="post" action="/auth/login-form" onsubmit="return handleLoginSubmit(event)">
         <div class="mb-3">
             <label for="username" class="form-label">{{ _('Nombre de usuario') }}</label>
             <input type="text" class="form-control" id="username" name="username"
@@ -37,9 +37,19 @@
         </div>
 
         <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary">{{ _('Ingresar') }}</button>
+            <button type="submit" class="btn btn-primary" id="btnLogin">
+                {{ _('Ingresar') }}
+            </button>
+
             <a href="/" class="btn btn-secondary">{{ _('Cancelar') }}</a>
             <a href="/auth/recover" class="btn btn-link">{{ _('¿Olvidaste tu contraseña?') }}</a>
+            
+            <!-- loadding -->
+            <div class="text-center mt-2 d-none" id="spinnerContainer">
+                <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem;">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+            </div>
         </div>
     </form>
 </div>
@@ -47,4 +57,17 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', path='js/codigo.js') }}"></script>
+
+<script>
+    function handleLoginSubmit(event) {
+        const btn = document.getElementById("btnLogin");
+        const spinner = document.getElementById("spinnerContainer");
+
+        btn.disabled = true;
+        btn.textContent = "Cargando...";  // ⬅️ cambia el texto del botón
+        spinner.classList.remove("d-none");
+        return true; // continúa con el submit normal
+    }
+</script>
+
 {% endblock %}

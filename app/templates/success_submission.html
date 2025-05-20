@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <h2 class="text-success mb-4">✅ {{ _('Información enviada correctamente') }}</h2>
+    <p class="lead">
+        {{ _('Gracias por enviar tu disponibilidad. Serás redirigido en') }}
+        <span id="countdown">5</span> {{ _('segundos...') }}
+    </p>
+
+    <div class="spinner-border text-primary mt-4" role="status">
+        <span class="visually-hidden">Cargando...</span>
+    </div>
+
+    <p class="mt-3">
+        <a href="/" class="btn btn-outline-secondary btn-sm">{{ _('Ir al inicio ahora') }}</a>
+    </p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let seconds = 7;
+    const countdown = document.getElementById("countdown");
+
+    const interval = setInterval(() => {
+        seconds--;
+        countdown.textContent = seconds;
+        if (seconds <= 0) {
+            clearInterval(interval);
+            window.location.href = "/";
+        }
+    }, 1000);
+</script>
+{% endblock %}

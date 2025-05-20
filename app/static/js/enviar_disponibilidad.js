@@ -107,7 +107,18 @@ function setupDayToggle() {
 
             if (this.checked) {
                 container.classList.remove("hide");
-                inputs.forEach(el => el.disabled = false);
+
+                inputs.forEach(el => {
+                    // Si es botón "Eliminar"
+                    if (el.classList.contains("remove-btn")) {
+                        const intervalContainer = el.closest(".interval-container");
+                        const allContainers = intervalContainer.parentElement.querySelectorAll(".interval-container");
+                        el.disabled = allContainers.length <= 1;
+                    } else {
+                        el.disabled = false;
+                    }
+                });
+
             } else {
                 container.classList.add("hide");
                 inputs.forEach(el => el.disabled = true);
@@ -115,6 +126,7 @@ function setupDayToggle() {
         });
     });
 }
+
 
 function handleSubmit(e) {
     e.preventDefault();
@@ -162,7 +174,7 @@ function handleSubmit(e) {
     .then(result => {
         if (result.success) {
             // Redirección futura
-            window.location.href = "/";
+            window.location.href = "/public/confirm-submission";
         } else {
             alert("Error al enviar la información: " + result.message);
         }

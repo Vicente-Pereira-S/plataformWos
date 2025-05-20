@@ -13,6 +13,15 @@
             <button type="submit" class="btn btn-primary">{{ _('Buscar') }}</button>
         </div>
     </form>
+    <div class="text-center mt-3 d-none" id="buscandoLoader">
+        <div class="spinner-border text-primary" role="status" style="width: 1.5rem; height: 1.5rem;">
+            <span class="visually-hidden">Buscando...</span>
+        </div>
+        <p class="mt-2">{{ _('Buscando grupo...') }}</p>
+    </div>
+
+</div>
+
 </div>
 {% endblock %}
 
@@ -27,5 +36,29 @@
         }
     }
 </script>
+<script>
+    function buscarGrupo(e) {
+        e.preventDefault(); // Detener envío del formulario
 
+        const codigo = document.getElementById("group_code").value.trim();
+        const spinner = document.getElementById("buscandoLoader");
+        const btn = e.target.querySelector("button[type='submit']");
+
+        if (codigo) {
+            // Mostrar spinner real inmediatamente
+            spinner.classList.remove("d-none");
+            btn.disabled = true;
+
+            // Redireccionar sin delay
+            window.location.href = `/public/schedule/${codigo}`;
+        }
+    }
+</script>
+<script>
+    window.addEventListener("pageshow", function () {
+        // Reinicia el estado visual si vienes del historial
+        document.getElementById("buscandoLoader")?.classList.add("d-none");
+        document.querySelector("button[type='submit']")?.removeAttribute("disabled");
+    });
+</script>
 {% endblock %}

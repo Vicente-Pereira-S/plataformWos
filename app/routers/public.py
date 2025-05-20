@@ -21,7 +21,7 @@ def show_group_search_form(request: Request):
 def public_group_view(group_code: str, request: Request, db: Session = Depends(get_db)):
     templates = get_templates(request)
     group = db.query(models.Group).filter(models.Group.group_code == group_code).first()
-    print(group)
+    
     if not group:
         return templates.TemplateResponse("grupo_no_encontrado.html", {"request": request})
 
@@ -111,3 +111,10 @@ async def submit_availability(request: Request, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         return JSONResponse(status_code=500, content={"success": False, "message": str(e)})
+    
+
+# Muestra una nueva vista de confirmacion de envio
+@router.get("/confirm-submission", response_class=HTMLResponse)
+def confirm_submission(request: Request):
+    templates = get_templates(request)
+    return templates.TemplateResponse("success_submission.html", {"request": request})
