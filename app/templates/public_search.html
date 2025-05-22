@@ -21,21 +21,10 @@
     </div>
 
 </div>
-
-</div>
 {% endblock %}
 
 
 {% block scripts %}
-<script>
-    function buscarGrupo(e) {
-        e.preventDefault(); // Evita el envío tradicional
-        const codigo = document.getElementById("group_code").value.trim();
-        if (codigo) {
-            window.location.href = `/public/schedule/${codigo}`;
-        }
-    }
-</script>
 <script>
     function buscarGrupo(e) {
         e.preventDefault(); // Detener envío del formulario

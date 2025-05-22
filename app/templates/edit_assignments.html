@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid overflow-hidden">
+    <h4 class="py-4 text-center">✍🏼 {{ _('Edición manual de asignaciones') }}</h4>
+    <div class="row">
+        <!-- Lista de jugadores (ahora como columna normal) -->
+        <div class="col-md-3 col-lg-2 mb-4 d-none d-md-block">
+            <div class="p-3 dashboard-wrapper">
+                <h5 class="text-center mb-3">📋 {{ _('Solicitantes') }}</h5>
+
+                <ul id="availablePlayersList" class="list-unstyled d-flex flex-column gap-2 small ">
+                    {% for sub in submissions %}
+                        <li class="p-2 shadow-sm dark-bg-dark"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="right"
+                            data-bs-html="true"
+                            title="
+                            {{ _('Availability') }}:{% for slot in sub.availability %}<br>{{ slot.start_time.strftime('%H:%M') }}-{{ slot.end_time.strftime('%H:%M') }}{% endfor %}
+                            ">
+                            <strong>[{{ sub.alliance.name }}]</strong> {{ sub.nickname }}<br><strong>{{ _('Speedups:') }}</strong> {{ sub.speedups }} 
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Contenido principal -->
+        <div class="col-md-9 col-lg-10 pb-5 px-3"> 
+            <form id="assignmentForm" method="post" action="/groups/edit-assignments/{{ day.id }}">
+                <div class="table-responsive">
+                    <table class="table table-bordered text-center align-middle w-100 table-light" style="min-width: 600px;">
+                        <thead class="custom-thead">
+                            <tr>
+                                <th style="width: 100px;">{{ _('Hora (UTC)') }}</th>
+                                <th style="min-width: 250px;">{{ _('Jugador asignado') }}</th>
+                                <th style="width: 100px;">{{ _('Hora (UTC)') }}</th>
+                                <th style="min-width: 250px;">{{ _('Jugador asignado') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="custom-tbody">
+                            {% for i in range(24) %}
+                                {% set block1 = i %}
+                                {% set block2 = i + 24 %}
+                                {% set a1 = assignments | selectattr("hour_block", "equalto", block1) | list | first %}
+                                {% set a2 = assignments | selectattr("hour_block", "equalto", block2) | list | first %}
+                                <tr>
+                                    <td><strong>{{ "%02d:%02d"|format((block1 // 2), (30 if block1 % 2 else 0)) }}</strong></td>
+                                    <td class="position-relative">
+                                        <input type="text"
+                                               name="player_{{ block1 }}"
+                                               class="form-control player-input"
+                                               data-block="{{ block1 }}"
+                                               list="submissionsList"
+                                               value="{{ a1.nickname if a1 and a1.nickname }}">
+                                        <div class="input-error-msg text-start w-100"></div> 
+                                    </td>
+                                    <td><strong>{{ "%02d:%02d"|format((block2 // 2), (30 if block2 % 2 else 0)) }}</strong></td>
+                                    <td class="position-relative">
+                                        <input type="text"
+                                               name="player_{{ block2 }}"
+                                               class="form-control player-input"
+                                               data-block="{{ block2 }}"
+                                               list="submissionsList"
+                                               value="{{ a2.nickname if a2 and a2.nickname }}">
+                                        <div class="input-error-msg text-start w-100"></div> 
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Datalist para autocompletar -->
+<datalist id="submissionsList">
+    {% for sub in submissions %}
+        <option value="{{ sub.nickname }}">
+    {% endfor %}
+</datalist>
+
+<!-- Footer flotante con botones -->
+<div class="sticky-footer-bar d-flex justify-content-center gap-2" style="border-top-left-radius: 20px; border-top-right-radius: 20px;">
+    <button type="submit" form="assignmentForm" class="btn btn-success">
+        {{ _('Guardar asignaciones') }}
+    </button>
+    <a href="/groups/view/{{ group.group_code }}" class="btn btn-secondary">
+        {{ _('Cancelar') }}
+    </a>
+</div>
+
+
+
+
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="confirmSaveModal" tabindex="-1" aria-labelledby="confirmSaveModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content glassmorphic border border-danger">
+      <div class="modal-header">
+        <h5 class="modal-title text-danger" id="confirmSaveModalLabel">{{ _('Confirmar guardado') }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        {{ _('¿Confirmar guardado?') }}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancelar') }}</button>
+        <button id="confirmSaveBtn" type="button" class="btn btn-success">{{ _('Sí, guardar') }}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Overlay bloqueante con spinner -->
+<div id="savingOverlay" class="d-none position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-75 d-flex justify-content-center align-items-center" style="z-index: 1050;">
+    <div class="text-center text-white">
+        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">{{ _('Guardando asignaciones...') }}</span>
+        </div>
+        <p class="mt-3 fs-5">{{ _('Guardando asignaciones...') }}</p>
+    </div>
+</div>
+
+{% endblock %}
+
+
+
+{% block scripts %}
+<script src="{{ url_for('static', path='js/edit_assignments.js') }}"></script>
+
+{% endblock %}

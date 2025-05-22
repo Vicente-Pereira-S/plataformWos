@@ -159,3 +159,80 @@ body[data-theme="dark"] .table-dark th {
     background-color: #333;
     color: var(--dark-text);
 }
+
+
+/* -------------------------------------------------
+   Footer fijo de acciones (guardar / cancelar)
+-------------------------------------------------- */
+.sticky-footer-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: var(--light-card);
+    border-top: 1px solid #ccc;
+    padding: 10px 20px;
+    z-index: 999;
+}
+
+body[data-theme="dark"] .sticky-footer-bar {
+    background-color: var(--dark-card);
+    border-top: 1px solid #444;
+}
+
+/* -------------------------------------------------
+   Inputs inválidos en tabla de asignaciones
+-------------------------------------------------- */
+.player-input.is-invalid {
+    border-color: #dc3545;
+}
+
+.input-error-msg {
+    font-size: 0.75rem;
+    color: #dc3545;
+    margin-top: 4px;
+}
+
+
+/* -------------------------------------------------
+   Color lista de solicitantes
+-------------------------------------------------- */
+.dark-bg-dark {
+    background-color: rgb(196, 196, 196);
+    color: var(--light-text);
+    border-radius: 10px;
+}
+
+body[data-theme="dark"] .dark-bg-dark{
+    background-color: #525151;
+    color: var(--dark-text);
+}
+
+
+.dark-bg-dark[data-bs-toggle="tooltip"]:hover {
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+    transition: all 0.2s ease;
+}
+
+
+
+/* -------------------------------------------------
+   Color tabla 
+-------------------------------------------------- */
+/* -- th por defecto -- */
+.custom-thead th {
+    background-color: var(--light-card);
+    color: var(--light-text);
+}
+
+/* -- th Si dark mode está activo -- */
+body[data-theme="dark"] .custom-thead th {
+    background-color: #525151;
+    color: var(--dark-text);
+}
+
+
+
+

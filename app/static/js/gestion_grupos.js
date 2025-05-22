@@ -270,7 +270,7 @@ function guardarAsignaciones(dayId, sobrescribir = false) {
         }
     }
 
-    // 👉 Capturar NO asignados
+    // Capturar NO asignados
     const tablaNoAsignados = document.getElementById(`tabla-no-asignados-${dayId}`);
     const filasNoAsignados = tablaNoAsignados.querySelectorAll("tr");
 
@@ -287,6 +287,10 @@ function guardarAsignaciones(dayId, sobrescribir = false) {
             availability_str: celdas[4].innerText.trim()
         });
     }
+    
+    
+    // Mostrar overlay bloqueante
+    document.getElementById("savingOverlay")?.classList.remove("d-none");
 
     fetch(`/groups/guardar-asignaciones/${dayId}`, {
         method: "POST",

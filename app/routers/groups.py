@@ -652,3 +652,156 @@ def guardar_asignaciones(
 
     db.commit()
     return {"success": True}
+
+
+
+
+
+# ----------------------------------
+# GET: Muestra plantilla para editar tabla de un dia
+# ----------------------------------
+
+@router.get("/edit-assignments/{day_id}", response_class=HTMLResponse)
+def view_edit_assignments(
+    day_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    templates = get_templates(request)
+
+    # Buscar el día y su grupo
+    day = (
+        db.query(models.GroupDay)
+        .join(models.Group)
+        .filter(models.GroupDay.id == day_id)
+        .first()
+    )
+
+    if not day:
+        return templates.TemplateResponse("grupo_no_encontrado.html", {"request": request})
+
+    group = day.group
+
+    # Verificar que el usuario sea miembro del grupo
+    miembro = db.query(models.GroupMember).filter_by(
+        group_id=group.id,
+        user_id=current_user.id
+    ).first()
+
+    if not miembro:
+        raise HTTPException(status_code=403, detail="No autorizado")
+
+    # Obtener las asignaciones actuales
+    assignments = db.query(models.GroupAssignment).filter_by(group_day_id=day.id).all()
+
+    # Obtener todos los postulantes disponibles para ese día
+    submissions = (
+        db.query(models.UserSubmission)
+        .filter(models.UserSubmission.group_day_id == day.id)
+        .order_by(models.UserSubmission.speedups.desc())  # ← orden descendente por speedups
+        .all()
+    )
+
+
+    return templates.TemplateResponse("edit_assignments.html", {
+        "request": request,
+        "day": day,
+        "group": group,
+        "assignments": assignments,
+        "submissions": submissions
+    })
+
+
+
+
+@router.post("/edit-assignments/{day_id}")
+async def save_assignments_manual(
+    day_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    
+    form = await request.form()
+
+    # Verificar que el día y grupo existan
+    day = (
+        db.query(models.GroupDay)
+        .join(models.Group)
+        .filter(models.GroupDay.id == day_id)
+        .first()
+    )
+
+    if not day:
+        raise HTTPException(status_code=404, detail="Día no encontrado")
+
+    group = day.group
+
+    # Verificar que el usuario sea miembro del grupo
+    miembro = db.query(models.GroupMember).filter_by(
+        group_id=group.id,
+        user_id=current_user.id
+    ).first()
+
+    if not miembro:
+        raise HTTPException(status_code=403, detail="No autorizado")
+
+    # Eliminar asignaciones anteriores
+    db.query(models.GroupAssignment).filter_by(group_day_id=day.id).delete()
+
+    # Obtener todas las postulaciones del día
+    postulaciones = db.query(models.UserSubmission).filter_by(group_day_id=day.id).all()
+    postulaciones_map = {p.nickname.strip(): p for p in postulaciones}
+
+    # Lista para guardar los nicknames que fueron asignados
+    asignados_nicks = []
+
+    # Recorrer todos los inputs del formulario
+    for key, nickname in form.items():
+        if not key.startswith("player_"):
+            continue
+        nickname = nickname.strip()
+        if nickname == "":
+            continue
+
+        # Buscar la postulación original
+        submission = postulaciones_map.get(nickname)
+        if not submission:
+            continue  # ignorar si no hay match
+
+        try:
+            block_index = int(key.split("_")[1])
+        except:
+            continue
+
+        # Obtener disponibilidad como string
+        slots = submission.availability
+        availability_str = ", ".join(
+            f"{s.start_time.strftime('%H:%M')}-{s.end_time.strftime('%H:%M')}" for s in slots
+        )
+
+        # Crear asignación
+        asignacion = models.GroupAssignment(
+            group_day_id=day.id,
+            hour_block=block_index,
+            nickname=submission.nickname,
+            ingame_id=submission.ingame_id,
+            alliance=submission.alliance.name if submission.alliance else "---",
+            speedups=submission.speedups,
+            availability_str=availability_str
+        )
+
+        db.add(asignacion)
+        asignados_nicks.append(submission.nickname.strip())
+
+    # 🔥 Eliminar de GroupUnassigned a los que ahora están asignados
+    if asignados_nicks:
+        db.query(models.GroupUnassigned).filter(
+            models.GroupUnassigned.group_day_id == day.id,
+            models.GroupUnassigned.nickname.in_(asignados_nicks)
+        ).delete(synchronize_session=False)
+
+    db.commit()
+
+    return RedirectResponse(url=f"/groups/view/{group.group_code}", status_code=303)
