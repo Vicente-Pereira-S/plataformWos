@@ -233,6 +233,21 @@ def view_group(
         "assignments_by_day": assignments_by_day,
         "no_asignados_by_day": no_asignados_by_day
     })
+    
+    
+@router.post("/toggle-recepcion")
+def toggle_recepcion(data: dict, db: Session = Depends(get_db)):
+    group_code = data.get("group_code")
+    is_open = data.get("is_open")
+
+    group = db.query(models.Group).filter_by(group_code=group_code).first()
+    if not group:
+        return JSONResponse(status_code=404, content={"success": False, "message": "Grupo no encontrado"})
+
+    group.is_open = is_open
+    db.commit()
+    return {"success": True}
+
 
 
 

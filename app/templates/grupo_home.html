@@ -66,11 +66,40 @@
     </div>
 
 
-    <button class="btn btn-outline-primary btn-sm my-3" data-bs-toggle="modal" data-bs-target="#modalLinkCita">
-        <i class="bi bi-link-45deg me-1"></i> Obtener link de postulación
-    </button>
-    
 
+    <!-- Abrir/Cerrar postulaciones -->
+    <div class="py-4 border-bottom">
+        <div class="icon-toggle p-3 {% if group.is_open %}active{% else %}inactive{% endif %}" id="iconToggle" style="max-width: 700px;">
+            <div class="d-flex align-items-center">
+                <div class="toggle-icon {% if group.is_open %}active{% else %}inactive{% endif %} me-3" id="toggleIcon">
+                    <i class="bi {% if group.is_open %}bi-check-circle{% else %}bi-x-circle{% endif %}"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="mb-1" style="color: black;">{{ _('Recepción de Postulaciones') }}</h5>
+                    <p class="mb-0 text-muted" id="statusText">
+                        {% if group.is_open %}
+                            Las postulaciones están abiertas. Comparte el link para recibir la información.
+                        {% else %}
+                            Las postulaciones están cerradas. Haz clic para abrir.
+                        {% endif %}
+                    </p>
+                </div>
+                <!-- Switch oculto pero funcional -->
+                <div class="form-check form-switch d-none">
+                    <input class="form-check-input" type="checkbox" id="switchRecepcion"
+                           {% if group.is_open %}checked{% endif %}
+                           onchange="toggleRecepcion('{{ group.group_code }}', this.checked)">
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón de link, visible solo si está activa -->
+        <div id="linkPostulacionSection" class="{% if not group.is_open %}d-none{% endif %}">
+            <button class="btn btn-outline-primary btn-sm mt-3" data-bs-toggle="modal" data-bs-target="#modalLinkCita">
+                <i class="bi bi-link-45deg me-1"></i> Obtener link de postulación
+            </button>
+        </div>
+    </div>
     
     <!-- Cuerpo del grupo -->
 
@@ -208,7 +237,7 @@
                     class="ms-2" 
                     data-bs-toggle="tooltip" 
                     data-bs-placement="right" 
-                    title="Genera un horario con los 48 mejores solicitudes">
+                    title="Genera un horario con las 48 mejores solicitudes">
                     <i class="bi bi-question-circle-fill"></i>
                 </span>
 
@@ -713,111 +742,114 @@
         const container = document.getElementById("groupSettingsData");
         const alliancesData = JSON.parse(container.dataset.alliances || "[]");
         const daysData = JSON.parse(container.dataset.days || "[]");
+        document.getElementById('ajustesModal')
+            .addEventListener('show.bs.modal', () => initGrupoSettingsEdit(alliancesData, daysData));
 
-        const ajustesModal = document.getElementById('ajustesModal');
-        ajustesModal.addEventListener('show.bs.modal', () => {
-            initGrupoSettingsEdit(alliancesData, daysData);
+        document.getElementById('iconToggle').addEventListener('click', () => {
+            const switchElement = document.getElementById('switchRecepcion');
+            const iconToggle = document.getElementById('iconToggle');
+            const toggleIcon = document.getElementById('toggleIcon');
+            const statusText = document.getElementById('statusText');
+            const linkSection = document.getElementById('linkPostulacionSection');
+
+            switchElement.checked = !switchElement.checked;
+            const isOpen = switchElement.checked;
+
+            iconToggle.classList.toggle('active', isOpen);
+            iconToggle.classList.toggle('inactive', !isOpen);
+            toggleIcon.classList.toggle('active', isOpen);
+            toggleIcon.classList.toggle('inactive', !isOpen);
+            toggleIcon.innerHTML = `<i class="bi ${isOpen ? 'bi-check-circle' : 'bi-x-circle'}"></i>`;
+            statusText.textContent = isOpen
+                ? 'Las postulaciones están abiertas. Comparte el link para recibir la información.'
+                : 'Las postulaciones están cerradas. Haz clic para abrir.';
+            linkSection.classList.toggle('d-none', !isOpen);
+
+            switchElement.dispatchEvent(new Event('change'));
         });
     });
-</script>
 
-<script>
     function copiarLink() {
         const input = document.getElementById("linkPostulacionInput");
         input.select();
-        input.setSelectionRange(0, 99999); // Para móviles
+        input.setSelectionRange(0, 99999);
         document.execCommand("copy");
-
-        // Feedback visual (puedes cambiarlo a toast si prefieres)
         alert("Link copiado al portapapeles ✅");
     }
-</script>
 
-<script>
     function toggleLimits(dayId) {
-    const switchInput = document.getElementById(`switchLimite-${dayId}`);
-    const container = document.getElementById(`limitesContainer-${dayId}`);
-    if (switchInput.checked) {
-        container.classList.remove("d-none");
-    } else {
-        container.classList.add("d-none");
+        const switchInput = document.getElementById(`switchLimite-${dayId}`);
+        const container = document.getElementById(`limitesContainer-${dayId}`);
+        container.classList.toggle("d-none", !switchInput.checked);
     }
-}
 
-// Cuando cambia un selector de cupos
-function handleLimitChange(dayId) {
-    const selects = document.querySelectorAll(`#limitesContainer-${dayId} .limit-selector`);
-    let total = 0;
+    function handleLimitChange(dayId) {
+        const selects = document.querySelectorAll(`#limitesContainer-${dayId} .limit-selector`);
+        let total = 0;
 
-    // Recontar total de cupos fijos definidos
-    selects.forEach(select => {
-        const val = parseInt(select.value);
-        if (!isNaN(val) && val > 0) {
-            total += val;
+        selects.forEach(select => {
+            const val = parseInt(select.value);
+            if (!isNaN(val) && val > 0) total += val;
+        });
+
+        const remaining = 48 - total;
+        if (remaining < 0) {
+            alert("⚠️ No puedes asignar más de 48 cupos en total.");
+            return;
         }
-    });
 
-    const remaining = 48 - total;
+        selects.forEach(select => {
+            const currentValue = parseInt(select.value);
+            const max = isNaN(currentValue) || currentValue <= 0 ? remaining : remaining + currentValue;
+            select.innerHTML = "";
 
-    // Evitar asignaciones que sobrepasen 48
-    if (remaining < 0) {
-        alert("⚠️ No puedes asignar más de 48 cupos en total.");
-        return;
-    }
-
-    // Actualizar selects restantes (máximo permitido dinámico)
-    selects.forEach(select => {
-        const currentValue = parseInt(select.value);
-        const currentOptions = Array.from(select.options);
-
-        // Limpiar y reconstruir opciones
-        select.innerHTML = "";
-
-        // Sin límite
-        const optBlank = document.createElement("option");
-        optBlank.value = "";
-        optBlank.textContent = "Sin límite";
-        select.appendChild(optBlank);
-            
-        // Opción para excluir
-        const opt0 = document.createElement("option");
-        opt0.value = "0";
-        opt0.textContent = "🚫 Excluir esta alianza";
-        select.appendChild(opt0);
-
-
-        // Crear nuevas opciones dinámicas
-        const max = (isNaN(currentValue) || currentValue <= 0) ? remaining : remaining + currentValue;
-        for (let i = 1; i <= Math.min(max, 48); i++) {
-            const opt = document.createElement("option");
-            opt.value = i;
-            opt.textContent = i;
-            if (i === currentValue) {
-                opt.selected = true;
+            const options = [
+                { value: "", text: "Sin límite" },
+                { value: "0", text: "🚫 Excluir esta alianza" }
+            ];
+            for (let i = 1; i <= Math.min(max, 48); i++) {
+                options.push({ value: `${i}`, text: `${i}` });
             }
-            select.appendChild(opt);
-        }
 
-        // Restaurar selección si era 0 o sin límite
-        if (currentValue === 0) select.value = "0";
-        else if (isNaN(currentValue) || currentValue === "") select.value = "";
-    });
-}
-</script>
-<script>
+            options.forEach(opt => {
+                const option = document.createElement("option");
+                option.value = opt.value;
+                option.textContent = opt.text;
+                if (parseInt(opt.value) === currentValue) option.selected = true;
+                select.appendChild(option);
+            });
+
+            if (currentValue === 0) select.value = "0";
+            else if (isNaN(currentValue) || currentValue === "") select.value = "";
+        });
+    }
+
     function confirmarGuardarAsignaciones(button) {
         const dayId = button.getAttribute("data-day-id");
         const hasAssignments = button.getAttribute("data-has-assignments") === "true";
 
         if (hasAssignments) {
-            // Mostrar modal de confirmación
-            const confirmModal = new bootstrap.Modal(document.getElementById(`confirmModal-${dayId}`));
-            confirmModal.show();
+            new bootstrap.Modal(document.getElementById(`confirmModal-${dayId}`)).show();
         } else {
-            // Guardar directamente
             guardarAsignaciones(dayId, false);
         }
     }
 
+    function toggleRecepcion(groupCode, isOpen) {
+        fetch(`/groups/toggle-recepcion`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ group_code: groupCode, is_open: isOpen })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("linkPostulacionSection")
+                    .classList.toggle("d-none", !isOpen);
+            } else {
+                alert("Error al actualizar el estado");
+            }
+        });
+    }
 </script>
 {% endblock %}

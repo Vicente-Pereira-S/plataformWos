@@ -29,6 +29,7 @@ class Group(Base):
     state_number = Column(Integer, nullable=False)
     group_code = Column(String, unique=True, nullable=False)
     creator_id = Column(Integer, ForeignKey("users.id"))
+    is_open = Column(Boolean, default=False)
 
     creator = relationship("User", backref="created_groups")
     members = relationship("GroupMember", back_populates="group", cascade="all, delete-orphan")
@@ -83,9 +84,9 @@ class GroupDay(Base):
 
 
 
-# ------------------------------
+# --------------------------------------
 # MODELO DE ENVÍO ANÓNIMO DE INFORMACIÓN
-# ------------------------------
+# --------------------------------------
 class UserSubmission(Base):
     __tablename__ = "user_submissions"
 
@@ -95,6 +96,7 @@ class UserSubmission(Base):
     nickname = Column(String, nullable=False)
     ingame_id = Column(String, nullable=True)
     speedups = Column(Integer, nullable=False)
+    submitted_at = Column(DateTime(timezone=True), server_default=func.now())
 
     group_day = relationship("GroupDay", back_populates="submissions")
     alliance = relationship("Alliance", back_populates="submissions")

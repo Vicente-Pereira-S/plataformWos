@@ -9,7 +9,7 @@
         </a>
     </div>
     
-    <h3 class="mb-3">📝 {{ _('Postulaciones para ') }} {{ day.name }}</h3>
+    <h3 class="py-3">📝 {{ _('Postulaciones para ') }} {{ day.name }}</h3>
 
     <div class="d-flex mb-2">
         <button id="btnToggleEditMode" class="btn btn-outline-primary btn-sm">
@@ -38,6 +38,7 @@
                     <th>ID (in-game)</th>
                     <th>Speedups (días)</th>
                     <th>Citas deseables</th>
+                    <th>Fecha de envío (UTC)</th>
                 </tr>
             </thead>
             <tbody class="text-center">
@@ -59,6 +60,7 @@
                             {% if not loop.last %}, {% endif %}
                         {% endfor %}
                     </td>
+                    <td>{{ sub.submitted_at.strftime("%H:%M:%S %d-%m-%Y") }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
