@@ -242,71 +242,14 @@ body[data-theme="dark"] .custom-thead th {
 /* -------------------------------------------------
    CSS Boton recepcion grupo_home
 -------------------------------------------------- */
-.icon-toggle {
-    border: 2px solid #e9ecef;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    background: white;
-}
 
-.icon-toggle:hover {
-    transform: scale(1.02);
-}
-
-.icon-toggle.active {
+#recepcionBox.active {
+    background-color: #d4edda;
     border-color: #198754;
-    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
 }
 
-.icon-toggle.inactive {
+#recepcionBox.inactive {
+    background-color: #f8d7da;
     border-color: #dc3545;
-    background: linear-gradient(135deg, #f8d7da 0%, #f1aeb5 100%);
-}
-
-.toggle-icon {
-    width: 50px;
-    height: 50px;
-    min-width: 50px;
-    min-height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    transition: all 0.3s ease;
-    flex-shrink: 0;
-}
-
-.toggle-icon.active {
-    background: #198754;
-    color: white;
-}
-
-.toggle-icon.inactive {
-    background: #dc3545;
-    color: white;
-}
-
-.link-button {
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    border: none;
-    border-radius: 8px;
-    color: white;
-    padding: 10px 20px;
-    transition: all 0.3s ease;
-    transform: translateY(10px);
-    opacity: 0;
-}
-
-.link-button.show {
-    transform: translateY(0);
-    opacity: 1;
-}
-
-.link-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-    color: white;
 }
 

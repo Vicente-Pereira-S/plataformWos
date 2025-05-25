@@ -94,7 +94,7 @@ class UserSubmission(Base):
     group_day_id = Column(Integer, ForeignKey("group_days.id"))
     alliance_id = Column(Integer, ForeignKey("alliances.id"))
     nickname = Column(String, nullable=False)
-    ingame_id = Column(String, nullable=True)
+    ingame_id = Column(Integer, nullable=True)
     speedups = Column(Integer, nullable=False)
     submitted_at = Column(DateTime(timezone=True), server_default=func.now())
 

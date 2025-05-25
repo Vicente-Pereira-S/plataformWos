@@ -7,13 +7,18 @@
     <form id="groupForm">
         <div class="card mb-4 shadow-sm">
             <div class="card-header">
-                <h5 class="card-title mb-0">{{ _('Información del usuario') }}</h5>
+                <h5 class="card-title mb-0">{{ _('Tu información') }}</h5>
             </div>
             <div class="card-body">
+                <p class="text-danger fw-bold mb-3">
+                    {{ _('Los campos marcados con') }} <span class="text-danger">*</span> {{ _('son obligatorios.') }}
+                </p>
 
                 <!-- Seleccion de alianza -->
                 <div class="mb-3">
-                    <label for="alliance" class="form-label">{{ _('Alianza') }}</label>
+                    <label for="alliance" class="form-label" data-bs-toggle="tooltip" title="{{ _('Campo obligatorio') }}">
+                        {{ _('Alianza') }} <span class="text-danger">*</span>
+                    </label>
                     <select id="alliance" name="alliance" class="form-select" required>
                         <option value="">{{ _('Seleccione una alianza') }}</option>
                         {% for a in alliances %}
@@ -24,14 +29,18 @@
 
                 <!-- Nombre in-game -->
                 <div class="mb-3">
-                    <label for="userName" class="form-label">{{ _('Tu nombre en el juego') }}</label>
+                    <label for="userName" class="form-label" data-bs-toggle="tooltip" title="{{ _('Campo obligatorio') }}">
+                        {{ _('Tu nombre en el juego') }} <span class="text-danger">*</span>
+                    </label>
                     <input type="text" class="form-control" id="userName" name="userName" required>
                 </div>
 
                 <!-- ID in-game de la persona -->
                 <div class="mb-3">
-                    <label for="userID" class="form-label">{{ _('Tu ID del juego (opcional)') }}</label>
-                    <input type="text" class="form-control" id="userID" name="userID">
+                    <label for="userID" class="form-label">
+                        {{ _('Tu ID del juego (ayuda a identificarte mejor)') }}
+                    </label>
+                    <input type="number" class="form-control" id="userID" name="userID" min="0" step="1">
                 </div>
 
                 <!-- Seleccion de cuantos dias va a querer -->
@@ -57,11 +66,20 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
-                        <label for="speedups-day{{ day.id }}" class="form-label">{{ _('Cantidad de speedups en ') }}<strong>{{ _('DÍAS') }}</strong> {{ _('para') }} {{ day.name }}:</label>
+                        <label for="speedups-day{{ day.id }}" class="form-label" data-bs-toggle="tooltip" title="{{ _('Campo obligatorio') }}">
+                            {{ _('Cantidad de aceleraciones en ') }}<strong>{{ _('DÍAS') }}</strong> {{ _('para') }} {{ day.name }} <span class="text-danger">*</span>
+                        </label>
                         <input type="number" class="form-control" id="speedups-day{{ day.id }}" name="speedups-day{{ day.id }}" min="0" required disabled>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">{{ _('Selecciona los horarios en que estás disponible (UTC)') }}</label>
+                        <label class="form-label" data-bs-toggle="tooltip" title="{{ _('Campo obligatorio') }}">
+                            {{ _('Selecciona los horarios en que estás disponible (UTC)') }} <span class="text-danger">*</span>
+                        </label>
+                        <div class="mb-2 text-info small">
+                            💡 <strong>{{ _('Consejo: ') }}</strong>{{ _('Ingresa la mayor cantidad de horas que tengas disponibles. Cuanto más amplio sea tu rango, más fácil será asignarte correctamente.') }}
+                        </div>                        
+
+
                         <div id="intervals-day{{ day.id }}">
                             <div class="interval-container mt-1">
                                 <select class="form-select form-select-sm d-inline w-auto" name="start-day{{ day.id }}-interval1" required disabled></select>
@@ -78,12 +96,14 @@
             {% endfor %}
         </div>
 
-
         <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" id="confirmCheckbox">
+            <input class="form-check-input" type="checkbox" id="confirmCheckbox" required>
             <label class="form-check-label" for="confirmCheckbox">
-                {{ _('Confirmo que ingresé correctamente los datos') }}
+                {{ _('Confirmo que ingresé correctamente los datos') }} <span class="text-danger">*</span>
             </label>
+            <div class="invalid-feedback">
+                {{ _('Debes confirmar antes de enviar.') }}
+            </div>
         </div>
 
         <div class="d-grid gap-2 mt-4">
@@ -97,6 +117,11 @@
 <script src="{{ url_for('static', path='js/enviar_disponibilidad.js') }}"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
+        // Tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.forEach(t => new bootstrap.Tooltip(t));
+
+        // Confirm checkbox
         const checkbox = document.getElementById("confirmCheckbox");
         const submitBtn = document.getElementById("submitButton");
 
@@ -113,7 +138,6 @@
         });
     });
 </script>
-
 
 <style>
     .day-container {

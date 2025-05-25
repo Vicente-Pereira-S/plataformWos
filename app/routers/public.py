@@ -73,7 +73,8 @@ async def submit_availability(request: Request, db: Session = Depends(get_db)):
 
     try:
         nickname = data["nickname"]
-        ingame_id = data.get("ingame_id")
+        ingame_id_raw = data.get("ingame_id")
+        ingame_id = int(ingame_id_raw) if ingame_id_raw not in (None, "", "null") else None
         alliance_id = int(data["alliance_id"])
         submissions = data["submissions"]
 
