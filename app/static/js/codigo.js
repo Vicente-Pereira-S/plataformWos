@@ -217,7 +217,7 @@ function renderDayFields(count, existingDays = []) {
     const container = document.getElementById('daysContainer');
     container.innerHTML = '';
 
-    const dayRegex = /^[\p{L}0-9 ]{1,20}$/u;
+    const dayRegex = /^[\p{L}0-9 ]{1,35}$/u;
 
     if (isNaN(count) || count < 1) {
         updateConfirmButton();
@@ -244,7 +244,7 @@ function renderDayFields(count, existingDays = []) {
         input.type = 'text';
         input.className = 'form-control day-field';
         input.placeholder = `${myMsg.dataset.day} ${day_ex[i]}`;
-        input.maxLength = 20;
+        input.maxLength = 35;
         input.required = true;
         input.name = `day_${i}`;
 

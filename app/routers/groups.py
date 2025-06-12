@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 def validar_nombre_dia(nombre: str) -> bool:
-    if len(nombre) > 20 or len(nombre.strip()) == 0:
+    if len(nombre) >35 or len(nombre.strip()) == 0:
         return False
     for char in nombre:
         if not (char.isalnum() or char.isspace()):
@@ -294,7 +294,7 @@ async def update_group_settings(
     # Validar y guardar nuevos días
     for i in range(1, num_days + 1):
         day_name = form.get(f"day_{i}", "").strip()
-        if len(day_name) == 0 or len(day_name) > 20 or not all(c.isalnum() or c.isspace() for c in day_name):
+        if len(day_name) == 0 or len(day_name) > 35 or not all(c.isalnum() or c.isspace() for c in day_name):
             return RedirectResponse(f"/groups/view/{group.group_code}")
         db.add(models.GroupDay(group_id=group.id, name=day_name))
 
