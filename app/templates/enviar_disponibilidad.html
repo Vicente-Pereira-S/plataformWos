@@ -2,25 +2,25 @@
 
 {% block content %}
 <div class="container py-4" style="max-width: 800px;">
-    <h2 class="text-center mb-4">{{ _('Citas del estado ') }}{{ group.state_number }}</h2>
+    <h2 class="text-center mb-4">{{ _('State ') }}{{ group.state_number }}{{ _(' appointments') }}</h2>
 
     <form id="groupForm">
         <div class="card mb-4 shadow-sm">
             <div class="card-header">
-                <h5 class="card-title mb-0">{{ _('Tu información') }}</h5>
+                <h5 class="card-title mb-0">{{ _('Your information') }}</h5>
             </div>
             <div class="card-body">
                 <p class="text-danger fw-bold mb-3">
-                    {{ _('Los campos marcados con') }} <span class="text-danger">*</span> {{ _('son obligatorios.') }}
+                    {{ _('Fields marked with an asterisk') }} <span class="text-danger">(*)</span> {{ _('are mandatory.') }}
                 </p>
 
                 <!-- Seleccion de alianza -->
                 <div class="mb-3">
                     <label for="alliance" class="form-label" data-bs-toggle="tooltip" title="{{ _('Campo obligatorio') }}">
-                        {{ _('Alianza') }} <span class="text-danger">*</span>
+                        {{ _('Alliance') }} <span class="text-danger">*</span>
                     </label>
                     <select id="alliance" name="alliance" class="form-select" required>
-                        <option value="">{{ _('Seleccione una alianza') }}</option>
+                        <option value="">{{ _('Select an alliance') }}</option>
                         {% for a in alliances %}
                         <option value="{{ a.id }}">[{{ a.name }}]</option>
                         {% endfor %}
@@ -30,22 +30,25 @@
                 <!-- Nombre in-game -->
                 <div class="mb-3">
                     <label for="userName" class="form-label" data-bs-toggle="tooltip" title="{{ _('Campo obligatorio') }}">
-                        {{ _('Tu nombre en el juego') }} <span class="text-danger">*</span>
+                        {{ _('In game name') }} <span class="text-danger">*</span>
                     </label>
                     <input type="text" class="form-control" id="userName" name="userName" required>
+                    <div class="invalid-feedback">
+                        {{ _('Ingresar un nombre válido.') }}
+                    </div>
                 </div>
 
                 <!-- ID in-game de la persona -->
                 <div class="mb-3">
                     <label for="userID" class="form-label">
-                        {{ _('Tu ID del juego (ayuda a identificarte mejor)') }}
+                        {{ _('ID number (to help with identification) ') }}
                     </label>
                     <input type="number" class="form-control" id="userID" name="userID" min="0" step="1">
                 </div>
 
                 <!-- Seleccion de cuantos dias va a querer -->
                 <div class="mb-3">
-                    <label class="form-label">{{ _('Seleccione los días que necesitas:') }}</label>
+                    <label class="form-label">{{ _('Select the day(s) needed:') }}</label>
                     <div id="daySelections">
                         {% for day in days %}
                         <div class="form-check form-switch mb-2">
@@ -67,16 +70,16 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <label for="speedups-day{{ day.id }}" class="form-label" data-bs-toggle="tooltip" title="{{ _('Campo obligatorio') }}">
-                            {{ _('Cantidad de aceleraciones en ') }}<strong>{{ _('DÍAS') }}</strong> {{ _('para') }} {{ day.name }} <span class="text-danger">*</span>
+                            {{ _('Mount of speedups ') }}<strong>{{ _('(days)') }}</strong> {{ _('for') }} {{ day.name }} <span class="text-danger">*</span>
                         </label>
                         <input type="number" class="form-control" id="speedups-day{{ day.id }}" name="speedups-day{{ day.id }}" min="0" required disabled>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" data-bs-toggle="tooltip" title="{{ _('Campo obligatorio') }}">
-                            {{ _('Selecciona los horarios en que estás disponible (UTC)') }} <span class="text-danger">*</span>
+                            {{ _('Select the period(s) of time of your availability (UTC)') }} <span class="text-danger">*</span>
                         </label>
                         <div class="mb-2 text-info small">
-                            💡 <strong>{{ _('Consejo: ') }}</strong>{{ _('Ingresa la mayor cantidad de horas que tengas disponibles. Cuanto más amplio sea tu rango, más fácil será asignarte correctamente.') }}
+                            💡 <strong>{{ _('Tip: ') }}</strong>{{ _('Select multiple time periods or a longer timeframe to make the assignation process easier.') }}
                         </div>                        
 
 
@@ -85,10 +88,10 @@
                                 <select class="form-select form-select-sm d-inline w-auto" name="start-day{{ day.id }}-interval1" required disabled></select>
                                 <span class="mx-1">-</span>
                                 <select class="form-select form-select-sm d-inline w-auto" name="end-day{{ day.id }}-interval1" required disabled></select>
-                                <button type="button" class="btn btn-sm btn-danger ms-2 remove-btn" onclick="removeInterval(this)" disabled>{{ _('Eliminar') }}</button>
+                                <button type="button" class="btn btn-sm btn-danger ms-2 remove-btn" onclick="removeInterval(this)" disabled>{{ _('Delete') }}</button>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="addInterval('day{{ day.id }}')" id="addInterval-day{{ day.id }}" disabled>Añadir intervalo</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm mt-2" onclick="addInterval('day{{ day.id }}')" id="addInterval-day{{ day.id }}" disabled>Add time period</button>
                         <input type="hidden" id="intervalCount-day{{ day.id }}" value="1">
                     </div>
                 </div>
@@ -99,15 +102,15 @@
         <div class="form-check mb-3">
             <input class="form-check-input" type="checkbox" id="confirmCheckbox" required>
             <label class="form-check-label" for="confirmCheckbox">
-                {{ _('Confirmo que ingresé correctamente los datos') }} <span class="text-danger">*</span>
+                {{ _('I confirm the information below is accurate') }} <span class="text-danger">*</span>
             </label>
             <div class="invalid-feedback">
-                {{ _('Debes confirmar antes de enviar.') }}
+                {{ _('You must confirm before sending.') }}
             </div>
         </div>
 
         <div class="d-grid gap-2 mt-4">
-            <button type="submit" class="btn btn-primary" id="submitButton" disabled>{{ _('Enviar información') }}</button>
+            <button type="submit" class="btn btn-primary" id="submitButton" disabled>{{ _('Send') }}</button>
         </div>
     </form>
 </div>
@@ -138,6 +141,25 @@
         });
     });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const usernameInput = document.getElementById("userName");
+
+        usernameInput.addEventListener("input", () => {
+            const trimmed = usernameInput.value.trim();
+            const isValid = trimmed.length >= 3;
+
+            if (isValid) {
+                usernameInput.classList.remove("is-invalid");
+                usernameInput.classList.add("is-valid");
+            } else {
+                usernameInput.classList.remove("is-valid");
+                usernameInput.classList.add("is-invalid");
+            }
+        });
+    });
+</script>
+
 
 <style>
     .day-container {
