@@ -14,7 +14,7 @@ window.addInterval = function(dayId) {
         <select class="form-select form-select-sm d-inline w-auto" name="start-${dayId}-interval${count}" required></select>
         <span class="mx-1">-</span>
         <select class="form-select form-select-sm d-inline w-auto" name="end-${dayId}-interval${count}" required></select>
-        <button type="button" class="btn btn-sm btn-danger ms-2 remove-btn" onclick="removeInterval(this)">Eliminar</button>
+        <button type="button" class="btn btn-sm btn-danger ms-2 remove-btn" onclick="removeInterval(this)">Delete</button>
     `;
     container.appendChild(div);
 
